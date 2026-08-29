@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}LegacyTrace | Vault Sign In{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+  }
+
+  .auth-card {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 24px;
+    padding: clamp(1.75rem, 5vw, 2.5rem);
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 16px 40px rgba(10, 25, 47, 0.1);
+    position: relative;
+  }
+
+  /* Sleek Back to Home Navigation */
+  .btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: var(--accent-ice-blue);
+    border: 1px solid var(--accent-light-cyan);
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-back-home:hover {
+    color: var(--primary-deep-navy);
+    background: #E0F2FE;
+    border-color: var(--accent-cyan);
+    transform: translateX(-3px);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-shield-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--gradient-btn);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.35);
+    margin-bottom: 1rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--primary-deep-navy);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .auth-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.5px;
+  }
+
+  .auth-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--text-dark);
+    outline: none;
+    background: #FAFAFA;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .auth-input:focus {
+    border-color: var(--secondary-sea-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  }
+
+  .btn-auth-submit {
+    background: var(--gradient-btn);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.95rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    width: 100%;
+    cursor: pointer;
+    min-height: 48px;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-top: 0.5rem;
+  }
+
+  .btn-auth-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+  }
+
+  .auth-error-banner {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .auth-footer-help {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--accent-ice-blue);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .auth-footer-help a {
+    color: var(--secondary-sea-blue);
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <!-- Sleek Back to Home Pill Button -->
+    <a href="{% url 'vault:home' %}" class="btn-back-home">
+      <span>←</span> Back to Home
+    </a>
+
+    <div class="auth-header">
+      <div class="auth-shield-icon">🔐</div>
+      <h1 class="auth-title">Access Vault</h1>
+      <p class="auth-sub">Sign in to manage policies, wills, and family assets</p>
+    </div>
+
+    {% if form.errors %}
+      <div class="auth-error-banner">
+        ⚠️ Invalid username or password. Please verify your credentials.
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
+
+      <div class="form-group">
+        <label class="form-label" for="id_username">Username / Ghana Card</label>
+        <input 
+          type="text" 
+          name="username" 
+          id="id_username" 
+          class="auth-input" 
+          placeholder="Enter username" 
+          required 
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_password">Vault Passcode / Password</label>
+        <input 
+          type="password" 
+          name="password" 
+          id="id_password" 
+          class="auth-input" 
+          placeholder="••••••••" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn-auth-submit">Unlock My Vault ⚡</button>
+    </form>
+
+    <div class="auth-footer-help">
+      <span>Don't have a vault yet? </span>
+      <a href="{% url 'vault:signup' %}">Create Account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+:root {
+  /* Oceanic & Cyan Color Palette */
+  --primary-deep-navy: #0A192F;
+  --secondary-sea-blue: #0284C7;
+  --accent-cyan: #06B6D4;
+  --accent-light-cyan: #E0F2FE;
+  --accent-ice-blue: #F0F9FF;
+  --surface-card: #FFFFFF;
+  --text-dark: #0F172A;
+  --text-muted: #64748B;
+  
+  /* Gradients */
+  --gradient-oceanic: linear-gradient(135deg, #0A192F 0%, #0369A1 50%, #06B6D4 100%);
+  --gradient-hero: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 100%);
+  --gradient-btn: linear-gradient(90deg, #0284C7 0%, #06B6D4 100%);
+  --gradient-card: linear-gradient(145deg, #FFFFFF 0%, #F0F9FF 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--accent-ice-blue);
+  color: var(--text-dark);
+  min-height: 100vh;
+}

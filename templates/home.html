@@ -1,0 +1,2562 @@
+{% extends 'base.html' %}
+
+{% block title %}LegacyTrace | National Insurance & Estate Discovery Vault{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ----------------------------------------------------
+     Hero & Primary Showcase
+  ---------------------------------------------------- */
+  .hero-showcase {
+    background: var(--gradient-oceanic);
+    border-radius: 24px;
+    padding: clamp(1.75rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2.5rem);
+    color: #ffffff;
+    box-shadow: 0 16px 40px rgba(10, 25, 47, 0.3);
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  @media (max-width: 860px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+
+  .brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 1rem;
+  }
+
+  .hero-headline {
+    font-size: clamp(1.85rem, 5vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-headline span {
+    background: linear-gradient(90deg, #38BDF8, #06B6D4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subhead {
+    font-size: clamp(0.92rem, 2.5vw, 1.05rem);
+    color: var(--accent-light-cyan);
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-visual-frame {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    border: 2px solid rgba(6, 182, 212, 0.4);
+    background: #0b1f3a;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 600px) {
+    .hero-img {
+      height: 220px;
+    }
+  }
+
+  .visual-overlay-tag {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    background: rgba(10, 25, 47, 0.88);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .visual-tag-icon {
+    font-size: 1.2rem;
+  }
+
+  .visual-tag-text {
+    font-size: 0.8rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .visual-tag-sub {
+    font-size: 0.7rem;
+    color: var(--accent-light-cyan);
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-vault-primary {
+    background: var(--gradient-btn);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    flex: 1 1 auto;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-vault-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  }
+
+  /* Registry Search Bar */
+  .registry-search-bar {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid rgba(6, 182, 212, 0.4);
+    border-radius: 14px;
+    padding: 6px;
+    display: flex;
+    gap: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  }
+
+  .registry-search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.75rem 0.85rem;
+    font-size: 16px;
+    color: var(--text-dark);
+    font-weight: 500;
+    min-width: 0;
+    background: transparent;
+  }
+
+  .registry-search-bar button {
+    background: var(--primary-deep-navy);
+    color: var(--accent-cyan);
+    border: 1px solid var(--accent-cyan);
+    border-radius: 8px;
+    padding: 0 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    min-height: 44px;
+    transition: all 0.2s ease;
+  }
+
+  .registry-search-bar button:hover {
+    background: var(--secondary-sea-blue);
+    color: #ffffff;
+  }
+
+  /* Ghana Card Search Validation Feedback */
+  .registry-search-bar.search-valid {
+    border-color: #10B981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25), 0 6px 20px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  .registry-search-bar.search-invalid {
+    border-color: #EF4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25), 0 6px 20px rgba(0, 0, 0, 0.18) !important;
+    animation: searchShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes searchShake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  /* Empty / Invalid Search Immediate Feedback Alert */
+  .search-empty-alert {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.18);
+    border: 1px solid #EF4444;
+    color: #FCA5A5;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 10px;
+    margin-top: 0.65rem;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.2);
+    animation: alertSlideDown 0.25s ease forwards;
+  }
+
+  /* Inline "X" Clear Search Element */
+  .btn-search-clear {
+    background: rgba(100, 116, 139, 0.15);
+    border: none;
+    color: #64748B;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    align-self: center;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .btn-search-clear:hover {
+    background: #EF4444;
+    color: #ffffff;
+    transform: scale(1.08);
+  }
+
+  .btn-search-clear.visible {
+    display: inline-flex;
+  }
+
+  /* Close Search Results Header Pill */
+  .btn-reset-view {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-reset-view:hover {
+    background: #EF4444;
+    color: #ffffff;
+  }
+
+  /* ----------------------------------------------------
+     Classified Encrypted Vault Search Card (Cyber Aesthetic)
+  ---------------------------------------------------- */
+  .classified-card {
+    background: radial-gradient(circle at 10% 20%, #07162c 0%, #020c1b 100%);
+    border: 1.5px solid rgba(6, 182, 212, 0.45);
+    border-radius: 20px;
+    padding: 1.6rem;
+    color: #ffffff;
+    box-shadow: 0 16px 36px rgba(2, 12, 27, 0.5), inset 0 0 20px rgba(6, 182, 212, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .classified-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10B981, #06B6D4, #38BDF8, #10B981);
+    background-size: 200% 100%;
+    animation: cyberScanline 3s linear infinite;
+  }
+
+  @keyframes cyberScanline {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .cyber-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(6, 182, 212, 0.25);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.1rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cyber-badge-classified {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.6);
+    color: #F87171;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cyber-badge-classified::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #EF4444;
+    box-shadow: 0 0 8px #EF4444;
+    animation: livePulse 1s infinite;
+  }
+
+  .cyber-pill-encrypted {
+    background: rgba(6, 182, 212, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cyber-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #64748B;
+    font-weight: 800;
+  }
+
+  .cyber-masked-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #38BDF8;
+    letter-spacing: 1.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+
+  .cyber-redacted-box {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #94A3B8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-family: monospace;
+    filter: blur(0.4px);
+  }
+
+  .btn-unlock-cyber {
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+    color: #ffffff;
+    padding: 0.85rem 1.4rem;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.88rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .btn-unlock-cyber:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+    color: #ffffff;
+  }
+
+  .search-empty-alert.active {
+    display: flex;
+  }
+
+  @keyframes alertSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .registry-search-bar {
+      flex-direction: column;
+      padding: 8px;
+    }
+    .registry-search-bar button {
+      width: 100%;
+    }
+  }
+
+  /* ----------------------------------------------------
+     Live Mission Dynamic Typing Ticker
+  ---------------------------------------------------- */
+  .typing-ticker-container {
+    text-align: center;
+    margin: -1rem auto 1.75rem;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .typing-badge-live {
+    background: #DC2626;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .typing-badge-live::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    animation: livePulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .typing-dynamic-text {
+    color: #0284c7;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    min-height: 1.4em;
+    display: inline-block;
+  }
+
+  .typing-cursor {
+    display: inline-block;
+    color: #06b6d4;
+    font-weight: 300;
+    animation: cursorBlink 0.75s infinite;
+  }
+
+  @keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ----------------------------------------------------
+     Underwriter Network Ticker Strip
+  ---------------------------------------------------- */
+  .insurer-trust-strip {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+  }
+
+  .insurer-trust-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+  }
+
+  .insurer-badges-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .insurer-pill {
+    background: var(--accent-ice-blue);
+    border: 1px solid var(--accent-light-cyan);
+    color: var(--primary-deep-navy);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+ /* ----------------------------------------------------
+     About LegacyTrace Platform Showcase
+  ---------------------------------------------------- */
+  .about-legacytrace-box {
+    background: linear-gradient(135deg, #0a192f 0%, #0f2b48 100%);
+    border: 1.5px solid rgba(6, 182, 212, 0.35);
+    border-radius: 24px;
+    padding: clamp(2rem, 5vw, 3rem);
+    color: #ffffff;
+    margin: 1rem auto 3.5rem;
+    box-shadow: 0 16px 40px rgba(10, 25, 47, 0.22);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .about-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .about-headline {
+    font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+    font-weight: 900;
+    line-height: 1.25;
+    color: #ffffff;
+    margin: 0 0 1rem;
+    letter-spacing: -0.4px;
+  }
+
+  .about-headline span {
+    color: var(--accent-cyan);
+  }
+
+  .about-lead {
+    font-size: 0.92rem;
+    color: var(--accent-light-cyan);
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+  }
+
+  .about-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .about-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(6, 182, 212, 0.18);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+
+  .about-feature-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .about-feature-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
+  }
+
+  .about-feature-desc {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 860px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+  }
+
+  /* ----------------------------------------------------
+     Standard Section Titles
+  ---------------------------------------------------- */
+  .section-tagline {
+    color: var(--secondary-sea-blue);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    text-align: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-headline {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 900;
+    color: var(--primary-deep-navy);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-description {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 580px;
+    margin: 0 auto 2.25rem;
+    line-height: 1.55;
+  }
+
+  /* ----------------------------------------------------
+     Requirement Modules Grid
+  ---------------------------------------------------- */
+  .requirements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .req-card {
+    background: #ffffff;
+    border: 1px solid rgba(2, 132, 199, 0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .req-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(10, 25, 47, 0.08);
+  }
+
+  .req-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--accent-light-cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .req-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .req-body {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 1.2rem;
+  }
+
+  .req-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-dark);
+  }
+
+  .req-bullets li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .req-bullets li::before {
+    content: "✓";
+    color: var(--secondary-sea-blue);
+    font-weight: 900;
+  }
+
+  /* ----------------------------------------------------
+     Interactive Live Vault Architecture UI Simulation
+  ---------------------------------------------------- */
+  .vault-demo-container {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3.5rem;
+    box-shadow: 0 12px 30px rgba(2, 132, 199, 0.06);
+  }
+
+  .vault-demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--accent-light-cyan);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .user-badge-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-avatar-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--gradient-oceanic);
+    color: #ffffff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .vault-grid-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .vault-cell {
+    background: var(--accent-ice-blue);
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 12px;
+    padding: 1.2rem;
+  }
+
+  .cell-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--secondary-sea-blue);
+    margin-bottom: 0.4rem;
+  }
+
+  .cell-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .cell-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ----------------------------------------------------
+     4-Step Claim & Resolution Lifecycle
+  ---------------------------------------------------- */
+  .lifecycle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .lifecycle-card {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-top: 4px solid var(--secondary-sea-blue);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+  }
+
+  .lifecycle-num {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--accent-cyan);
+    background: var(--primary-deep-navy);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .lifecycle-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .lifecycle-body {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ----------------------------------------------------
+     Governance & Administration Spotlight
+  ---------------------------------------------------- */
+  .admin-spotlight {
+    background: var(--gradient-oceanic);
+    border-radius: 20px;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    color: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+
+  .spotlight-col h3 {
+    font-size: 1.2rem;
+    color: var(--accent-cyan);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spotlight-col p {
+    font-size: 0.85rem;
+    color: var(--accent-light-cyan);
+    line-height: 1.55;
+  }
+
+  /* ----------------------------------------------------
+     Security & Data Governance Depository
+  ---------------------------------------------------- */
+  .security-governance-box {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 18px;
+    padding: 2rem;
+    margin-bottom: 3.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .security-governance-box {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .sec-item {
+    display: flex;
+    gap: 14px;
+  }
+
+  .sec-icon {
+    font-size: 1.8rem;
+    color: var(--secondary-sea-blue);
+    flex-shrink: 0;
+  }
+
+  .sec-head {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.35rem;
+  }
+
+  .sec-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ----------------------------------------------------
+     FAQ Section
+  ---------------------------------------------------- */
+  .faq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .faq-item {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .faq-q {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .faq-a {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ----------------------------------------------------
+     PWA Banner & Footer
+  ---------------------------------------------------- */
+  .pwa-chip-banner {
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .pwa-chip-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+  }
+
+  .pwa-chip-sub {
+    font-size: 0.8rem;
+    opacity: 0.95;
+  }
+
+  .badge-appstore {
+    background: var(--primary-deep-navy);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Master Hero Showcase Section -->
+<div class="hero-showcase">
+  <div class="hero-grid">
+    <div>
+      <div class="brand-pill">🛡️ LegacyTrace • Digital Legacy Vault</div>
+      <h1 class="hero-headline">Securing Generational Wealth & <span>Family Policies</span></h1>
+      <p class="hero-subhead">
+        Protect what matters most. Empower policyholders to centralize active policies, register emergency contacts, record land and property assets, and store certified digital wills.
+      </p>
+
+      <div class="hero-actions">
+        {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+          <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary">Open Private Vault 🔐</a>
+        {% elif user.is_authenticated %}
+          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Go to Dashboard ⚡</a>
+        {% else %}
+          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your Vault 🔐</a>
+        {% endif %}
+      </div>
+      <!-- Integrated Discovery Search Bar (Visible only to Guests / Logged-Out Visitors) -->
+      {% if not user.is_authenticated and not request.session.active_claimant_token %}
+        <div id="registry-search" style="margin-top: 1.25rem;">
+          <!-- Relative & Loved Ones Discovery Prompt -->
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem; color: #E0F2FE; font-size: 0.84rem; font-weight: 600; flex-wrap: wrap;">
+            <span style="background: rgba(6, 182, 212, 0.25); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Family Discovery</span>
+            <span>Searching on behalf of a relative or deceased loved one?</span>
+          </div>
+
+          <form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar" id="registry-search-form">
+            <input 
+              type="text" 
+              name="q" 
+              id="registry-search-input"
+              placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
+              value="{{ query }}"
+              autocomplete="off"
+            >
+            <!-- Instant X Reset Element (Bypasses Global Capture Loader) -->
+            <span id="search-clear-btn" role="button" tabindex="0" class="btn-search-clear {% if query %}visible{% endif %}" aria-label="Clear search" title="Clear and reset search">✕</span>
+            <button type="submit" class="btn-verify-search">Search Registry 🔍</button>
+          </form>
+
+          <!-- Immediate Empty/Invalid Search Error Message -->
+          <div id="search-empty-feedback" class="search-empty-alert" role="alert" aria-live="polite">
+            <span style="font-size: 1rem;">⚠️</span>
+            <span id="search-feedback-text">You entered nothing. Please enter your relative's Ghana Card ID to search.</span>
+          </div>
+
+          <!-- Privacy & Safety Reassurance Sub-label -->
+          <div style="margin-top: 0.5rem; font-size: 0.73rem; color: var(--accent-light-cyan); opacity: 0.9; display: flex; align-items: center; gap: 6px;">
+            <span>🔒 100% Confidential: Confirms active policy presence without publicly exposing sensitive estate values.</span>
+          </div>
+        </div>
+      {% else %}
+        <!-- Active Session Status Card in Place of Public Search Bar -->
+        <div style="margin-top: 1.25rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 14px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff;">
+              {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+                🔐 Active Claimant Dossier Session
+              {% else %}
+                👤 Logged In: {{ user.get_full_name|default:user.username }}
+              {% endif %}
+            </div>
+            <div style="font-size: 0.75rem; color: #94A3B8;">
+              National registry search is active inside your secure dashboard.
+            </div>
+          </div>
+          {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; min-height: unset; flex: 0 1 auto;">
+              Open Private Vault ➔
+            </a>
+          {% else %}
+            
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Visual Showcase Frame -->
+    <div>
+      <div class="hero-visual-frame">
+        <img 
+          src="https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=900&q=80" 
+          alt="Ghanaian family legacy and estate peace of mind" 
+          class="hero-img"
+        >
+        <div class="visual-overlay-tag">
+          <div class="visual-tag-icon">✨</div>
+          <div>
+            <div class="visual-tag-text">Peace of Mind for Loved Ones</div>
+            <div class="visual-tag-sub">Guaranteed claim routing & estate clarity</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Mission Typing Ticker -->
+<div class="typing-ticker-container">
+  <span class="typing-badge-live">Live Impact</span>
+  <span style="color: #64748B;">Mission:</span>
+  <span id="typing-mission-text" class="typing-dynamic-text"></span><span class="typing-cursor">|</span>
+</div>
+
+<!-- Insurer Network Strip -->
+<div class="insurer-trust-strip">
+  <div class="insurer-trust-title">Integrated Across Licensed Underwriting Partners in Ghana</div>
+  <div class="insurer-badges-container">
+    <span class="insurer-pill">Enterprise Life</span>
+    <span class="insurer-pill">SIC Insurance</span>
+    <span class="insurer-pill">StarLife Assurance</span>
+    <span class="insurer-pill">GLICO General</span>
+    <span class="insurer-pill">Hollard Insurance</span>
+    <span class="insurer-pill">Vanguard Assurance</span>
+  </div>
+</div>
+
+<!-- Zero Data Leakage Search Signal -->
+{% if has_searched %}
+  {% if results %}
+    <div 
+      id="matched-record-signal" 
+      data-record-id="{{ results.0.id }}" 
+      data-full-insurer="{{ results.0.insurer.name }}" 
+      data-full-policy="{{ results.0.policy_number }}"
+      style="display: none;"
+    ></div>
+  {% else %}
+    <div id="search-results-wrapper" style="margin-bottom: 3rem;">
+      <div style="text-align: center; padding: 2.5rem 1.5rem; background: #ffffff; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔎</div>
+        <h4 style="margin: 0 0 0.4rem; color: #0F172A; font-size: 1.05rem; font-weight: 800;">No Matching Records Located</h4>
+        <p style="color: #64748B; font-size: 0.84rem; margin: 0 auto 1.25rem; max-width: 460px; line-height: 1.5;">
+          No active vault matches the query: <strong style="color: #0F172A;">"{{ query }}"</strong>.
+        </p>
+        <a href="/" class="btn-reset-view no-loader">✕ Clear Search</a>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<!-- What is LegacyTrace? Core Platform Overview -->
+<div class="about-legacytrace-box">
+  <div class="about-grid">
+    <div>
+      <span class="about-pill">🇬🇭 Sovereign Digital Infrastructure</span>
+      <h2 class="about-headline">What is <span>LegacyTrace</span>?</h2>
+      <p class="about-lead">
+        <strong>LegacyTrace</strong> is Ghana's centralized legacy registry and encrypted estate system. It allows policyholders to proactively catalog active policies, land titles, and certified wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
+      </p>
+      {% if not user.is_authenticated and not request.session.active_claimant_token %}
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="{% url 'vault:signup' %}" class="btn-vault-primary" style="flex: 0 1 auto; padding: 0.75rem 1.35rem; font-size: 0.85rem;">
+            Register Your Vault 🛡️
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="about-feature-list">
+      <div class="about-feature-item">
+        <div class="about-feature-icon">🔍</div>
+        <div>
+          <div class="about-feature-title">Family Clarity & Policy Discovery</div>
+          <div class="about-feature-desc">Enables surviving relatives to verify whether a deceased family member held an active underwritten policy using only their Ghana Card ID, preventing lost wealth.</div>
+        </div>
+      </div>
+
+      <div class="about-feature-item">
+        <div class="about-feature-icon">🔐</div>
+        <div>
+          <div class="about-feature-title">Private Lifetime Estate Registry</div>
+          <div class="about-feature-desc">A 256-bit encrypted vault for life policies, land indenture documents, and digital wills that remains strictly confidential until authorized next-of-kin verification.</div>
+        </div>
+      </div>
+
+      <div class="about-feature-item">
+        <div class="about-feature-icon">⚡</div>
+        <div>
+          <div class="about-feature-title">Direct Insurer Claim Dispatch</div>
+          <div class="about-feature-desc">Connects claims directly to underwriting departments across Enterprise Life, SIC, StarLife, GLICO, Hollard, and Vanguard for rapid statutory payouts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Core System Requirement Modules -->
+<div style="max-width: 1140px; margin: 0 auto; padding: 2rem 1rem;">
+  
+  <!-- Centered Section Header -->
+  <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem; display: flex; flex-direction: column; align-items: center;">
+    <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Engineered To Specification</span>
+    <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Complete Legacy & Policy Management</h2>
+    <p class="section-description" style="text-align: center; margin: 0 auto; max-width: 600px;">
+      Every module gives policyholders total self-service control while securing estate transfer to loved ones.
+    </p>
+  </div>
+
+  <div class="requirements-grid">
+    <!-- Module 1 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">👤</div>
+        <h3 class="req-title">Self-Service Profile Vault</h3>
+        <p class="req-body">
+          Policyholders can independently update their personal database records including full legal names, verified telephone numbers, and permanent residential addresses.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Update permanent residential address</li>
+        <li>Primary & secondary phone synchronization</li>
+        <li>Ghana Card ID verification and locking</li>
+      </ul>
+    </div>
+
+    <!-- Module 2 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">🚨</div>
+        <h3 class="req-title">Emergency Contact Hub</h3>
+        <p class="req-body">
+          Designate verified individuals to be contacted immediately in case of an emergency or claim initiation.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Direct emergency contact linkage</li>
+        <li>Next-of-kin relationship verification</li>
+        <li>Automated alert triggers upon event filing</li>
+      </ul>
+    </div>
+
+    <!-- Module 3 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">📑</div>
+        <h3 class="req-title">Multi-Policy Holding</h3>
+        <p class="req-body">
+          Hold and manage multiple insurance policies simultaneously across life, health, motor, and property sectors in one account.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Cross-insurer policy registration</li>
+        <li>Multiple individual policy tracking</li>
+        <li>Real-time status and renewal alerts</li>
+      </ul>
+    </div>
+
+    <!-- Module 4 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">📜</div>
+        <h3 class="req-title">Digital Wills Depository</h3>
+        <p class="req-body">
+          Securely upload and store Last Wills & Testaments, legal codicils, and official certificates with verified encryption.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Encrypted digital will storage</li>
+        <li>Will amendment and codicil records</li>
+        <li>Authorized legal disclosure rules</li>
+      </ul>
+    </div>
+
+    <!-- Module 5 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">🏘️</div>
+        <h3 class="req-title">Assets & Properties Ledger</h3>
+        <p class="req-body">
+          Enter and track diverse forms of data including real estate, physical land, vehicles, and capital assets.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Land indenture & title deed storage</li>
+        <li>Estimated valuation & location logs</li>
+        <li>Asset ownership proof uploads</li>
+      </ul>
+    </div>
+
+    <!-- Module 6 -->
+    <div class="req-card">
+      <div>
+        <div class="req-icon-box">🏛️</div>
+        <h3 class="req-title">Multi-Insurer Network</h3>
+        <p class="req-body">
+          Connect all licensed Ghanaian insurance companies so relatives can identify exactly which underwriter holds a deceased loved one's policy.
+        </p>
+      </div>
+      <ul class="req-bullets">
+        <li>Insurer verification & identification</li>
+        <li>Direct claim routing to underwriting desks</li>
+        <li>Elimination of lost or unclaimed policies</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Live Vault Architecture Simulation -->
+<div class="vault-demo-container" style="background: #ffffff; border: 2px solid var(--accent-light-cyan); border-radius: 24px; padding: 1.75rem; box-shadow: 0 14px 35px rgba(2, 132, 199, 0.08); margin-bottom: 3.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-ice-blue); padding-bottom: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 52px; height: 52px; border-radius: 16px; background: var(--gradient-oceanic); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 6px 15px rgba(10, 25, 47, 0.2);">
+        📦
+      </div>
+      <div>
+        <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary-deep-navy); letter-spacing: -0.3px;">
+          What's Inside Your Family Safety Box?
+        </div>
+        <div style="font-size: 0.85rem; color: var(--secondary-sea-blue); font-weight: 600;">
+          4 simple folders keeping everything safe in one place
+        </div>
+      </div>
+    </div>
+    <span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; font-weight: 800; font-size: 0.78rem; padding: 6px 14px; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+      Locked & Safe
+    </span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem;">
+    <!-- Box 1: Policies -->
+    <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 16px; padding: 1.25rem; text-align: left; transition: transform 0.2s ease;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📑</div>
+      <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #0284C7; letter-spacing: 0.5px;">Folder 1</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">My Insurance Plans</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.4;">Health, car, life, and home plans all gathered here.</div>
+    </div>
+
+    <!-- Box 2: Emergency Contact -->
+    <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 1.25rem; text-align: left; transition: transform 0.2s ease;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📞</div>
+      <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #16A34A; letter-spacing: 0.5px;">Folder 2</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Who To Call First</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.4;">The exact person to reach when there is an emergency.</div>
+    </div>
+
+    <!-- Box 3: Digital Will -->
+    <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 16px; padding: 1.25rem; text-align: left; transition: transform 0.2s ease;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📜</div>
+      <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #9333EA; letter-spacing: 0.5px;">Folder 3</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">My Secret Will</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.4;">Clear instructions on who receives what in the future.</div>
+    </div>
+
+    <!-- Box 4: Assets -->
+    <div style="background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 16px; padding: 1.25rem; text-align: left; transition: transform 0.2s ease;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏡</div>
+      <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #D97706; letter-spacing: 0.5px;">Folder 4</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Houses & Land List</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.4;">Papers proving ownership of family lands, cars, and homes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     Bespoke Connected Claim Lifecycle Workflow
+==================================================== -->
+<style>
+  .claims-lifecycle-section {
+    position: relative;
+    padding: 4rem 1.5rem;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  .lifecycle-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .section-tagline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    color: #0284c7;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-headline {
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 900;
+    color: #0a192f;
+    letter-spacing: -0.6px;
+    line-height: 1.25;
+    margin: 0 0 0.85rem;
+  }
+
+  .section-description {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Connected 4-Step Grid */
+  .lifecycle-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    position: relative;
+  }
+
+  .lifecycle-card {
+    background: #ffffff;
+    border: 1.5px solid rgba(6, 182, 212, 0.2);
+    border-radius: 20px;
+    padding: 1.75rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(10, 25, 47, 0.04);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lifecycle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #06b6d4, #0284c7);
+    opacity: 0;
+    border-radius: 20px 20px 0 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .lifecycle-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(6, 182, 212, 0.55);
+    box-shadow: 0 16px 36px rgba(6, 182, 212, 0.14);
+  }
+
+  .lifecycle-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Directional Connector Badges */
+  .lifecycle-connector {
+    position: absolute;
+    right: -1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: #ffffff;
+    border: 1.5px solid rgba(6, 182, 212, 0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0284c7;
+    font-size: 0.85rem;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.22);
+    z-index: 5;
+    pointer-events: none;
+    transition: all 0.25s ease;
+  }
+
+  .lifecycle-card:hover .lifecycle-connector {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+  }
+
+  .lifecycle-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .lifecycle-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    color: #0284c7;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  .lifecycle-icon {
+    font-size: 1.25rem;
+    filter: drop-shadow(0 2px 6px rgba(6, 182, 212, 0.3));
+  }
+
+  .lifecycle-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0a192f;
+    letter-spacing: -0.3px;
+    line-height: 1.35;
+    margin: 0 0 0.65rem;
+  }
+
+  .lifecycle-body {
+    font-size: 0.83rem;
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Responsive Stacking & Direction Adjustment */
+  @media (max-width: 992px) {
+    .lifecycle-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem 1.5rem;
+    }
+
+    /* Hide arrow on second card in 2-column layout */
+    .lifecycle-card:nth-child(2) .lifecycle-connector {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .claims-lifecycle-section {
+      padding: 3rem 1rem;
+    }
+    
+    .lifecycle-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    /* Point arrow downward when stacked on mobile */
+    .lifecycle-connector {
+      right: auto;
+      left: 50%;
+      top: auto;
+      bottom: -1.25rem;
+      transform: translateX(-50%) rotate(90deg);
+    }
+
+    .lifecycle-card:hover .lifecycle-connector {
+      transform: translateX(-50%) rotate(90deg) scale(1.1);
+    }
+
+    .lifecycle-card:nth-child(2) .lifecycle-connector {
+      display: flex;
+    }
+
+    .lifecycle-card {
+      padding: 1.5rem 1.25rem;
+    }
+  }
+</style>
+
+<section class="claims-lifecycle-section" id="how-it-works">
+  <div class="lifecycle-header">
+    <span class="section-tagline">⚡ End-to-End Workflow</span>
+    <h2 class="section-headline">How Claims & Verification Operate</h2>
+    <p class="section-description">
+      A sovereign transition protocol connecting bereaved families directly with underwriting departments without intermediaries.
+    </p>
+  </div>
+
+  <div class="lifecycle-grid">
+    <!-- Step 01 -->
+    <div class="lifecycle-card">
+      <div class="lifecycle-badge-row">
+        <span class="lifecycle-num">STEP 01</span>
+        <span class="lifecycle-icon">🔍</span>
+      </div>
+      <h4 class="lifecycle-title">National Registry Search</h4>
+      <p class="lifecycle-body">Family searches the registry using national identification. The platform instantly confirms active policy presence.</p>
+      <div class="lifecycle-connector" aria-hidden="true">→</div>
+    </div>
+
+    <!-- Step 02 -->
+    <div class="lifecycle-card">
+      <div class="lifecycle-badge-row">
+        <span class="lifecycle-num">STEP 02</span>
+        <span class="lifecycle-icon">🛡️</span>
+      </div>
+      <h4 class="lifecycle-title">Identity & Relation Audit</h4>
+      <p class="lifecycle-body">The searching claimant verifies identity and uploads statutory declarations to prove legitimate relation.</p>
+      <div class="lifecycle-connector" aria-hidden="true">→</div>
+    </div>
+
+    <!-- Step 03 -->
+    <div class="lifecycle-card">
+      <div class="lifecycle-badge-row">
+        <span class="lifecycle-num">STEP 03</span>
+        <span class="lifecycle-icon">🏛️</span>
+      </div>
+      <h4 class="lifecycle-title">Insurer Desk Unlock</h4>
+      <p class="lifecycle-body">Staff verifies credentials, releasing the specific underwriting insurer name and policy claim guidelines.</p>
+      <div class="lifecycle-connector" aria-hidden="true">→</div>
+    </div>
+
+    <!-- Step 04 -->
+    <div class="lifecycle-card">
+      <div class="lifecycle-badge-row">
+        <span class="lifecycle-num">STEP 04</span>
+        <span class="lifecycle-icon">⚡</span>
+      </div>
+      <h4 class="lifecycle-title">Direct Claim Dispatch</h4>
+      <p class="lifecycle-body">A digital claim bundle routes immediately into the insurer's department for expedited payout resolution.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Group Policy & Corporate Spotlight -->
+<div class="admin-spotlight">
+  <div class="spotlight-col">
+    <h3>👥 Group Policy & Corporate Governance</h3>
+    <p>
+      In the case of group or corporate insurance schemes, the <strong>Policy Admin</strong> is explicitly registered and granted dedicated administration capabilitie.
+    </p>
+    <ul class="req-bullets" style="color: var(--accent-light-cyan);">
+      <li>Clear designation of the primary Group Policy Admin</li>
+      <li>Employee and family member roster management</li>
+      <li>Group claim coordination and status monitoring</li>
+    </ul>
+  </div>
+  <div class="spotlight-col">
+    <h3>🔍 Relational Discovery Workflow</h3>
+    <p>
+      When a relative initiates a search, the system matches national records, confirms active policy status, and presents a verified claiming pathway without compromising sensitive personal assets during preliminary queries.
+    </p>
+    <ul class="req-bullets" style="color: var(--accent-light-cyan);">
+      <li>Zero sensitive leakage during public searches</li>
+      <li>Staff token review & claimant ID verification</li>
+      <li>Direct underwriter claim ticket generation</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Security Architecture & Compliance Depository -->
+<div class="security-governance-box">
+  <div class="sec-item">
+    <div class="sec-icon">🔒</div>
+    <div>
+      <div class="sec-head">AES-256 Vault Encryption</div>
+      <div class="sec-desc">All wills, land indentures, and asset documentation are encrypted at rest with multi-layer key derivation.</div>
+    </div>
+  </div>
+  <div class="sec-item">
+    <div class="sec-icon">🏛️</div>
+    <div>
+      <div class="sec-head">Data Protection Act Compliance</div>
+      <div class="sec-desc">Fully compliant with the Ghana Data Protection Act (Act 843), guaranteeing privacy and audited access.</div>
+    </div>
+  </div>
+  <div class="sec-item">
+    <div class="sec-icon">📜</div>
+    <div>
+      <div class="sec-head">Tamper-Proof Audit Logging</div>
+      <div class="sec-desc">Every profile modification, emergency contact update, and file access request generates a timestamped log.</div>
+    </div>
+  </div>
+  <div class="sec-item">
+    <div class="sec-icon">⚡</div>
+    <div>
+      <div class="sec-head">Instant Insurer Dispatch</div>
+      <div class="sec-desc">Eliminates lost paperwork by routing claims directly into verified underwriter portals with statutory tracking.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Frequently Asked Questions -->
+
+  <!-- Centered FAQ Header -->
+  <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem; display: flex; flex-direction: column; align-items: center;">
+    <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Got Questions?</span>
+    <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Frequently Asked Questions</h2>
+    <p class="section-description" style="text-align: center; margin: 0 auto; max-width: 600px;">
+      Clear answers on how LegacyTrace protects policyholders and simplifies family inheritance.
+    </p>
+  </div>
+
+  <div class="faq-container">
+    <div class="faq-item">
+      <div class="faq-q">Can a policyholder hold policies from different insurance companies on one profile?</div>
+      <div class="faq-a">Yes. LegacyTrace allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Who is allowed to access digital wills and asset records?</div>
+      <div class="faq-a">Sensitive documents such as wills and title deeds remain strictly locked and are only accessible by the policyholder or released to verified next-of-kin following authenticated death verification.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How are Group Policies managed?</div>
+      <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     Statutory Modals (Centered Fixed Overlays)
+==================================================== -->
+
+<!-- Step 1: Mandatory 3-Angle Biometric Consent Gate Modal -->
+<div id="consent-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="max-width: 490px; text-align: center; border-radius: 20px; border: 2px solid #06B6D4; background: #0B192C; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div style="font-size: 2.8rem; margin-bottom: 0.4rem;">🛡️</div>
+    <span class="handover-badge" style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; display: inline-block;">
+      Statutory Security Notice • Act 843
+    </span>
+    <h3 style="margin: 0.75rem 0 0.35rem; font-size: 1.35rem; font-weight: 900; color: #ffffff;">
+      Policy Record Match Located
+    </h3>
+    <p style="margin: 0 0 1.25rem; font-size: 0.84rem; color: #94A3B8; line-height: 1.55;">
+      A verified underwritten policy was found. To prevent unauthorized liquidation and estate fraud, Ghanaian insurance regulations require a <strong style="color: #38BDF8;">3-Angle Biometric Facial Capture (Front, Left, Right)</strong> accompanied by audio guidance before unlocking the intake dossier.
+    </p>
+
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 1.35rem; text-align: left; font-size: 0.78rem; color: #CBD5E1;">
+      <div style="color: #38BDF8; font-weight: 800; margin-bottom: 4px;">Mandatory Verification Procedure:</div>
+      <div>1. Straight profile face capture</div>
+      <div>2. Left-turn profile face capture</div>
+      <div>3. Right-turn profile face capture</div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="btn-decline-consent" class="btn-cancel-modal" style="flex: 1; border-radius: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #94A3B8; padding: 0.85rem; font-weight: 800; font-size: 0.85rem; cursor: pointer;">
+        ✕ Decline & Exit
+      </button>
+      <button type="button" id="btn-agree-consent" class="btn-enter-vault" style="flex: 1.4; margin: 0; padding: 0.85rem; font-size: 0.88rem; border-radius: 10px; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; font-weight: 900; border: none; cursor: pointer;">
+        I Agree, Begin Scan ➔
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: 3-Angle Camera Scan & Locked Intake Dossier Modal -->
+<div id="intake-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="max-width: 550px; background: #0B192C; border: 2px solid #06B6D4; padding: 2rem; border-radius: 20px; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div class="handover-header">
+      <span class="handover-badge" style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
+        📷 Step 2 of 2 • 3-Angle Biometric Scan & Intake
+      </span>
+      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">
+        Biometric Verification & Claim Intake
+      </h3>
+      <p style="margin: 0; font-size: 0.78rem; color: #94A3B8;">
+        Follow the audio assistant instructions to complete your 3-angle facial trace. The dossier unlocks upon scan completion.
+      </p>
+    </div>
+
+    <!-- 3-Angle Scan Viewport & Stage Tracker Strip -->
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+        <div id="stage-badge-front" style="background: rgba(6, 182, 212, 0.2); border: 1.5px solid #06B6D4; border-radius: 8px; padding: 6px; text-align: center; font-size: 0.72rem; font-weight: 800; color: #38BDF8;">
+          1. Front Profile ⏳
+        </div>
+        <div id="stage-badge-left" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 6px; text-align: center; font-size: 0.72rem; font-weight: 800; color: #94A3B8;">
+          2. Left Turn 🔒
+        </div>
+        <div id="stage-badge-right" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 6px; text-align: center; font-size: 0.72rem; font-weight: 800; color: #94A3B8;">
+          3. Right Turn 🔒
+        </div>
+      </div>
+
+      <div id="biometric-viewport" style="position: relative; width: 100%; height: 165px; background: #07162c; border-radius: 12px; overflow: hidden; border: 2px solid #06B6D4; display: flex; align-items: center; justify-content: center;">
+        <video id="biometric-video" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+        
+        <div id="face-bounding-guide" style="position: absolute; inset: 10px; border: 2px dashed #38BDF8; border-radius: 10px; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+          <span id="face-guide-text" style="font-size: 0.72rem; font-weight: 800; color: #ffffff; background: rgba(10, 25, 47, 0.85); border: 1px solid #06B6D4; padding: 4px 10px; border-radius: 6px; font-family: monospace;">
+            🗣️ LOOK STRAIGHT AT THE CAMERA
+          </span>
+        </div>
+
+        <div id="camera-error-msg" style="display: none; position: absolute; inset: 0; background: rgba(15, 23, 42, 0.94); color: #FCA5A5; font-size: 0.75rem; padding: 1rem; align-items: center; justify-content: center; flex-direction: column; text-align: center;">
+          <span style="font-size: 1.5rem; margin-bottom: 4px;">📷⚠️</span>
+          <span>Camera access is mandatory for statutory biometric verification.</span>
+        </div>
+      </div>
+      <canvas id="biometric-canvas" width="480" height="360" style="display: none;"></canvas>
+    </div>
+
+    <!-- Intake Dossier Form (Disabled & Locked until 3/3 angles pass) -->
+    <form id="claimant-intake-form">
+      <input type="hidden" id="intake-record-id">
+      <input type="hidden" id="intake-full-insurer">
+      <input type="hidden" id="intake-full-policy">
+
+      <fieldset id="intake-fieldset" disabled style="border: none; padding: 0; margin: 0; opacity: 0.45; transition: opacity 0.3s ease;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label class="intake-label">Full Legal Name *</label>
+            <input type="text" id="intake-name" class="intake-input" placeholder="e.g. Kwame Mensah" required>
+          </div>
+          <div>
+            <label class="intake-label">Relationship to Policyholder *</label>
+            <input type="text" id="intake-relationship" class="intake-input" placeholder="e.g. Son / Spouse / Sibling" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label class="intake-label">Phone Number *</label>
+            <input type="tel" id="intake-phone" class="intake-input" placeholder="e.g. 0244123456" required>
+          </div>
+          <div>
+            <label class="intake-label">Ghana Card ID *</label>
+            <input type="text" id="intake-ghana-card" class="intake-input" placeholder="GHA-XXXXXXXXX-X" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <label class="intake-label">Claimant Email Address *</label>
+          <input type="email" id="intake-email" class="intake-input" placeholder="claimant@email.com" required>
+        </div>
+
+        <div style="margin-bottom: 1.15rem;">
+          <label class="intake-label">Permanent Residential Address *</label>
+          <textarea id="intake-address" class="intake-input" rows="2" placeholder="e.g. H/No 14 Block B, East Legon, Accra" required style="resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="btn-cancel-intake" class="btn-cancel-modal" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #94A3B8; padding: 0.85rem 1.25rem; border-radius: 12px; font-weight: 800; font-size: 0.85rem; cursor: pointer;">Cancel</button>
+          <button type="submit" id="btn-intake-submit" class="btn-enter-vault" style="flex: 1; margin: 0; padding: 0.85rem; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; font-size: 0.95rem; font-weight: 900; border: none; border-radius: 12px; cursor: pointer;">
+            🔒 Complete 3-Angle Scan to Unlock
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<!-- Step 3: Identity Discrepancy Modal -->
+<div id="mismatch-warning-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="max-width: 500px; text-align: center; border-color: #EF4444; background: #0B192C; border: 2px solid #EF4444; border-radius: 20px; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div style="font-size: 2.8rem; margin-bottom: 0.3rem;">⚠️</div>
+    <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+      <span class="handover-badge" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">
+        SECURITY WARNING • DISCREPANCY RECORDED
+      </span>
+    </div>
+    <h3 style="margin: 0.4rem 0 0.35rem; font-size: 1.3rem; font-weight: 900; color: #ffffff;">
+      Identity Verification Failed
+    </h3>
+    <p style="margin: 0 0 1.25rem; font-size: 0.82rem; color: #FCA5A5; line-height: 1.5;">
+      The credentials submitted do not match the registered next-of-kin records deposited by the policyholder.
+    </p>
+
+    <div style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(239, 68, 68, 0.5); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: left; font-size: 0.76rem; color: #CBD5E1; line-height: 1.5;">
+      <div style="color: #F87171; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+        🔒 Security Audit Notice:
+      </div>
+      <div>• Your full identity submission, session details, and 3-angle facial verifications have been permanently recorded into the statutory audit vault.</div>
+      <div style="margin-top: 4px;">• If you hold legitimate Letters of Administration from the High Court, you may proceed—your docket will be routed for manual desk review.</div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="btn-abort-mismatch" class="btn-cancel-modal" style="flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #94A3B8; padding: 0.85rem; border-radius: 12px; font-weight: 800; font-size: 0.85rem; cursor: pointer;">
+        ✕ Abort Attempt
+      </button>
+      <button type="button" id="btn-proceed-mismatch" class="btn-enter-vault" style="flex: 1.4; margin: 0; padding: 0.85rem; font-size: 0.84rem; background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: #ffffff; font-weight: 900; border: none; border-radius: 12px; cursor: pointer;">
+        Acknowledge & Proceed (GHS 50) ➔
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 4: Credential Handover Overlay Modal -->
+<div id="credential-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 20px; max-width: 480px; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div class="handover-header">
+      <span class="handover-badge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">🔐 Access Granted</span>
+      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">Claimant Vault Provisioned</h3>
+      <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Save your dedicated credentials below to re-access this estate vault anytime.</p>
+    </div>
+
+    <div class="handover-body">
+      <div class="credential-box" style="background: rgba(255,255,255,0.04); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 1.25rem; margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Claimant Username:</span>
+          <code id="handover-username" style="font-size: 0.95rem; color: #38BDF8; font-weight: 900; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 6px;">loading...</code>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Temporary Access Key:</span>
+          <code id="handover-password" style="font-size: 0.95rem; color: #38BDF8; font-weight: 900; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 6px;">loading...</code>
+        </div>
+      </div>
+
+      <a id="handover-dashboard-link" href="#" class="btn-enter-vault" style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; font-size: 0.95rem; font-weight: 900; text-decoration: none; text-align: center; display: block; padding: 1rem; border-radius: 12px;">
+        Access Private Estate Dashboard ➔
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Paystack Inline Popup SDK -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- High-Accuracy Neural Face Tracking (BlazeFace Engine) -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const PAYSTACK_PUBLIC_KEY = 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3';
+
+    // ----------------------------------------------------
+    // 1. Synthesized Camera Shutter Sound (Web Audio API)
+    // ----------------------------------------------------
+    function playShutterSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.07);
+
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.07);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.07);
+      } catch (err) {
+        console.warn('AudioContext unavailable:', err);
+      }
+    }
+
+    // ----------------------------------------------------
+    // 2. Slow, Clear Female Voice Guidance Engine
+    // ----------------------------------------------------
+    let availableVoices = [];
+
+    function populateVoices() {
+      if ('speechSynthesis' in window) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      populateVoices();
+      window.speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function speakFemaleVoice(text, onCompleteCallback) {
+      if (!('speechSynthesis' in window)) {
+        if (onCompleteCallback) onCompleteCallback();
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      } catch (err) {}
+
+      const executeSpeech = () => {
+        if (availableVoices.length === 0) {
+          availableVoices = window.speechSynthesis.getVoices();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.88;
+        utterance.pitch = 1.1;
+
+        const femaleVoice = availableVoices.find(v =>
+          /female|zira|samantha|victoria|karen|moira|google uk english female|natasha/i.test(v.name)
+        ) || availableVoices.find(v => v.lang && v.lang.startsWith('en')) || availableVoices[0];
+
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
+
+        if (onCompleteCallback) {
+          utterance.onend = onCompleteCallback;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      if (availableVoices.length === 0) {
+        setTimeout(executeSpeech, 250);
+      } else {
+        executeSpeech();
+      }
+    }
+
+    // ----------------------------------------------------
+    // 3. Modals, Calibration & 3-Angle Viewfinder Elements
+    // ----------------------------------------------------
+    const consentModal = document.getElementById('consent-modal-backdrop');
+    const btnAgreeConsent = document.getElementById('btn-agree-consent');
+    const btnDeclineConsent = document.getElementById('btn-decline-consent');
+
+    const intakeModal = document.getElementById('intake-modal-backdrop');
+    const intakeForm = document.getElementById('claimant-intake-form');
+    const intakeFieldset = document.getElementById('intake-fieldset');
+    const cancelIntakeBtn = document.getElementById('btn-cancel-intake');
+    const intakeSubmitBtn = document.getElementById('btn-intake-submit');
+
+    const mismatchModal = document.getElementById('mismatch-warning-backdrop');
+    const abortMismatchBtn = document.getElementById('btn-abort-mismatch');
+    const proceedMismatchBtn = document.getElementById('btn-proceed-mismatch');
+
+    const biometricVideo = document.getElementById('biometric-video');
+    const biometricCanvas = document.getElementById('biometric-canvas');
+    const biometricViewport = document.getElementById('biometric-viewport');
+    const faceGuideText = document.getElementById('face-guide-text');
+    const cameraErrorMsg = document.getElementById('camera-error-msg');
+
+    const badgeFront = document.getElementById('stage-badge-front');
+    const badgeLeft = document.getElementById('stage-badge-left');
+    const badgeRight = document.getElementById('stage-badge-right');
+
+    let pendingClaimantData = null;
+    let currentAuditId = null;
+    let mediaStream = null;
+    let faceModel = null;
+    let scanLoop = null;
+
+    let currentStage = 0; // 0: Front, 1: Left, 2: Right, 3: Completed
+    let isCalibrating = false;
+    let capturedAngles = { front: null, left: null, right: null };
+
+    async function loadFaceModel() {
+      if (!faceModel && window.blazeface) {
+        try {
+          faceModel = await blazeface.load();
+        } catch (e) {
+          console.warn('BlazeFace model loading error:', e);
+        }
+      }
+    }
+    loadFaceModel();
+
+    function captureFrameSnapshot() {
+      if (!biometricVideo || !biometricCanvas) return null;
+      const ctx = biometricCanvas.getContext('2d');
+      biometricCanvas.width = biometricVideo.videoWidth || 480;
+      biometricCanvas.height = biometricVideo.videoHeight || 360;
+      ctx.translate(biometricCanvas.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(biometricVideo, 0, 0, biometricCanvas.width, biometricCanvas.height);
+      return biometricCanvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    function advanceBiometricStage() {
+      if (isCalibrating) return;
+      isCalibrating = true;
+
+      playShutterSound();
+
+      if (currentStage === 0) {
+        capturedAngles.front = captureFrameSnapshot();
+        if (badgeFront) {
+          badgeFront.innerHTML = '1. Front ✓';
+          badgeFront.style.borderColor = '#10B981';
+          badgeFront.style.color = '#34D399';
+          badgeFront.style.background = 'rgba(16, 185, 129, 0.2)';
+        }
+
+        currentStage = 1;
+        if (badgeLeft) {
+          badgeLeft.innerHTML = '2. Left Turn ⏳';
+          badgeLeft.style.borderColor = '#0284C7';
+          badgeLeft.style.color = '#38BDF8';
+          badgeLeft.style.background = 'rgba(6, 182, 212, 0.2)';
+        }
+
+        if (faceGuideText) faceGuideText.textContent = 'PLEASE SLOWLY TURN HEAD TO LEFT & HOLD';
+
+        setTimeout(() => {
+          speakFemaleVoice('Front profile recorded. Now, slowly turn your head to the left and hold.', () => {
+            isCalibrating = false;
+          });
+        }, 400);
+
+      } else if (currentStage === 1) {
+        capturedAngles.left = captureFrameSnapshot();
+        if (badgeLeft) {
+          badgeLeft.innerHTML = '2. Left ✓';
+          badgeLeft.style.borderColor = '#10B981';
+          badgeLeft.style.color = '#34D399';
+          badgeLeft.style.background = 'rgba(16, 185, 129, 0.2)';
+        }
+
+        currentStage = 2;
+        if (badgeRight) {
+          badgeRight.innerHTML = '3. Right Turn ⏳';
+          badgeRight.style.borderColor = '#0284C7';
+          badgeRight.style.color = '#38BDF8';
+          badgeRight.style.background = 'rgba(6, 182, 212, 0.2)';
+        }
+
+        if (faceGuideText) faceGuideText.textContent = 'PLEASE SLOWLY TURN HEAD TO RIGHT & HOLD';
+
+        setTimeout(() => {
+          speakFemaleVoice('Left profile recorded. Now, slowly turn your head to the right and hold.', () => {
+            isCalibrating = false;
+          });
+        }, 400);
+
+      } else if (currentStage === 2) {
+        capturedAngles.right = captureFrameSnapshot();
+        if (badgeRight) {
+          badgeRight.innerHTML = '3. Right ✓';
+          badgeRight.style.borderColor = '#10B981';
+          badgeRight.style.color = '#34D399';
+          badgeRight.style.background = 'rgba(16, 185, 129, 0.2)';
+        }
+
+        currentStage = 3;
+        if (biometricViewport) biometricViewport.style.borderColor = '#10B981';
+        if (faceGuideText) {
+          faceGuideText.textContent = '✓ CALIBRATION COMPLETE — DOSSIER UNLOCKED';
+          faceGuideText.style.background = 'rgba(6, 95, 70, 0.95)';
+          faceGuideText.style.borderColor = '#10B981';
+        }
+
+        if (intakeFieldset) {
+          intakeFieldset.disabled = false;
+          intakeFieldset.style.opacity = '1';
+        }
+        if (intakeSubmitBtn) {
+          intakeSubmitBtn.disabled = false;
+          intakeSubmitBtn.style.background = '#0284C7';
+          intakeSubmitBtn.style.color = '#FFFFFF';
+          intakeSubmitBtn.innerHTML = 'Proceed to Payment (GHS 50) ➔';
+        }
+
+        setTimeout(() => {
+          speakFemaleVoice('Biometric verification complete. Your intake dossier is now unlocked. Please enter your details below.');
+          isCalibrating = false;
+        }, 400);
+      }
+    }
+
+    let steadyHoldCounter = 0;
+    async function evaluate3AngleScan() {
+      if (!biometricVideo || biometricVideo.readyState < 2 || currentStage >= 3) {
+        if (currentStage < 3) scanLoop = requestAnimationFrame(evaluate3AngleScan);
+        return;
+      }
+
+      if (faceModel && !isCalibrating) {
+        try {
+          const predictions = await faceModel.estimateFaces(biometricVideo, false);
+          if (predictions && predictions.length > 0) {
+            steadyHoldCounter++;
+            if (steadyHoldCounter > 45) {
+              steadyHoldCounter = 0;
+              advanceBiometricStage();
+            }
+          } else {
+            steadyHoldCounter = 0;
+          }
+        } catch (e) {
+          steadyHoldCounter = 0;
+        }
+      }
+      if (currentStage < 3) scanLoop = requestAnimationFrame(evaluate3AngleScan);
+    }
+
+    function start3AngleScanSequence() {
+      currentStage = 0;
+      steadyHoldCounter = 0;
+      isCalibrating = false;
+      capturedAngles = { front: null, left: null, right: null };
+
+      if (intakeFieldset) intakeFieldset.disabled = true;
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      })
+      .then(async stream => {
+        mediaStream = stream;
+        if (biometricVideo) {
+          biometricVideo.srcObject = stream;
+          await biometricVideo.play();
+        }
+        await loadFaceModel();
+        if (faceGuideText) faceGuideText.textContent = 'LOOK STRAIGHT AT THE CAMERA AND HOLD';
+        
+        speakFemaleVoice('Please look straight at the camera and hold your head still.');
+        cancelAnimationFrame(scanLoop);
+        scanLoop = requestAnimationFrame(evaluate3AngleScan);
+      })
+      .catch(err => {
+        if (cameraErrorMsg) cameraErrorMsg.style.display = 'flex';
+        speakFemaleVoice('Camera access was blocked. Please enable camera permissions in your browser to proceed.');
+      });
+    }
+
+    function stopCamera() {
+      cancelAnimationFrame(scanLoop);
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+      if (biometricVideo) biometricVideo.srcObject = null;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    // ----------------------------------------------------
+    // 4. Search Match Trigger: Open Modal & Speak Concurrently
+    // ----------------------------------------------------
+    const matchedSignal = document.getElementById('matched-record-signal');
+    if (matchedSignal) {
+      const recordId = matchedSignal.getAttribute('data-record-id');
+      const insurerName = matchedSignal.getAttribute('data-full-insurer');
+      const policyNum = matchedSignal.getAttribute('data-full-policy');
+
+      const intakeRecordEl = document.getElementById('intake-record-id');
+      const intakeInsurerEl = document.getElementById('intake-full-insurer');
+      const intakePolicyEl = document.getElementById('intake-full-policy');
+
+      if (intakeRecordEl) intakeRecordEl.value = recordId;
+      if (intakeInsurerEl) intakeInsurerEl.value = insurerName;
+      if (intakePolicyEl) intakePolicyEl.value = policyNum;
+
+      if (consentModal) {
+        consentModal.style.display = 'flex';
+      }
+
+      setTimeout(() => {
+        speakFemaleVoice('A verified policy record has been located in the national registry. Under statutory estate protection laws, access requires a three-angle facial calibration. Please confirm to proceed.');
+      }, 300);
+    }
+
+    // User Declines -> Reset view
+    if (btnDeclineConsent) {
+      btnDeclineConsent.addEventListener('click', function () {
+        if (consentModal) consentModal.style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        window.location.href = '/';
+      });
+    }
+
+    // User Agrees -> Opens Camera & Starts 3-Angle Calibration
+    if (btnAgreeConsent) {
+      btnAgreeConsent.addEventListener('click', function () {
+        if (consentModal) consentModal.style.display = 'none';
+        if (intakeModal) intakeModal.style.display = 'flex';
+        start3AngleScanSequence();
+      });
+    }
+
+    if (cancelIntakeBtn) {
+      cancelIntakeBtn.addEventListener('click', function () {
+        if (intakeModal) intakeModal.style.display = 'none';
+        stopCamera();
+      });
+    }
+
+    // ----------------------------------------------------
+    // 5. Form Submission & Paystack Flow
+    // ----------------------------------------------------
+    function launchPaystackPayment(claimantData, auditId) {
+      const handler = PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: claimantData.email,
+        amount: 5000,
+        currency: 'GHS',
+        ref: 'LT-' + Math.floor((Math.random() * 1000000000) + 1),
+        callback: function (response) {
+          fetch("{% url 'vault:verify_unlock' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({
+              reference: response.reference,
+              record_id: claimantData.record_id,
+              email: claimantData.email,
+              claimant_name: claimantData.claimant_name,
+              relationship: claimantData.relationship,
+              claimant_phone: claimantData.claimant_phone,
+              claimant_ghana_card: claimantData.claimant_ghana_card,
+              permanent_address: claimantData.permanent_address,
+              audit_id: auditId
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              document.getElementById('handover-username').textContent = data.credentials.username;
+              document.getElementById('handover-password').textContent = data.credentials.temporary_password;
+              document.getElementById('handover-dashboard-link').href = data.access_url;
+              const credModal = document.getElementById('credential-modal-backdrop');
+              if (credModal) credModal.style.display = 'flex';
+            } else {
+              alert('Verification Error: ' + data.message);
+            }
+          });
+        }
+      });
+      handler.openIframe();
+    }
+
+    if (intakeForm) {
+      intakeForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (currentStage < 3) {
+          alert('Please complete all 3 biometric facial angles before proceeding.');
+          return;
+        }
+
+        const claimantData = {
+          record_id: document.getElementById('intake-record-id').value,
+          claimant_name: document.getElementById('intake-name').value.trim(),
+          relationship: document.getElementById('intake-relationship').value.trim(),
+          claimant_phone: document.getElementById('intake-phone').value.trim(),
+          claimant_ghana_card: document.getElementById('intake-ghana-card').value.trim(),
+          permanent_address: document.getElementById('intake-address').value.trim(),
+          email: document.getElementById('intake-email').value.trim(),
+          biometric_front: capturedAngles.front,
+          biometric_left: capturedAngles.left,
+          biometric_right: capturedAngles.right,
+          biometric_consent_granted: true,
+          camera_permission_granted: Boolean(mediaStream && mediaStream.active)
+        };
+
+        pendingClaimantData = claimantData;
+        intakeModal.style.display = 'none';
+        stopCamera();
+
+        fetch("{% url 'vault:check_claimant_match' %}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: JSON.stringify(claimantData)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success' && data.is_matched) {
+            launchPaystackPayment(claimantData, data.audit_id);
+          } else {
+            currentAuditId = data.audit_id;
+            if (mismatchModal) mismatchModal.style.display = 'flex';
+            speakFemaleVoice('Identity verification failed. Your details and facial verifications have been recorded into the audit vault.');
+          }
+        })
+        .catch(err => {
+          launchPaystackPayment(claimantData, null);
+        });
+      });
+    }
+
+    if (abortMismatchBtn) {
+      abortMismatchBtn.addEventListener('click', function () {
+        if (mismatchModal) mismatchModal.style.display = 'none';
+        pendingClaimantData = null;
+        currentAuditId = null;
+      });
+    }
+
+    if (proceedMismatchBtn) {
+      proceedMismatchBtn.addEventListener('click', function () {
+        if (mismatchModal) mismatchModal.style.display = 'none';
+        if (pendingClaimantData) {
+          launchPaystackPayment(pendingClaimantData, currentAuditId);
+        }
+      });
+    }
+
+    // ----------------------------------------------------
+    // 6. Ghana Card Input Auto-Mask & Form Validator
+    // ----------------------------------------------------
+    const searchInput = document.getElementById('registry-search-input');
+    const searchForm = document.getElementById('registry-search-form');
+    const searchClearBtn = document.getElementById('search-clear-btn');
+    const feedbackBox = document.getElementById('search-empty-feedback');
+    const feedbackText = document.getElementById('search-feedback-text');
+    const PREFIX = 'GHA-';
+
+    if (searchInput && searchForm) {
+      function triggerSearchShake() {
+        searchForm.classList.remove('search-invalid');
+        void searchForm.offsetWidth;
+        searchForm.classList.add('search-invalid');
+      }
+
+      function showFeedback(message) {
+        if (feedbackText && feedbackBox) {
+          feedbackText.textContent = message;
+          feedbackBox.classList.add('active');
+        }
+      }
+
+      function hideFeedback() {
+        if (feedbackBox) feedbackBox.classList.remove('active');
+      }
+
+      function formatSearchInput() {
+        let raw = searchInput.value.toUpperCase();
+
+        if (!raw.startsWith('GHA')) {
+          triggerSearchShake();
+          searchInput.value = PREFIX;
+          searchForm.classList.remove('search-valid');
+          return;
+        }
+
+        const afterPrefix = raw.replace(/^GHA-?/, '');
+        if (/[^0-9\-]/.test(afterPrefix)) triggerSearchShake();
+
+        let digits = afterPrefix.replace(/\D/g, '');
+        if (digits.length > 10) digits = digits.substring(0, 10);
+
+        let formatted = PREFIX;
+        if (digits.length > 0) {
+          if (digits.length <= 9) {
+            formatted += digits;
+          } else {
+            formatted += digits.substring(0, 9) + '-' + digits.substring(9, 10);
+          }
+        }
+        searchInput.value = formatted;
+
+        if (digits.length === 10) {
+          searchForm.classList.remove('search-invalid');
+          searchForm.classList.add('search-valid');
+        } else {
+          searchForm.classList.remove('search-valid');
+        }
+      }
+
+      searchInput.addEventListener('focus', function () {
+        if (!searchInput.value.trim()) searchInput.value = PREFIX;
+      });
+
+      searchInput.addEventListener('input', function () {
+        hideFeedback();
+        formatSearchInput();
+        if (searchClearBtn) {
+          const val = searchInput.value.trim();
+          if (val && val !== PREFIX) searchClearBtn.classList.add('visible');
+          else searchClearBtn.classList.remove('visible');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function (e) {
+        if ((e.key === 'Backspace' || e.key === 'Delete') && searchInput.selectionStart <= 4 && searchInput.selectionEnd <= 4) {
+          e.preventDefault();
+          triggerSearchShake();
+        }
+      });
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          searchInput.value = '';
+          searchForm.classList.remove('search-valid', 'search-invalid');
+          hideFeedback();
+          searchClearBtn.classList.remove('visible');
+
+          const resultsWrapper = document.getElementById('search-results-wrapper');
+          if (resultsWrapper) resultsWrapper.remove();
+
+          if (window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          searchInput.focus();
+        });
+      }
+
+      searchForm.addEventListener('submit', function (e) {
+        const rawValue = searchInput.value.trim();
+        const digits = rawValue.replace(/^GHA-?/, '').replace(/\D/g, '');
+
+        if (!rawValue || rawValue === 'GHA' || rawValue === 'GHA-' || digits.length === 0) {
+          e.preventDefault();
+          triggerSearchShake();
+          showFeedback("Please enter your relative's Ghana Card ID (e.g. GHA-123456789-0).");
+          searchInput.focus();
+          return;
+        }
+
+        if (digits.length < 10) {
+          e.preventDefault();
+          triggerSearchShake();
+          showFeedback(`Incomplete Ghana Card ID. You entered ${digits.length} of 10 required digits.`);
+          searchInput.focus();
+          return;
+        }
+        hideFeedback();
+      });
+    }
+
+    // ----------------------------------------------------
+    // 7. Dynamic Mission Ticker
+    // ----------------------------------------------------
+    const textTarget = document.getElementById('typing-mission-text');
+    if (textTarget) {
+      const phrases = [
+        "Connecting bereaved families directly to licensed underwriting claim desks.",
+        "Safeguarding family land indentures, certified wills, and tangible assets.",
+        "Verifying national records seamlessly through authenticated Ghana Card IDs.",
+        "Guaranteeing sovereign lifetime security and swift legacy transfers."
+      ];
+
+      let phraseIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      let typingSpeed = 45;
+
+      function typeEffect() {
+        const currentPhrase = phrases[phraseIndex];
+        if (isDeleting) {
+          textTarget.textContent = currentPhrase.substring(0, charIndex - 1);
+          charIndex--;
+          typingSpeed = 25;
+        } else {
+          textTarget.textContent = currentPhrase.substring(0, charIndex + 1);
+          charIndex++;
+          typingSpeed = 45;
+        }
+
+        if (!isDeleting && charIndex === currentPhrase.length) {
+          typingSpeed = 2200;
+          isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          typingSpeed = 400;
+        }
+        setTimeout(typeEffect, typingSpeed);
+      }
+      typeEffect();
+    }
+  });
+</script>
+{% endblock %}

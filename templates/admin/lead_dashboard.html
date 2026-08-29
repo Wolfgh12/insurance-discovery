@@ -1,0 +1,1114 @@
+{% extends 'base.html' %}
+
+{% block title %}Lead Administration | National Estate & Policy Oversight{% endblock %}
+
+{% block extra_css %}
+<style>
+  .admin-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  /* Header & Action Cluster */
+  .admin-header-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E2E8F0;
+  }
+
+  /* Touch-Optimized Mobile Button Grid */
+  .admin-button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .nav-tile-btn {
+    background: #ffffff;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.6rem;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: inherit;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  }
+
+  .nav-tile-btn:hover {
+    border-color: #0284C7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.1);
+  }
+
+  .nav-tile-btn.active {
+    background: #0A192F;
+    border-color: #06B6D4;
+    box-shadow: 0 8px 20px rgba(10, 25, 47, 0.25), 0 0 15px rgba(6, 182, 212, 0.25);
+    transform: translateY(-2px);
+  }
+
+  .nav-tile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .nav-tile-icon {
+    font-size: 1.35rem;
+  }
+
+  .nav-tile-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+  }
+
+  .nav-tile-btn.active .nav-tile-badge {
+    background: rgba(6, 182, 212, 0.2);
+    color: #38BDF8;
+    border-color: #06B6D4;
+  }
+
+  .nav-tile-label {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #1E293B;
+    line-height: 1.25;
+  }
+
+  .nav-tile-btn.active .nav-tile-label {
+    color: #ffffff;
+  }
+
+  /* Panes & Transitions */
+  .tab-pane {
+    display: none;
+    animation: paneFade 0.22s ease forwards;
+  }
+
+  .tab-pane.active {
+    display: block;
+  }
+
+  @keyframes paneFade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  }
+
+  .metric-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748B;
+    margin-bottom: 0.35rem;
+  }
+
+  .metric-val {
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: #0F172A;
+    line-height: 1.1;
+  }
+
+  /* Panel Cards & Data Tables */
+  .panel-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #F1F5F9;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .panel-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 0;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    text-align: left;
+  }
+
+  .data-table th {
+    background: #F8FAFC;
+    color: #475569;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #E2E8F0;
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #F1F5F9;
+    color: #1E293B;
+    vertical-align: middle;
+  }
+
+  .data-table tr:hover td {
+    background: #F8FAFC;
+  }
+
+  .badge-status {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .badge-success { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+  .badge-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+  .badge-warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+
+  .btn-action-sm {
+    background: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    color: #334155;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-action-sm:hover {
+    background: #0284C7;
+    color: #ffffff;
+    border-color: #0284C7;
+  }
+
+  /* Biometric Inspection Modal */
+  .inspect-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .inspect-modal-backdrop.active { display: flex; }
+
+  .inspect-modal {
+    background: #ffffff;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 640px;
+    padding: 1.75rem;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  }
+
+  .photo-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 1.25rem 0;
+  }
+
+  .photo-frame {
+    background: #0F172A;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+ /* Mobile Adjustments */
+  @media (max-width: 768px) {
+    .admin-button-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Standardized Pagination Controls */
+  .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #F1F5F9;
+    font-size: 0.8rem;
+    color: #64748B;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pagination-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-page {
+    background: #ffffff;
+    border: 1px solid #CBD5E1;
+    color: #334155;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+
+  .btn-page:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F8FAFC;
+    border-color: #E2E8F0;
+  }
+
+  .btn-page:not(:disabled):hover {
+    background: #0284C7;
+    color: #ffffff;
+    border-color: #0284C7;
+  }
+
+  .page-counter-pill {
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+  <!-- Header Strip -->
+  <div class="admin-header-strip">
+    <div>
+      <div style="font-size: 0.75rem; font-weight: 800; color: #DC2626; text-transform: uppercase; letter-spacing: 0.6px;">National Oversight Gateway</div>
+      <h1 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0.2rem 0 0;">Lead Administrator Portal</h1>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <a href="{% url 'vault:dashboard' %}" class="btn-action-sm" style="text-decoration: none; padding: 0.6rem 1rem;">Personal Vault ➔</a>
+      <a href="/admin/" class="btn-action-sm" style="text-decoration: none; padding: 0.6rem 1rem; background: #0F172A; color: #ffffff; border-color: #0F172A;">Django Core Admin ⚙️</a>
+    </div>
+  </div>
+
+  <!-- Touch-Friendly Category Button Grid -->
+  <div class="admin-button-grid">
+    <button type="button" class="nav-tile-btn active" onclick="switchDashboardTab('tab-overview', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">📊</span>
+        <span class="nav-tile-badge">KPIs</span>
+      </div>
+      <div class="nav-tile-label">Overview & Metrics</div>
+    </button>
+
+    <button type="button" class="nav-tile-btn" onclick="switchDashboardTab('tab-telemetry', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">🛡️</span>
+        <span class="nav-tile-badge">{{ recent_audits|length }}</span>
+      </div>
+      <div class="nav-tile-label">Biometric Telemetry</div>
+    </button>
+
+    <button type="button" class="nav-tile-btn" onclick="switchDashboardTab('tab-policyholders', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">👥</span>
+        <span class="nav-tile-badge">{{ policyholders|length }}</span>
+      </div>
+      <div class="nav-tile-label">Policyholders</div>
+    </button>
+
+    <button type="button" class="nav-tile-btn" onclick="switchDashboardTab('tab-claimants', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">🔐</span>
+        <span class="nav-tile-badge">{{ claimants|length }}</span>
+      </div>
+      <div class="nav-tile-label">Next-of-Kin Grants</div>
+    </button>
+
+    <button type="button" class="nav-tile-btn" onclick="switchDashboardTab('tab-insurers', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">🏛️</span>
+        <span class="nav-tile-badge">{{ insurers|length }}</span>
+      </div>
+      <div class="nav-tile-label">Underwriters</div>
+    </button>
+  </div>
+
+  <!-- PANE 1: OVERVIEW & METRICS -->
+  <div id="tab-overview" class="tab-pane active">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Registered Citizens</div>
+        <div class="metric-val">{{ total_users }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Active Policies</div>
+        <div class="metric-val">{{ total_policies }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Total Claims Filed</div>
+        <div class="metric-val">{{ total_claims }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Statutory Disbursements</div>
+        <div class="metric-val" style="color: #059669;">GHS {{ total_disbursed|floatformat:2 }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Audit Logs Recorded</div>
+        <div class="metric-val">{{ total_audits }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Mismatch Flags</div>
+        <div class="metric-val" style="color: #DC2626;">{{ flagged_audits_count }}</div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Recent Claims Activity Summary</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Latest claims filed across the national underwriting network.</div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Claim Ref</th>
+              <th>Policyholder</th>
+              <th>Underwriter</th>
+              <th>Amount Claimed</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="overview-claims-body">
+            {% for claim in recent_claims %}
+              <tr class="page-item-overview-claims">
+                <td style="font-family: monospace; font-weight: 700; color: #0284C7;">{{ claim.claim_reference }}</td>
+                <td style="font-weight: 700;">{{ claim.policy.policyholder.get_full_name|default:claim.policy.policyholder.username }}</td>
+                <td>{{ claim.policy.insurer.name }}</td>
+                <td style="font-weight: 700;">GHS {{ claim.amount_claimed|floatformat:2 }}</td>
+                <td>
+                  {% if claim.status == 'APPROVED' or claim.status == 'DISBURSED' %}
+                    <span class="badge-status badge-success">{{ claim.get_status_display }}</span>
+                  {% elif claim.status == 'REJECTED' %}
+                    <span class="badge-status badge-danger">{{ claim.get_status_display }}</span>
+                  {% else %}
+                    <span class="badge-status badge-warning">{{ claim.get_status_display }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" style="text-align: center; color: #94A3B8; padding: 2rem;">No recent claims filed.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="overview-claims-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANE 2: BIOMETRIC TELEMETRY -->
+  <div id="tab-telemetry" class="tab-pane">
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Forensic Audit & Biometric Telemetry Feed</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Live security capture of claimant inquiries, IP records, and 3-angle facial verifications.</div>
+        </div>
+        <span class="badge-status badge-success">● Act 843 Tamper-Proof Active</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Validation Status</th>
+              <th>Claimant Name</th>
+              <th>Ghana Card</th>
+              <th>Relation</th>
+              <th>Target Policy</th>
+              <th>Network IP</th>
+              <th>Biometric Inspection</th>
+            </tr>
+          </thead>
+          <tbody id="telemetry-audits-body">
+            {% for log in recent_audits %}
+              <tr class="page-item-telemetry">
+                <td style="font-family: monospace; font-size: 0.78rem; color: #64748B;">{{ log.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                  {% if log.is_matched %}
+                    <span class="badge-status badge-success">✓ SSOT Match</span>
+                  {% else %}
+                    <span class="badge-status badge-danger">⚠️ Flagged Discrepancy</span>
+                  {% endif %}
+                </td>
+                <td style="font-weight: 700;">{{ log.claimant_name }}</td>
+                <td style="font-family: monospace; font-weight: 700; color: #0284C7;">{{ log.claimant_ghana_card }}</td>
+                <td>{{ log.relationship_stated }}</td>
+                <td>{{ log.policy.policy_number }}</td>
+                <td style="font-family: monospace; font-size: 0.78rem; color: #475569;">{{ log.ip_address|default:"127.0.0.1" }}</td>
+                <td>
+                  <button 
+                    type="button" 
+                    class="btn-action-sm btn-inspect-bio"
+                    data-name="{{ log.claimant_name }}"
+                    data-card="{{ log.claimant_ghana_card }}"
+                    data-ip="{{ log.ip_address|default:'127.0.0.1' }}"
+                    data-time="{{ log.created_at|date:'Y-m-d H:i:s T' }}"
+                    data-front="{% if log.biometric_front_photo %}{{ log.biometric_front_photo.url }}{% endif %}"
+                    data-left="{% if log.biometric_left_photo %}{{ log.biometric_left_photo.url }}{% endif %}"
+                    data-right="{% if log.biometric_right_photo %}{{ log.biometric_right_photo.url }}{% endif %}"
+                  >
+                    View 3-Angle Scan 🔍
+                  </button>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No security audit logs recorded yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="telemetry-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANE 3: POLICYHOLDERS DIRECTORY -->
+  <div id="tab-policyholders" class="tab-pane">
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Policyholders Directory</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Tap any policyholder's name to view their verified dossier, policies, and documents.</div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 700; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 4px 10px; border-radius: 6px;">
+          {{ policyholders|length }} Registered
+        </div>
+      </div>
+
+      <div id="policyholders-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+        {% for holder in policyholders %}
+          <div 
+            class="page-item-policyholder"
+            onclick="viewPolicyholderDossier('{{ holder.id }}')"
+            style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;"
+            onmouseover="this.style.borderColor='#0284C7'; this.style.background='#ffffff'; this.style.boxShadow='0 4px 14px rgba(2, 132, 199, 0.08)';"
+            onmouseout="this.style.borderColor='#E2E8F0'; this.style.background='#F8FAFC'; this.style.boxShadow='none';"
+          >
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(2, 132, 199, 0.12); color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800;">
+                👤
+              </div>
+              <div>
+                <div style="font-weight: 800; color: #0F172A; font-size: 0.96rem;">
+                  {{ holder.get_full_name|default:holder.username }}
+                </div>
+                <div style="font-size: 0.75rem; color: #64748B;">
+                  @{{ holder.username }} • Ghana Card: 
+                  <span style="font-family: monospace; color: #0284C7; font-weight: 700;">{{ holder.ghana_card_number|default:"Not Registered" }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.78rem; font-weight: 800; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 5px 12px; border-radius: 8px;">
+                View Details ➔
+              </span>
+            </div>
+
+            <!-- Structured JSON Data Node -->
+            <script type="application/json" id="ph-data-{{ holder.id }}">
+              {
+                "name": "{{ holder.get_full_name|default:holder.username|escapejs }}",
+                "username": "{{ holder.username|escapejs }}",
+                "date_joined": "{{ holder.date_joined|date:'M d, Y'|escapejs }}",
+                "ghana_card": "{{ holder.ghana_card_number|default:'Not Registered'|escapejs }}",
+                "phone": "{{ holder.phone_number|default:'No phone on file'|escapejs }}",
+                "email": "{{ holder.email|default:'No email registered'|escapejs }}",
+                "address": "{{ holder.permanent_address|default:''|escapejs }}",
+                "policies": [
+                  {% for p in holder.policies.all %}
+                    {
+                      "number": "{{ p.policy_number|escapejs }}",
+                      "insurer": "{{ p.insurer.name|escapejs }}",
+                      "type": "{{ p.get_policy_type_display|escapejs }}",
+                      "sum": "GHS {{ p.sum_assured|floatformat:2|escapejs }}",
+                      "status": "{{ p.get_policy_status_display|escapejs }}"
+                    }{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "assets": [
+                  {% for a in holder.assets.all %}
+                    "{{ a.asset_name|escapejs }} ({{ a.get_asset_type_display|escapejs }})"{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "documents": [
+                  {% for d in holder.estate_documents.all %}
+                    "{{ d.title|escapejs }}"{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "contacts": [
+                  {% for c in holder.emergency_contacts.all %}
+                    {
+                      "name": "{{ c.full_name|escapejs }}",
+                      "relation": "{{ c.relationship|escapejs }}",
+                      "phone": "{{ c.phone_number|escapejs }}"
+                    }{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ]
+              }
+            </script>
+          </div>
+        {% empty %}
+          <div style="text-align: center; color: #94A3B8; padding: 2.5rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+            No registered policyholders found.
+          </div>
+        {% endfor %}
+      </div>
+
+      <div id="policyholders-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANE 4: NEXT-OF-KIN GRANTS -->
+  <div id="tab-claimants" class="tab-pane">
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Verified Next-of-Kin & Claimant Access Grants</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Surviving relatives who verified their identities, satisfied statutory match parameters, and unlocked vaults.</div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 700; color: #059669; background: #DCFCE7; border: 1px solid #BBF7D0; padding: 4px 10px; border-radius: 6px;">
+          Active Grants: {{ claimants|length }}
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Payment Reference</th>
+              <th>Claimant Name</th>
+              <th>Stated Kinship</th>
+              <th>Claimant Ghana Card</th>
+              <th>Claimant Contact</th>
+              <th>Target Policyholder</th>
+              <th>Policy & Insurer</th>
+              <th>Unlocked Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="claimants-grants-body">
+            {% for grant in claimants %}
+              <tr class="page-item-claimant-grant">
+                <td>
+                  <span style="font-family: monospace; font-weight: 700; color: #0284C7; font-size: 0.78rem;">
+                    {{ grant.payment_reference }}
+                  </span>
+                </td>
+                <td>
+                  <div style="font-weight: 800; color: #0F172A;">{{ grant.claimant_name }}</div>
+                  <div style="font-size: 0.74rem; color: #64748B;">User: @{{ grant.claimant_user.username }}</div>
+                </td>
+                <td>
+                  <span style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #334155; font-size: 0.74rem; font-weight: 700; padding: 2px 7px; border-radius: 6px;">
+                    {{ grant.relationship_to_deceased }}
+                  </span>
+                </td>
+                <td>
+                  <span style="font-family: monospace; color: #0F172A; font-weight: 700; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 3px 6px; border-radius: 4px;">
+                    {{ grant.claimant_ghana_card }}
+                  </span>
+                </td>
+                <td>
+                  <div style="font-size: 0.78rem; font-weight: 600;">{{ grant.claimant_phone }}</div>
+                  <div style="font-size: 0.74rem; color: #64748B;">{{ grant.claimant_email }}</div>
+                </td>
+                <td>
+                  <div style="font-weight: 700; color: #0F172A;">
+                    {{ grant.policyholder.get_full_name|default:grant.policyholder.username }}
+                  </div>
+                  <div style="font-size: 0.74rem; color: #64748B;">Card: {{ grant.policyholder.ghana_card_number|default:"N/A" }}</div>
+                </td>
+                <td>
+                  <div style="font-weight: 700; color: #0284C7; font-size: 0.8rem;">{{ grant.policy.policy_number }}</div>
+                  <div style="font-size: 0.74rem; color: #475569;">{{ grant.policy.insurer.name }}</div>
+                </td>
+                <td style="font-family: monospace; font-size: 0.78rem; color: #64748B;">
+                  {{ grant.unlocked_at|date:"Y-m-d H:i" }}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No verified next-of-kin access grants on record.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="claimants-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANE 5: UNDERWRITING NETWORK -->
+  <div id="tab-insurers" class="tab-pane">
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Licensed Underwriting Partners</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Authorized insurance institutions integrated into the national legacy exchange.</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Company Name</th>
+              <th>License Number</th>
+              <th>Active Policies</th>
+              <th>Claims Hotline</th>
+              <th>Desk Routing</th>
+              <th>Verification State</th>
+            </tr>
+          </thead>
+          <tbody id="insurers-network-body">
+            {% for company in insurers %}
+              <tr class="page-item-insurer">
+                <td style="font-weight: 800; color: #0F172A;">{{ company.name }}</td>
+                <td style="font-family: monospace;">{{ company.license_number }}</td>
+                <td style="font-weight: 700;">{{ company.active_policies_count }} policies</td>
+                <td>{{ company.claims_hotline }}</td>
+                <td><a href="mailto:{{ company.contact_email }}" style="color: #0284C7; text-decoration: none;">{{ company.contact_email }}</a></td>
+                <td>
+                  {% if company.is_verified %}
+                    <span class="badge-status badge-success">✓ Verified Partner</span>
+                  {% else %}
+                    <span class="badge-status badge-warning">Pending Audit</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: #94A3B8; padding: 2rem;">No underwriting partners registered.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="insurers-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Policyholder Dossier Inspection Modal (Centered, Scroll-Locked) -->
+<div id="policyholder-inspect-modal" class="inspect-modal-backdrop">
+  <div class="inspect-modal" style="max-height: 85vh; overflow-y: auto;">
+    
+    <!-- Modal Top Header Bar with Clean ✕ Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 1.15rem;">
+      <div>
+        <h3 id="ph-modal-name" style="margin: 0; font-size: 1.2rem; font-weight: 900; color: #0F172A;">--</h3>
+        <div id="ph-modal-subhead" style="font-size: 0.78rem; color: #64748B;">--</div>
+      </div>
+      <button 
+        type="button" 
+        id="btn-close-ph-modal"
+        style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #64748B; padding: 4px 8px; line-height: 1;"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Identity & Contact Information Strip -->
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 1.15rem; font-size: 0.8rem; font-family: monospace;">
+      <div style="margin-bottom: 4px;"><strong>Ghana Card PIN:</strong> <span id="ph-modal-card" style="color: #0284C7; font-weight: 700;">--</span></div>
+      <div style="margin-bottom: 4px;"><strong>Phone Number:</strong> <a id="ph-modal-phone" href="#" style="color: #0F172A; text-decoration: none;">--</a></div>
+      <div style="margin-bottom: 4px;"><strong>Email Address:</strong> <a id="ph-modal-email" href="#" style="color: #0284C7; text-decoration: none;">--</a></div>
+      <div id="ph-modal-address-row"><strong>Address:</strong> <span id="ph-modal-address">--</span></div>
+    </div>
+
+    <!-- Linked Policies Section -->
+    <div style="margin-bottom: 1.15rem;">
+      <div style="font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
+        Linked Underwritten Policies
+      </div>
+      <div id="ph-modal-policies" style="display: flex; flex-direction: column; gap: 6px;"></div>
+    </div>
+
+    <!-- Secured Assets & Documents Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.15rem;">
+      <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-assets-title" style="font-size: 0.72rem; font-weight: 800; color: #92400E; text-transform: uppercase; margin-bottom: 0.35rem;">🏛️ Assets & Deeds</div>
+        <div id="ph-modal-assets-list"></div>
+      </div>
+
+      <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-docs-title" style="font-size: 0.72rem; font-weight: 800; color: #3730A3; text-transform: uppercase; margin-bottom: 0.35rem;">📜 Legal Files & Wills</div>
+        <div id="ph-modal-docs-list"></div>
+      </div>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.75rem;">
+      <div id="ph-modal-contacts-title" style="font-size: 0.72rem; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 0.35rem;">👥 Registered Next-of-Kin</div>
+      <div id="ph-modal-contacts-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 3-Angle Facial Biometric Inspection Modal -->
+<div id="inspect-modal" class="inspect-modal-backdrop">
+  <div class="inspect-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem;">
+      <div>
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0F172A;">Biometric Facial Verification Audit</h3>
+        <div id="modal-subhead" style="font-size: 0.78rem; color: #64748B;">--</div>
+      </div>
+      <button type="button" id="btn-close-inspect" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+
+    <div class="photo-strip-grid">
+      <div>
+        <div class="photo-frame">
+          <img id="inspect-photo-front" src="" alt="Front Profile" />
+        </div>
+        <div style="text-align: center; font-size: 0.75rem; font-weight: 700; color: #0284C7; margin-top: 4px;">1. Front Profile</div>
+      </div>
+      <div>
+        <div class="photo-frame">
+          <img id="inspect-photo-left" src="" alt="Left Turn" />
+        </div>
+        <div style="text-align: center; font-size: 0.75rem; font-weight: 700; color: #0284C7; margin-top: 4px;">2. Left Turn</div>
+      </div>
+      <div>
+        <div class="photo-frame">
+          <img id="inspect-photo-right" src="" alt="Right Turn" />
+        </div>
+        <div style="text-align: center; font-size: 0.75rem; font-weight: 700; color: #0284C7; margin-top: 4px;">3. Right Turn</div>
+      </div>
+    </div>
+
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.85rem; font-size: 0.78rem; color: #475569; font-family: monospace;">
+      <div><strong>IP Address:</strong> <span id="modal-ip">--</span></div>
+      <div><strong>Timestamp:</strong> <span id="modal-time">--</span></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function switchDashboardTab(tabId, btn) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-tile-btn').forEach(el => el.classList.remove('active'));
+
+    const targetPane = document.getElementById(tabId);
+    if (targetPane) targetPane.classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  // Universal 10-Item Client-Side Pagination Controller
+  function setupClientPagination(itemSelector, controlsId, pageSize = 10) {
+    const items = Array.from(document.querySelectorAll(itemSelector));
+    const controls = document.getElementById(controlsId);
+    if (!controls) return;
+
+    const totalItems = items.length;
+    if (totalItems <= pageSize) {
+      controls.style.display = 'none';
+      return;
+    }
+    controls.style.display = 'flex';
+
+    let currentPage = 1;
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const prevBtn = controls.querySelector('.btn-prev');
+    const nextBtn = controls.querySelector('.btn-next');
+    const counterEl = controls.querySelector('.page-counter');
+
+    function renderPage(page) {
+      currentPage = page;
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+
+      items.forEach((item, index) => {
+        if (index >= start && index < end) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      if (counterEl) {
+        counterEl.textContent = `Page ${page} of ${totalPages} • ${totalItems} Total`;
+      }
+      if (prevBtn) prevBtn.disabled = page === 1;
+      if (nextBtn) nextBtn.disabled = page === totalPages;
+    }
+
+    if (prevBtn) {
+      prevBtn.onclick = () => {
+        if (currentPage > 1) renderPage(currentPage - 1);
+      };
+    }
+    if (nextBtn) {
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) renderPage(currentPage + 1);
+      };
+    }
+
+    renderPage(1);
+  }
+
+  function viewPolicyholderDossier(holderId) {
+    const dataNode = document.getElementById(`ph-data-${holderId}`);
+    if (!dataNode) return;
+    const data = JSON.parse(dataNode.textContent);
+
+    document.getElementById('ph-modal-name').textContent = data.name;
+    document.getElementById('ph-modal-subhead').textContent = `User: @${data.username} • Registered: ${data.date_joined}`;
+    document.getElementById('ph-modal-card').textContent = data.ghana_card;
+
+    const phoneEl = document.getElementById('ph-modal-phone');
+    phoneEl.textContent = data.phone;
+    phoneEl.href = data.phone !== 'No phone on file' ? `tel:${data.phone}` : '#';
+
+    const emailEl = document.getElementById('ph-modal-email');
+    emailEl.textContent = data.email;
+    emailEl.href = data.email !== 'No email registered' ? `mailto:${data.email}` : '#';
+
+    const addressRow = document.getElementById('ph-modal-address-row');
+    if (data.address) {
+      addressRow.style.display = 'block';
+      document.getElementById('ph-modal-address').textContent = data.address;
+    } else {
+      addressRow.style.display = 'none';
+    }
+
+    const policiesContainer = document.getElementById('ph-modal-policies');
+    if (data.policies.length > 0) {
+      policiesContainer.innerHTML = data.policies.map(p => `
+        <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+          <div>
+            <strong style="color: #0F172A;">${p.number}</strong>
+            <div style="font-size: 0.74rem; color: #64748B;">${p.insurer} • ${p.type}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #059669; font-weight: 900;">${p.sum}</div>
+            <span style="font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #DCFCE7; color: #166534;">${p.status}</span>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      policiesContainer.innerHTML = `<div style="background: #F8FAFC; border: 1px dashed #CBD5E1; padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; color: #94A3B8; text-align: center;">No active policies linked.</div>`;
+    }
+
+    document.getElementById('ph-modal-assets-title').textContent = `🏛️ Assets & Deeds (${data.assets.length})`;
+    const assetsList = document.getElementById('ph-modal-assets-list');
+    assetsList.innerHTML = data.assets.length > 0
+      ? data.assets.map(a => `<div style="font-size: 0.76rem; font-weight: 700; color: #78350F; margin-bottom: 2px;">• ${a}</div>`).join('')
+      : `<div style="font-size: 0.72rem; color: #B45309; font-style: italic;">No asset deeds deposited.</div>`;
+
+    document.getElementById('ph-modal-docs-title').textContent = `📜 Legal Files & Wills (${data.documents.length})`;
+    const docsList = document.getElementById('ph-modal-docs-list');
+    docsList.innerHTML = data.documents.length > 0
+      ? data.documents.map(d => `<div style="font-size: 0.76rem; font-weight: 700; color: #312E81; margin-bottom: 2px;">• ${d}</div>`).join('')
+      : `<div style="font-size: 0.72rem; color: #4338CA; font-style: italic;">No estate documents deposited.</div>`;
+
+    document.getElementById('ph-modal-contacts-title').textContent = `👥 Registered Next-of-Kin (${data.contacts.length})`;
+    const contactsList = document.getElementById('ph-modal-contacts-list');
+    contactsList.innerHTML = data.contacts.length > 0
+      ? data.contacts.map(c => `
+          <div style="font-size: 0.78rem; color: #14532D; margin-bottom: 2px;">
+            <strong>${c.name}</strong> (${c.relation}) • <a href="tel:${c.phone}" style="color: #166534; font-weight: 700; text-decoration: none;">${c.phone}</a>
+          </div>
+        `).join('')
+      : `<div style="font-size: 0.72rem; color: #15803D; font-style: italic;">No emergency contacts registered.</div>`;
+
+    const modal = document.getElementById('policyholder-inspect-modal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Initialize 10-item pagination across all tabs
+    setupClientPagination('.page-item-overview-claims', 'overview-claims-pagination', 10);
+    setupClientPagination('.page-item-telemetry', 'telemetry-pagination', 10);
+    setupClientPagination('.page-item-policyholder', 'policyholders-pagination', 10);
+    setupClientPagination('.page-item-claimant-grant', 'claimants-pagination', 10);
+    setupClientPagination('.page-item-insurer', 'insurers-pagination', 10);
+
+    const bioModal = document.getElementById('inspect-modal');
+    const closeBioBtn = document.getElementById('btn-close-inspect');
+
+    document.querySelectorAll('.btn-inspect-bio').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const name = this.getAttribute('data-name');
+        const card = this.getAttribute('data-card');
+        const ip = this.getAttribute('data-ip');
+        const time = this.getAttribute('data-time');
+
+        document.getElementById('modal-subhead').textContent = `${name} (${card})`;
+        document.getElementById('modal-ip').textContent = ip;
+        document.getElementById('modal-time').textContent = time;
+
+        const front = this.getAttribute('data-front');
+        const left = this.getAttribute('data-left');
+        const right = this.getAttribute('data-right');
+
+        const fallback = 'https://placehold.co/200x200/0f172a/ffffff?text=No+Capture';
+        document.getElementById('inspect-photo-front').src = front || fallback;
+        document.getElementById('inspect-photo-left').src = left || fallback;
+        document.getElementById('inspect-photo-right').src = right || fallback;
+
+        bioModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    if (closeBioBtn) {
+      closeBioBtn.addEventListener('click', () => {
+        bioModal.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+
+    if (bioModal) {
+      bioModal.addEventListener('click', function (e) {
+        if (e.target === bioModal) {
+          bioModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+
+    const phModal = document.getElementById('policyholder-inspect-modal');
+    const closePhBtn = document.getElementById('btn-close-ph-modal');
+
+    if (closePhBtn) {
+      closePhBtn.addEventListener('click', () => {
+        phModal.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+
+    if (phModal) {
+      phModal.addEventListener('click', function (e) {
+        if (e.target === phModal) {
+          phModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

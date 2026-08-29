@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}System Administration Portal | LegacyTrace{% endblock %}
+
+{% block extra_css %}
+<style>
+  .admin-auth-wrapper {
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+  }
+
+  .admin-auth-card {
+    width: 100%;
+    max-width: 460px;
+    background: #0B192C;
+    border-radius: 24px;
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid #EF4444;
+  }
+
+  .admin-auth-card.mode-normal {
+    border-color: #06B6D4;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.2);
+  }
+
+  .admin-auth-card.mode-lead {
+    border-color: #EF4444;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.25);
+  }
+
+  /* Interactive Toggle Bar */
+  .admin-toggle-switch {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 5px;
+    margin-bottom: 2rem;
+    gap: 4px;
+  }
+
+  .toggle-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.84rem;
+    font-weight: 800;
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+
+  .toggle-tab-btn.active.tab-lead {
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  }
+
+  .toggle-tab-btn.active.tab-normal {
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+  }
+
+  .admin-input-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-input-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #CBD5E1;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.45rem;
+  }
+
+  .admin-input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    color: #ffffff;
+    font-size: 0.92rem;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .admin-input-field:focus {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .mode-lead .admin-input-field:focus {
+    border-color: #EF4444;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
+  }
+
+  .mode-normal .admin-input-field:focus {
+    border-color: #06B6D4;
+    box-shadow: 0 0 14px rgba(6, 182, 212, 0.3);
+  }
+
+  .btn-admin-submit {
+    width: 100%;
+    border: none;
+    padding: 0.95rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    font-family: inherit;
+    margin-top: 0.5rem;
+  }
+
+  .btn-admin-submit:hover {
+    transform: translateY(-2px);
+  }
+
+  .mode-lead .btn-admin-submit {
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+  }
+
+  .mode-normal .btn-admin-submit {
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-auth-wrapper">
+  <div class="admin-auth-card mode-lead" id="admin-auth-box">
+    
+    <!-- Role Toggle Tabs -->
+    <div class="admin-toggle-switch">
+      <button type="button" class="toggle-tab-btn active tab-lead" id="tab-lead-btn" onclick="switchAdminMode('lead')">
+        👑 Lead Admin
+      </button>
+      <button type="button" class="toggle-tab-btn tab-normal" id="tab-normal-btn" onclick="switchAdminMode('staff')">
+        ⚙️ Staff
+      </button>
+    </div>
+
+    <!-- Dynamic Header -->
+    <div style="text-align: center; margin-bottom: 1.75rem;">
+      <div id="role-badge" style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid #EF4444; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.6rem;">
+        👑 Superuser Root Clearance
+      </div>
+      <h2 id="role-title" style="margin: 0; font-size: 1.45rem; font-weight: 900; letter-spacing: -0.3px;">
+        Lead Administrator Portal
+      </h2>
+      <p id="role-desc" style="margin: 0.35rem 0 0; font-size: 0.82rem; color: #94A3B8; line-height: 1.45;">
+        National registry oversight, security audit logs & root configuration
+      </p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FECACA; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.25rem;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Unified Login Form -->
+    <form method="POST" action="{% url 'vault:admin_login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="admin_role" id="admin_role_input" value="lead">
+
+      <div class="admin-input-group">
+        <label class="admin-input-label" id="username-label">Lead Admin Username</label>
+        <input type="text" name="username" class="admin-input-field" required autofocus placeholder="Enter root administrative ID">
+      </div>
+
+      <div class="admin-input-group" style="margin-bottom: 1.5rem;">
+        <label class="admin-input-label">Password</label>
+        <input type="password" name="password" class="admin-input-field" required placeholder="••••••••••••">
+      </div>
+
+      <button type="submit" class="btn-admin-submit" id="submit-btn">
+        Authenticate Lead Admin ➔
+      </button>
+    </form>
+
+    <div style="margin-top: 1.75rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.1rem; font-size: 0.75rem; color: #64748B;">
+      <span>🔒 All administrative sessions are recorded under Act 843 Statutory Compliance.</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function switchAdminMode(role) {
+    const card = document.getElementById('admin-auth-box');
+    const leadBtn = document.getElementById('tab-lead-btn');
+    const normalBtn = document.getElementById('tab-normal-btn');
+    const roleInput = document.getElementById('admin_role_input');
+    const roleBadge = document.getElementById('role-badge');
+    const roleTitle = document.getElementById('role-title');
+    const roleDesc = document.getElementById('role-desc');
+    const userLabel = document.getElementById('username-label');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const normalizedRole = (role || 'lead').toLowerCase();
+
+    if (normalizedRole === 'lead') {
+      card.className = 'admin-auth-card mode-lead';
+      leadBtn.className = 'toggle-tab-btn active tab-lead';
+      normalBtn.className = 'toggle-tab-btn tab-normal';
+      roleInput.value = 'lead';
+
+      roleBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+      roleBadge.style.color = '#FCA5A5';
+      roleBadge.style.borderColor = '#EF4444';
+      roleBadge.textContent = '👑 Superuser Root Clearance';
+
+      roleTitle.textContent = 'Lead Administrator Portal';
+      roleDesc.textContent = 'National registry oversight, security audit logs & root configuration';
+      userLabel.textContent = 'Lead Admin Username';
+      submitBtn.textContent = 'Authenticate Lead Admin ➔';
+    } else {
+      card.className = 'admin-auth-card mode-normal';
+      leadBtn.className = 'toggle-tab-btn tab-lead';
+      normalBtn.className = 'toggle-tab-btn active tab-normal';
+      roleInput.value = 'staff';
+
+      roleBadge.style.background = 'rgba(6, 182, 212, 0.2)';
+      roleBadge.style.color = '#38BDF8';
+      roleBadge.style.borderColor = '#06B6D4';
+      roleBadge.textContent = '⚙️ Operations Clearance';
+
+      roleTitle.textContent = 'Staff Admin Portal';
+      roleDesc.textContent = 'Claimant dossier review, policy synchronization & verified claims dispatch';
+      userLabel.textContent = 'Staff Admin Username';
+      submitBtn.textContent = 'Authenticate Normal Admin ➔';
+    }
+  }
+
+  // Automatically activate the requested role card upon arrival
+  document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedRole = urlParams.get('role') || '{{ target_role|default:"lead" }}';
+    switchAdminMode(requestedRole);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+
+{% block title %}Private Estate Vault | {{ policyholder.get_full_name|default:policyholder.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .claimant-hero {
+    background: linear-gradient(135deg, #07162c 0%, #0a2540 100%);
+    border: 1.5px solid rgba(6, 182, 212, 0.4);
+    border-radius: 20px;
+    padding: 2rem;
+    color: #ffffff;
+    margin-bottom: 2rem;
+    box-shadow: 0 16px 36px rgba(2, 12, 27, 0.3);
+  }
+
+  .grant-pill {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10B981;
+    color: #34D399;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  /* Financial Metrics Overview Bar */
+  .financial-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(6, 182, 212, 0.2);
+  }
+
+  .fin-stat-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+  }
+
+  .fin-stat-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .fin-stat-value {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #ffffff;
+    font-family: monospace;
+  }
+
+  .fin-stat-sub {
+    font-size: 0.72rem;
+    color: #38BDF8;
+    margin-top: 2px;
+  }
+
+  .vault-layout-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 860px) {
+    .vault-layout-grid { 
+      grid-template-columns: 1fr; 
+    }
+  }
+
+  .estate-card {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+  }
+
+  .claimant-dossier-card {
+    background: #ffffff;
+    border: 1.5px solid #38BDF8;
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.08);
+  }
+
+  .card-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--accent-ice-blue);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-heading {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .claimant-tag {
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid #06B6D4;
+    color: #0284C7;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  .vault-data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 0.85rem;
+  }
+
+  .vault-data-row:last-child { 
+    border-bottom: none; 
+  }
+
+  .data-title { 
+    color: #64748B; 
+    font-weight: 600; 
+  }
+
+  .data-content { 
+    color: var(--primary-deep-navy); 
+    font-weight: 800; 
+  }
+
+  .doc-vault-item {
+    background: var(--accent-ice-blue);
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-action-view {
+    background: var(--primary-deep-navy);
+    color: var(--accent-cyan);
+    border: 1px solid var(--accent-cyan);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .btn-action-view:hover { 
+    background: var(--secondary-sea-blue); 
+    color: #ffffff; 
+  }
+
+  /* Claim Status Badges */
+  .claim-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .claim-pending { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
+  .claim-approved { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+  .claim-disbursed { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+
+  /* Navigation Buttons */
+  .btn-vault-back {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-vault-back:hover {
+    background: rgba(6, 182, 212, 0.2);
+    border-color: #06B6D4;
+    color: #38BDF8;
+    transform: translateY(-1px);
+  }
+
+  .btn-vault-logout {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #FCA5A5;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-vault-logout:hover {
+    background: #EF4444;
+    color: #ffffff;
+    border-color: #EF4444;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .dispatch-packet-box {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  /* Statutory Print Stylesheet */
+  @media print {
+    .app-header, .app-footer, .btn-vault-logout, .btn-vault-back, .btn-action-view, form {
+      display: none !important;
+    }
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+    .claimant-hero {
+      background: #0A192F !important;
+      color: #ffffff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .estate-card, .claimant-dossier-card {
+      border: 1px solid #000000 !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Master Hero Header with Financial Metrics Overview -->
+<div class="claimant-hero">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="grant-pill">✓ Verified Next-of-Kin Access</span>
+      <h1 style="font-size: 1.6rem; font-weight: 900; margin: 0.5rem 0 0.2rem;">
+        Estate Vault: {{ policyholder.get_full_name|default:policyholder.username }}
+      </h1>
+      <p style="margin: 0; font-size: 0.85rem; color: #94A3B8;">
+        Ghana Card: <strong style="color: #38BDF8;">{{ policyholder.ghana_card_number|default:"Verified" }}</strong>
+      </p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span style="font-family: monospace; font-size: 0.75rem; color: #10B981;">TOKEN: {{ access_token|slice:":12" }}...</span>
+     
+      <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn-vault-logout" title="Lock vault and terminate session">
+          <span>Lock & Exit</span> 🔒
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cumulative Contributions & Financial Overview -->
+  <div class="financial-stat-grid">
+    <div class="fin-stat-card">
+      <div class="fin-stat-label">Total Premiums Paid</div>
+      <div class="fin-stat-value" style="color: #34D399;">GHS {{ policy.total_premiums_paid|floatformat:2 }}</div>
+      <div class="fin-stat-sub">Cumulative policyholder contributions</div>
+    </div>
+    <div class="fin-stat-card">
+      <div class="fin-stat-label">Sum Assured Benefit</div>
+      <div class="fin-stat-value" style="color: #38BDF8;">GHS {{ policy.sum_assured|floatformat:2 }}</div>
+      <div class="fin-stat-sub">Guaranteed underwritten payout</div>
+    </div>
+    <div class="fin-stat-card">
+      <div class="fin-stat-label">Monthly Premium</div>
+      <div class="fin-stat-value">GHS {{ policy.monthly_premium|floatformat:2 }}</div>
+      <div class="fin-stat-sub">{{ policy.get_payment_frequency_display }}</div>
+    </div>
+    <div class="fin-stat-card">
+      <div class="fin-stat-label">Net Estimated Payout</div>
+      <div class="fin-stat-value" style="color: #FCD34D;">GHS {{ policy.net_estimated_benefit|floatformat:2 }}</div>
+      <div class="fin-stat-sub">{{ policy.get_policy_status_display }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="vault-layout-grid">
+  <div>
+    <!-- Policy & Underwriter File -->
+    <div class="estate-card">
+      <div class="card-header-bar">
+        <div class="card-heading"><span>🏛️</span> Underwriter Claim Dossier</div>
+        <span style="color: #10B981; font-weight: 800; font-size: 0.75rem;">● {{ policy.get_policy_status_display }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Underwriting Insurer</span>
+        <span class="data-content" style="color: #0284C7;">{{ policy.insurer.name }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Policy Number</span>
+        <span class="data-content">{{ policy.policy_number }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Policy Category</span>
+        <span class="data-content">{{ policy.get_policy_type_display }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Policy Start Date</span>
+        <span class="data-content">{{ policy.policy_start_date|default:"Active & Registered" }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Claims Department Email</span>
+        <span class="data-content">{{ policy.insurer.contact_email }}</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Claims Direct Hotline</span>
+        <span class="data-content">{{ policy.insurer.claims_hotline }}</span>
+      </div>
+    </div>
+
+    <!-- Claims Filed & Settlement Ledger -->
+    <div class="estate-card">
+      <div class="card-header-bar">
+        <div class="card-heading"><span>📑</span> Claims History & Disbursements</div>
+        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ claims.count }} Record(s)</span>
+      </div>
+      {% if claims %}
+        {% for claim in claims %}
+          <div class="doc-vault-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--primary-deep-navy); font-size: 0.92rem;">{{ claim.claim_reference }}</strong>
+                <span style="font-size: 0.75rem; color: #64748B; margin-left: 6px;">{{ claim.get_claim_type_display }}</span>
+              </div>
+              <span class="claim-badge {% if claim.status == 'APPROVED' %}claim-approved{% elif claim.status == 'DISBURSED' %}claim-disbursed{% else %}claim-pending{% endif %}">
+                ● {{ claim.get_status_display }}
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px dashed #CBD5E1; padding-top: 6px;">
+              <span style="color: #64748B;">Amount Claimed: <strong style="color: var(--primary-deep-navy);">GHS {{ claim.amount_claimed|floatformat:2 }}</strong></span>
+              <span style="color: #059669;">Disbursed: <strong>GHS {{ claim.amount_disbursed|floatformat:2 }}</strong></span>
+            </div>
+            {% if claim.insurer_notes %}
+              <div style="font-size: 0.74rem; color: #475569; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 6px;">
+                <em>Underwriter Remark: {{ claim.insurer_notes }}</em>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">
+          No previous claims filed under this policy. Eligible for primary death benefit settlement.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Certified Digital Wills & Legal Deeds -->
+    <div class="estate-card">
+      <div class="card-header-bar">
+        <div class="card-heading"><span>📜</span> Deposited Wills & Indentures</div>
+        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ documents.count }} File(s)</span>
+      </div>
+      {% if documents %}
+        {% for doc in documents %}
+          <div class="doc-vault-item">
+            <div>
+              <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.9rem;">{{ doc.title }}</div>
+              <div style="font-size: 0.75rem; color: #64748B;">{{ doc.get_document_type_display }} • Uploaded {{ doc.uploaded_at|date:"M d, Y" }}</div>
+            </div>
+            {% if doc.document_file %}
+              <a href="{{ doc.document_file.url }}" target="_blank" class="btn-action-view">Download ⬇</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">No separate digital will documents attached.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <!-- Verified Relative / Claimant Intake Dossier -->
+    <div class="claimant-dossier-card">
+      <div class="card-header-bar">
+        <div class="card-heading"><span>📋</span> Verified Claimant Dossier</div>
+        <span class="claimant-tag">Audited Next-of-Kin</span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Claimant Legal Name</span>
+        <span class="data-content" style="color: #0284C7;">
+          {{ grant.claimant_name|default:grant_record.claimant_name|default:request.user.get_full_name|default:request.user.username }}
+        </span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Relationship to Deceased</span>
+        <span class="data-content">
+          {{ grant.relationship|default:grant_record.relationship_to_deceased|default:"Direct Next-of-Kin" }}
+        </span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Claimant Ghana Card ID</span>
+        <span class="data-content" style="font-family: monospace; color: #059669;">
+          {{ grant.claimant_ghana_card|default:grant_record.claimant_ghana_card|default:"GHA-VERIFIED" }}
+        </span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Contact Phone</span>
+        <span class="data-content">
+          {{ grant.claimant_phone|default:grant_record.claimant_phone|default:request.user.phone_number|default:"On Record" }}
+        </span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Registered Email</span>
+        <span class="data-content">
+          {{ grant_record.claimant_email|default:request.user.email }}
+        </span>
+      </div>
+      <div class="vault-data-row" style="flex-direction: column; gap: 4px; align-items: flex-start;">
+        <span class="data-title">Permanent Residential Address</span>
+        <span class="data-content" style="font-size: 0.82rem; line-height: 1.4; color: #334155;">
+          {{ grant.permanent_address|default:grant_record.permanent_address|default:"Address authenticated on file." }}
+        </span>
+      </div>
+      <div class="vault-data-row">
+        <span class="data-title">Statutory Audit Ref</span>
+        <span class="data-content" style="font-family: monospace; font-size: 0.78rem; color: #64748B;">
+          {{ grant.reference|default:grant_record.payment_reference }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Physical Assets & Land Ledger -->
+    <div class="estate-card">
+      <div class="card-header-bar">
+        <div class="card-heading"><span>🏡</span> Registered Real Estate & Assets</div>
+        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ assets.count }} Item(s)</span>
+      </div>
+      {% if assets %}
+        {% for asset in assets %}
+          <div class="doc-vault-item">
+            <div>
+              <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.9rem;">{{ asset.title }}</div>
+              <div style="font-size: 0.75rem; color: #64748B;">
+                {{ asset.get_asset_type_display }} • Est. GHS {{ asset.estimated_value|default:"N/A" }}
+              </div>
+            </div>
+            {% if asset.document_proof %}
+              <a href="{{ asset.document_proof.url }}" target="_blank" class="btn-action-view">Proof ↗</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">No physical asset listings on file.</p>
+      {% endif %}
+    </div>
+
+    <!-- Statutory Claim Bundle Dispatch -->
+    <div class="dispatch-packet-box">
+      <h4 style="margin: 0 0 0.5rem; color: #065F46; font-size: 1.05rem;">Statutory Claim Packet Ready</h4>
+      <p style="font-size: 0.8rem; color: #047857; margin-bottom: 1rem;">
+        Your identity verification and reference ({{ grant.reference|default:grant_record.payment_reference }}) have been logged with underwriting partners.
+      </p>
+      <button onclick="window.print()" class="btn-action-view" style="width: 100%; padding: 0.75rem; font-size: 0.85rem;">
+        Print Certified Claim Dossier 🖨️
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

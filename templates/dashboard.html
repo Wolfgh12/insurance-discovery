@@ -1,0 +1,1020 @@
+{% extends 'base.html' %}
+
+{% block title %}My Legacy Vault Dashboard | LegacyTrace{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ----------------------------------------------------
+     Dashboard Header & Telemetry
+  ---------------------------------------------------- */
+  .vault-hero {
+    background: var(--gradient-oceanic);
+    border-radius: 20px;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    color: #ffffff;
+    margin-bottom: 2rem;
+    box-shadow: 0 12px 30px rgba(10, 25, 47, 0.25);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+  }
+
+  .vault-user-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .vault-profile-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .vault-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--gradient-btn);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+  }
+
+  .vault-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+
+  .vault-card-id {
+    font-size: 0.8rem;
+    color: var(--accent-light-cyan);
+    font-weight: 500;
+  }
+
+  .badge-status-live {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34D399;
+    border: 1px solid #10B981;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .vault-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.85rem;
+    border-top: 1px solid rgba(224, 242, 254, 0.15);
+    padding-top: 1.25rem;
+  }
+
+  .stat-chip {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+  }
+
+  .stat-chip-count {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #ffffff;
+  }
+
+  .stat-chip-label {
+    font-size: 0.72rem;
+    color: var(--accent-light-cyan);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* ----------------------------------------------------
+     Alert Messages
+  ---------------------------------------------------- */
+  .alert-banner {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    color: #065F46;
+    padding: 0.85rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ----------------------------------------------------
+     Two-Column Dashboard Layout & Vertical Side Nav
+  ---------------------------------------------------- */
+  .dashboard-layout-container {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 1.75rem;
+    align-items: start;
+    margin-bottom: 3rem;
+  }
+
+  .vault-sidebar {
+    background: #ffffff;
+    border: 1.5px solid var(--accent-light-cyan);
+    border-radius: 20px;
+    padding: 1.25rem 1rem;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: sticky;
+    top: 90px;
+  }
+
+  .sidebar-header-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 800;
+    color: #64748B;
+    padding: 0.25rem 0.6rem 0.5rem;
+    border-bottom: 1px dashed var(--accent-light-cyan);
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dark);
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-nav-btn:hover {
+    background: var(--accent-ice-blue);
+    color: var(--primary-deep-navy);
+  }
+
+  .sidebar-nav-btn.active {
+    background: var(--primary-deep-navy);
+    color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 4px 14px rgba(10, 25, 47, 0.2);
+  }
+
+  .sidebar-nav-btn.search-highlight {
+    background: #0B192C;
+    color: #38BDF8;
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    margin-top: 0.5rem;
+  }
+
+  .sidebar-nav-btn.search-highlight:hover {
+    background: #0284c7;
+    color: #ffffff;
+  }
+
+  .sidebar-nav-btn.search-highlight.active {
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+    color: #ffffff;
+    border-color: #38BDF8;
+    box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+  }
+
+  .vault-main-content {
+    min-width: 0;
+  }
+
+  /* ----------------------------------------------------
+     Cards & Form Paneling
+  ---------------------------------------------------- */
+  .tab-pane {
+    display: none;
+  }
+
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn 0.25s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .dash-card {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+  }
+
+  .card-header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--accent-ice-blue);
+  }
+
+  .card-title-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ----------------------------------------------------
+     Form Controls & Styling
+  ---------------------------------------------------- */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 10px;
+    font-size: 16px;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: #FAFAFA;
+  }
+
+  .form-input:focus {
+    border-color: var(--secondary-sea-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  }
+
+  /* Ghana Card Validation States */
+  .form-input.input-valid {
+    border-color: #10B981 !important;
+    background: #F0FDF4;
+  }
+
+  .form-input.input-invalid {
+    border-color: #EF4444 !important;
+    background: #FEF2F2;
+    animation: cardInputShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes cardInputShake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+
+  .card-helper-hint {
+    font-size: 0.74rem;
+    color: #64748B;
+    margin-top: 4px;
+  }
+
+  .card-error-feedback {
+    display: none;
+    color: #DC2626;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .card-error-feedback.active {
+    display: block;
+  }
+
+  .form-input-file {
+    width: 100%;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+  }
+
+  .btn-submit-action {
+    background: var(--gradient-btn);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    min-height: 48px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-submit-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+  }
+
+  /* ----------------------------------------------------
+     Records Item List
+  ---------------------------------------------------- */
+  .record-item {
+    background: var(--accent-ice-blue);
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .record-main-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 2px;
+  }
+
+  .record-sub-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .pill-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  .pill-primary {
+    background: #E0F2FE;
+    color: #0369A1;
+  }
+
+  .pill-success {
+    background: #DCFCE7;
+    color: #15803D;
+  }
+
+  .empty-placeholder {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /* ----------------------------------------------------
+     Mobile & Tablet Responsiveness
+  ---------------------------------------------------- */
+  @media (max-width: 860px) {
+    .dashboard-layout-container {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .vault-sidebar {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+
+    .sidebar-header-label {
+      grid-column: 1 / -1;
+    }
+
+    .sidebar-nav-btn.search-highlight {
+      margin-top: 0;
+      grid-column: 1 / -1;
+    }
+
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .vault-sidebar {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Master Telemetry Header -->
+<div class="vault-hero">
+  <div class="vault-user-strip">
+    <div class="vault-profile-meta">
+      <div class="vault-avatar">{{ user.first_name|first|default:user.username|first|upper }}</div>
+      <div>
+        <div class="vault-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="vault-card-id">Ghana Card: <strong>{{ user.ghana_card_number|default:"Not Registered" }}</strong></div>
+      </div>
+    </div>
+    <div class="badge-status-live">
+      <span>●</span> Active Vault Registry
+    </div>
+  </div>
+
+  <div class="vault-stat-grid">
+    <div class="stat-chip">
+      <div class="stat-chip-count">{{ policies.count }}</div>
+      <div class="stat-chip-label">Policies Linked</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-count">{{ emergency_contacts.count }}</div>
+      <div class="stat-chip-label">Emergency Contacts</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-count">{{ assets.count }}</div>
+      <div class="stat-chip-label">Physical Assets</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-count">{{ documents.count }}</div>
+      <div class="stat-chip-label">Wills & Deeds</div>
+    </div>
+  </div>
+</div>
+
+<!-- Django Messages Display -->
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert-banner">
+      <span>✓</span> {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<!-- Two-Column Side Navigation Layout -->
+<div class="dashboard-layout-container">
+  <!-- Left Sidebar Navigation -->
+  <aside class="vault-sidebar">
+    <div class="sidebar-header-label">Vault Modules</div>
+    <button type="button" class="sidebar-nav-btn {% if not has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-profile')">
+      <span>👤 Profile & Address</span>
+      <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-emergency')">
+      <span>🚨 Emergency Contact</span>
+      <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-policies')">
+      <span>📑 Insurance Policies</span>
+      <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-assets')">
+      <span>🏡 Assets & Properties</span>
+      <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-wills')">
+      <span>📜 Wills & Deeds</span>
+      <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn search-highlight {% if has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-search')">
+      <span>🔍 Search Relative Policy</span>
+      <span>➔</span>
+    </button>
+  </aside>
+
+  <!-- Right Main Content Area -->
+  <main class="vault-main-content">
+    <!-- TAB 1: Profile & Permanent Address -->
+    <div id="tab-profile" class="tab-pane {% if not has_searched %}active{% endif %}">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>👤</span> Update Personal Info</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_profile">
+            
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              {{ profile_form.first_name }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              {{ profile_form.last_name }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              {{ profile_form.phone_number }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ghana Card ID</label>
+              {{ profile_form.ghana_card_number }}
+              <div class="card-helper-hint">Format: GHA-XXXXXXXXX-X (Auto-formatted)</div>
+              <div id="ghana-card-feedback" class="card-error-feedback"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Permanent Residential Address</label>
+              {{ profile_form.permanent_address }}
+            </div>
+            <button type="submit" class="btn-submit-action">Save Profile Records</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📍</span> Current Depository Record</div>
+          </div>
+          <div class="record-item">
+            <div>
+              <div class="record-main-title">Full Legal Name</div>
+              <div class="record-sub-meta">{{ user.get_full_name|default:"Not specified" }}</div>
+            </div>
+          </div>
+          <div class="record-item">
+            <div>
+              <div class="record-main-title">Verified Contact Phone</div>
+              <div class="record-sub-meta">{{ user.phone_number|default:"Not added" }}</div>
+            </div>
+          </div>
+          <div class="record-item">
+            <div>
+              <div class="record-main-title">Permanent Residential Address</div>
+              <div class="record-sub-meta">{{ user.permanent_address|default:"No permanent address recorded." }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Emergency Contact Hub -->
+    <div id="tab-emergency" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>🚨</span> Add Emergency Contact</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_emergency_contact">
+            
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              {{ contact_form.full_name }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Relationship (e.g. Spouse, Sibling)</label>
+              {{ contact_form.relationship }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              {{ contact_form.phone_number }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address (Optional)</label>
+              {{ contact_form.email }}
+            </div>
+            <button type="submit" class="btn-submit-action">Link Emergency Contact</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>👥</span> Registered Contacts</div>
+          </div>
+          {% if emergency_contacts %}
+            {% for contact in emergency_contacts %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ contact.full_name }}</div>
+                  <div class="record-sub-meta">{{ contact.relationship }} • {{ contact.phone_number }}</div>
+                </div>
+                <span class="pill-badge pill-success">Next of Kin</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No emergency contacts registered yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Multi-Policy Management -->
+    <div id="tab-policies" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📑</span> Register Insurance Policy</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_policy">
+            
+            <div class="form-group">
+              <label class="form-label">Underwriting Insurer</label>
+              {{ policy_form.insurer }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Policy Number</label>
+              {{ policy_form.policy_number }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Policy Type</label>
+              {{ policy_form.policy_type }}
+            </div>
+            <button type="submit" class="btn-submit-action">Link Policy to Vault</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>🛡️</span> Active Policy Records</div>
+          </div>
+          {% if policies %}
+            {% for policy in policies %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ policy.policy_number }}</div>
+                  <div class="record-sub-meta">{{ policy.insurer.name }} • {{ policy.get_policy_type_display }}</div>
+                </div>
+                <span class="pill-badge pill-primary">Active</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No insurance policies registered yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Assets & Properties -->
+    <div id="tab-assets" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>🏡</span> Log Physical Property / Asset</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_asset">
+            
+            <div class="form-group">
+              <label class="form-label">Asset Classification</label>
+              {{ asset_form.asset_type }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Title / Asset Identifier</label>
+              {{ asset_form.title }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Value (GHS)</label>
+              {{ asset_form.estimated_value }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location / Registration Number</label>
+              {{ asset_form.location_or_identifier }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Proof Document / Receipt (PDF/Image)</label>
+              {{ asset_form.document_proof }}
+            </div>
+            <button type="submit" class="btn-submit-action">Secure Asset Record</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📊</span> Logged Asset Portfolio</div>
+          </div>
+          {% if assets %}
+            {% for asset in assets %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ asset.title }}</div>
+                  <div class="record-sub-meta">{{ asset.get_asset_type_display }} • Value: GHS {{ asset.estimated_value|default:"N/A" }}</div>
+                </div>
+                {% if asset.document_proof %}
+                  <a href="{{ asset.document_proof.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">View File ↗</a>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No physical assets logged yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: Wills & Estate Depository -->
+    <div id="tab-wills" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📜</span> Deposit Will or Legal Deed</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_document">
+            
+            <div class="form-group">
+              <label class="form-label">Document Category</label>
+              {{ doc_form.document_type }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Document Title</label>
+              {{ doc_form.title }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Upload Encrypted File (PDF/Scan)</label>
+              {{ doc_form.document_file }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Depository Notes / Lawyer Contact</label>
+              {{ doc_form.notes }}
+            </div>
+            <button type="submit" class="btn-submit-action">Deposit into Encrypted Vault</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>🔒</span> Vault Documents</div>
+          </div>
+          {% if documents %}
+            {% for doc in documents %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ doc.title }}</div>
+                  <div class="record-sub-meta">{{ doc.get_document_type_display }} • Deposited {{ doc.uploaded_at|date:"M d, Y" }}</div>
+                </div>
+                {% if doc.document_file %}
+                  <a href="{{ doc.document_file.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">View File ↗</a>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No wills or estate deeds deposited yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: Relative Policy Registry Discovery -->
+    <div id="tab-search" class="tab-pane {% if has_searched %}active{% endif %}">
+      <div class="dash-card" style="background: radial-gradient(circle at 10% 20%, #07162c 0%, #020c1b 100%); border: 1.5px solid rgba(6, 182, 212, 0.45); color: #ffffff; margin-bottom: 1.5rem;">
+        <div class="card-header-line" style="border-bottom-color: rgba(6, 182, 212, 0.25);">
+          <div>
+            <div class="card-title-text" style="color: #ffffff;"><span>🔍</span> Search National Registry for Relative</div>
+            <p style="margin: 4px 0 0; font-size: 0.78rem; color: #94A3B8;">Check if a family member or loved one held an active policy.</p>
+          </div>
+          <span style="font-size: 0.72rem; color: #38BDF8; font-weight: 700; background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); padding: 4px 10px; border-radius: 6px;">Next-of-Kin Discovery</span>
+        </div>
+
+        <form method="GET" action="{% url 'vault:dashboard' %}" style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input 
+            type="text" 
+            name="search_q" 
+            id="dash-search-input"
+            placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
+            value="{{ search_query|default:'' }}"
+            class="form-input"
+            style="flex: 1; min-width: 220px; background: rgba(255,255,255,0.08); border-color: rgba(6, 182, 212, 0.4); color: #ffffff;"
+            required
+          >
+          <button type="submit" class="btn-submit-action" style="width: auto; min-width: 140px; margin-top: 0; padding: 0.75rem 1.4rem;">
+            Search Registry 🔍
+          </button>
+        </form>
+      </div>
+
+      <!-- Search Results Output -->
+      {% if has_searched %}
+        {% if is_self_search %}
+          <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 14px; padding: 1.25rem; color: #92400E; display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
+            <div>
+              <strong style="display: block; font-size: 0.92rem; margin-bottom: 3px;">Self-Search Restricted</strong>
+              <span style="font-size: 0.82rem; line-height: 1.45; color: #78350F;">
+                You cannot search for your own policy in the registry. Your active policies, emergency contacts, assets, and wills are already directly accessible in the sidebar tabs.
+              </span>
+            </div>
+          </div>
+        {% elif search_results %}
+          <div style="display: grid; gap: 1rem;">
+            {% for rec in search_results %}
+              <div style="background: #0B192C; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 16px; padding: 1.25rem; color: #ffffff; box-shadow: 0 8px 24px rgba(2, 12, 27, 0.35);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px dashed rgba(6, 182, 212, 0.25); padding-bottom: 0.5rem;">
+                  <span style="color: #38BDF8; font-family: monospace; font-size: 0.8rem; font-weight: 800;">
+                    SEC-MATCH: {{ rec.policyholder.masked_ghana_card }}
+                  </span>
+                  <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #34D399; font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 4px;">
+                    POLICY_FOUND
+                  </span>
+                </div>
+                <div style="font-size: 1rem; font-weight: 800; margin-bottom: 0.75rem;">
+                  👤 {{ rec.policyholder.get_full_name|default:rec.policyholder.username }}
+                </div>
+                <div style="filter: blur(4px); user-select: none; opacity: 0.6; pointer-events: none; display: flex; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.78rem;">
+                  <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">Underwriter: Protected Desk</span>
+                  <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">Policy: LT-••••-••••-••</span>
+                </div>
+                <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                  <span style="font-size: 0.78rem; color: #E0F2FE; line-height: 1.4; max-width: 440px;">
+                    To initiate a verified next-of-kin claim, please log out and use the Public Search Registry.
+                  </span>
+                  <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-submit-action" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.78rem; margin: 0; min-height: unset; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);">
+                      Log Out & Claim ➔
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="dash-card" style="text-align: center; padding: 2rem 1rem;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.35rem;">🔍</div>
+            <div style="font-weight: 800; color: var(--primary-deep-navy); margin-bottom: 0.2rem;">No Records Located</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">No active policies matched query "{{ search_query }}".</div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function switchTab(evt, tabId) {
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    tabPanes.forEach(pane => pane.classList.remove('active'));
+
+    const sidebarButtons = document.querySelectorAll('.sidebar-nav-btn');
+    sidebarButtons.forEach(btn => btn.classList.remove('active'));
+
+    const activePane = document.getElementById(tabId);
+    if (activePane) {
+      activePane.classList.add('active');
+    }
+    evt.currentTarget.classList.add('active');
+
+    // On mobile screens, smoothly scroll to active pane
+    if (window.innerWidth <= 860 && activePane) {
+      activePane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // Strict Ghana Card Auto-Masking & Validation for Profile Form & Drawer Search
+  document.addEventListener('DOMContentLoaded', function () {
+    const cardInput = document.getElementById('id_ghana_card_number');
+    const dashSearchInput = document.getElementById('dash-search-input');
+    const feedback = document.getElementById('ghana-card-feedback');
+    const PREFIX = 'GHA-';
+
+    function setupGhanaCardMasking(inputEl, feedbackEl) {
+      if (!inputEl) return;
+      const form = inputEl.closest('form');
+
+      function triggerShake() {
+        inputEl.classList.remove('input-invalid');
+        void inputEl.offsetWidth;
+        inputEl.classList.add('input-invalid');
+      }
+
+      function showFeedback(msg) {
+        if (feedbackEl) {
+          feedbackEl.textContent = msg;
+          feedbackEl.classList.add('active');
+        }
+      }
+
+      function hideFeedback() {
+        if (feedbackEl) {
+          feedbackEl.classList.remove('active');
+        }
+      }
+
+      function formatInput() {
+        let raw = inputEl.value.toUpperCase();
+
+        if (!raw) {
+          inputEl.classList.remove('input-valid', 'input-invalid');
+          hideFeedback();
+          return;
+        }
+
+        if (!raw.startsWith('GHA')) {
+          triggerShake();
+          showFeedback("Ghana Card ID must start with GHA-");
+          inputEl.value = PREFIX;
+          inputEl.classList.remove('input-valid');
+          return;
+        }
+
+        const afterPrefix = raw.replace(/^GHA-?/, '');
+        if (/[^0-9\-]/.test(afterPrefix)) {
+          triggerShake();
+          showFeedback("Only numeric digits are permitted after GHA-");
+        } else {
+          hideFeedback();
+        }
+
+        let digits = afterPrefix.replace(/\D/g, '');
+        if (digits.length > 10) {
+          digits = digits.substring(0, 10);
+        }
+
+        let formatted = PREFIX;
+        if (digits.length > 0) {
+          if (digits.length <= 9) {
+            formatted += digits;
+          } else {
+            formatted += digits.substring(0, 9) + '-' + digits.substring(9, 10);
+          }
+        }
+        inputEl.value = formatted;
+
+        if (digits.length === 10) {
+          inputEl.classList.remove('input-invalid');
+          inputEl.classList.add('input-valid');
+          hideFeedback();
+        } else {
+          inputEl.classList.remove('input-valid');
+        }
+      }
+
+      inputEl.addEventListener('focus', function () {
+        if (!inputEl.value.trim()) {
+          inputEl.value = PREFIX;
+        }
+      });
+
+      inputEl.addEventListener('input', formatInput);
+
+      inputEl.addEventListener('keydown', function (e) {
+        if ((e.key === 'Backspace' || e.key === 'Delete') && inputEl.selectionStart <= 4 && inputEl.selectionEnd <= 4) {
+          e.preventDefault();
+          triggerShake();
+        }
+      });
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          const val = inputEl.value.trim();
+          if (val && val !== PREFIX) {
+            const digits = val.replace(/^GHA-?/, '').replace(/\D/g, '');
+            if (digits.length !== 10) {
+              e.preventDefault();
+              triggerShake();
+              showFeedback(`Incomplete Ghana Card ID (${digits.length}/10 digits required).`);
+              inputEl.focus();
+            }
+          }
+        });
+      }
+    }
+
+    setupGhanaCardMasking(cardInput, feedback);
+    setupGhanaCardMasking(dashSearchInput, null);
+  });
+</script>
+{% endblock %}

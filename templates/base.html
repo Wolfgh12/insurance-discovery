@@ -1,0 +1,1506 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0A192F">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>{% block title %}LegacyTrace | Digital Legacy Vault{% endblock %}</title>
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      background-color: var(--accent-ice-blue);
+      color: var(--text-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ----------------------------------------------------
+       Premium Glassmorphic Navigation Bar
+    ---------------------------------------------------- */
+    .app-header {
+      background: rgba(10, 25, 47, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(6, 182, 212, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(10, 25, 47, 0.2);
+    }
+
+    .nav-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-icon-shield {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--gradient-btn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+    }
+
+    .brand-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-badge {
+      background: rgba(6, 182, 212, 0.18);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-menu-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-link-item {
+      color: var(--accent-light-cyan);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: color 0.2s ease;
+      position: relative;
+    }
+
+    .nav-link-item:hover {
+      color: var(--accent-cyan);
+    }
+
+    .nav-link-private {
+      color: #38BDF8 !important;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link-private:hover {
+      background: rgba(6, 182, 212, 0.2);
+      color: #ffffff !important;
+      border-color: #06B6D4;
+      transform: translateY(-1px);
+    }
+
+    .nav-auth-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav-portal {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.55rem 1rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .btn-nav-portal:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .btn-nav-cta {
+      background: var(--gradient-btn);
+      color: #ffffff;
+      padding: 0.55rem 1.15rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45);
+    }
+
+    .user-chip {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--accent-cyan);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ----------------------------------------------------
+       Main Content Layout
+    ---------------------------------------------------- */
+    .main-content {
+      padding: 1.5rem 1.25rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1 0 auto;
+    }
+
+    /* ----------------------------------------------------
+       Enterprise Glassmorphic Multi-Column Footer
+    ---------------------------------------------------- */
+    .app-footer {
+      background: linear-gradient(180deg, rgba(10, 25, 47, 0.94) 0%, rgba(5, 14, 28, 0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(6, 182, 212, 0.22);
+      color: #ffffff;
+      padding: 3.5rem 1.25rem 1.75rem;
+      margin-top: auto;
+      flex-shrink: 0;
+      box-shadow: 0 -10px 30px rgba(5, 14, 28, 0.35);
+    }
+
+    .footer-wrapper {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.2fr;
+      gap: 2.5rem;
+      margin-bottom: 2.75rem;
+    }
+
+    .footer-brand-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-brand-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .footer-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gradient-btn);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .footer-brand-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .footer-brand-desc {
+      color: #94A3B8;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      margin: 0;
+      max-width: 320px;
+    }
+
+    .footer-security-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.28);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--accent-light-cyan, #A5F3FC);
+      width: fit-content;
+    }
+
+    .security-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    .footer-heading {
+      color: #ffffff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 1.1rem;
+      position: relative;
+    }
+
+    .footer-heading::after {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--accent-cyan, #06B6D4);
+      margin-top: 6px;
+      border-radius: 2px;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .footer-link {
+      color: #94A3B8;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-link:hover {
+      color: var(--accent-cyan, #06B6D4);
+      transform: translateX(3px);
+    }
+
+    .footer-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.25), transparent);
+      margin-bottom: 1.75rem;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+    }
+
+    .footer-copy {
+      color: #64748B;
+      font-weight: 500;
+    }
+
+    .footer-architect {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #94A3B8;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .architect-highlight {
+      color: var(--accent-cyan, #06B6D4);
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    /* ----------------------------------------------------
+       Responsive Adjustments
+    ---------------------------------------------------- */
+    @media (max-width: 992px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+      .footer-brand-desc {
+        max-width: 100%;
+      }
+    }
+
+   /* Hamburger Menu Trigger */
+    .btn-hamburger {
+      display: none;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: #38BDF8;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      font-size: 1.35rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .btn-hamburger:hover, .btn-hamburger:active {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: #06B6D4;
+      color: #ffffff;
+    }
+
+    /* Off-Canvas Glassmorphic Drawer Backdrop */
+    .mobile-drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 47, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 999999;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .mobile-drawer-backdrop.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Slide-out Drawer Panel */
+    .mobile-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 82%;
+      max-width: 340px;
+      background: #0B192C;
+      border-left: 1.5px solid rgba(6, 182, 212, 0.3);
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6);
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000000;
+    }
+
+    .mobile-drawer-backdrop.active .mobile-drawer {
+      transform: translateX(0);
+    }
+
+    .mobile-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .mobile-drawer-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94A3B8;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .mobile-nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #E2E8F0;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.15s ease;
+    }
+
+    .mobile-nav-link:hover, .mobile-nav-link:active {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #06B6D4;
+      color: #38BDF8;
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu-links {
+        display: none;
+      }
+      .nav-auth-cluster {
+        display: none;
+      }
+      .btn-hamburger {
+        display: flex;
+      }
+      .nav-container {
+        padding: 0.75rem 1rem;
+      }
+      .brand-title {
+        font-size: 1rem;
+      }
+      .brand-badge {
+        display: none;
+      }
+      .main-content {
+        padding: 1rem 0.85rem 3rem;
+      }
+      .app-footer {
+        padding: 2.5rem 1rem 1.5rem;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+
+    /* ----------------------------------------------------
+       Glassmorphic Transition Page Loader (Mobile Optimised)
+    ---------------------------------------------------- */
+    .vault-loader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: rgba(10, 25, 47, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+
+    .vault-loader-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+    }
+
+    .vault-loader-card {
+      background: rgba(15, 33, 60, 0.95);
+      border: 1.5px solid rgba(6, 182, 212, 0.35);
+      border-radius: 24px;
+      padding: 2rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(6, 182, 212, 0.2);
+      max-width: 320px;
+      width: 100%;
+      transform: scale(0.92);
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .vault-loader-overlay.active .vault-loader-card {
+      transform: scale(1);
+    }
+
+    .vault-loader-spinner-box {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vault-loader-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(6, 182, 212, 0.12);
+      border-top-color: #06B6D4;
+      border-right-color: #0284C7;
+      animation: vaultSpinnerRotate 0.85s cubic-bezier(0.4, 0.1, 0.4, 1) infinite;
+    }
+
+    .vault-loader-icon {
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: vaultIconGlow 1.8s ease-in-out infinite;
+    }
+
+    .vault-loader-title {
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.35rem;
+    }
+
+    .vault-loader-sub {
+      color: var(--accent-light-cyan, #A5F3FC);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      opacity: 0.95;
+      min-height: 1.2em;
+    }
+
+    @keyframes vaultSpinnerRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes vaultIconGlow {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.4));
+      }
+      50% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 16px rgba(6, 182, 212, 0.85));
+      }
+    }
+
+    /* Floating Back-to-Top Button */
+    .btn-back-to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(10, 25, 47, 0.92);
+      border: 1.5px solid rgba(6, 182, 212, 0.45);
+      color: #38BDF8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 15px rgba(6, 182, 212, 0.25);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .btn-back-to-top:hover {
+      background: #0284C7;
+      color: #ffffff;
+      border-color: #38BDF8;
+      box-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
+      transform: translateY(-2px);
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Global Glassmorphic Vault Transition Loader -->
+  <div id="vault-page-loader" class="vault-loader-overlay" aria-hidden="true" role="status" aria-label="Loading vault">
+    <div class="vault-loader-card">
+      <div class="vault-loader-spinner-box">
+        <div class="vault-loader-ring"></div>
+        <div class="vault-loader-icon" id="vault-loader-icon">🛡️</div>
+      </div>
+      <div class="vault-loader-title" id="vault-loader-title">LegacyTrace Vault</div>
+      <div class="vault-loader-sub" id="vault-loader-sub">Securing session & routing...</div>
+    </div>
+  </div>
+
+  <!-- Premium Glassmorphic Header Navigation -->
+  <header class="app-header">
+    <div class="nav-container">
+      
+      <!-- Brand Identity -->
+      <a href="/" class="brand-group">
+        <div class="brand-icon-shield">🛡️</div>
+        <div class="brand-title">
+          LegacyTrace <span class="brand-badge">Vault</span>
+        </div>
+      </a>
+
+      <!-- Desktop Section Links -->
+      <nav>
+        <ul class="nav-menu-links">
+          <li><a href="/" class="nav-link-item" style="white-space: nowrap;">Home</a></li>
+
+          <!-- Role-Aware Active Workspace Indicator -->
+          {% if user.is_authenticated and request.session.active_admin_role == 'LEAD' %}
+            <li>
+              <a href="{% url 'vault:lead_admin_dashboard' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+                👑 Lead Dashboard
+              </a>
+            </li>
+            <li>
+              {% if user.is_staff or user.is_superuser %}
+                <a 
+                  href="{% url 'vault:admin_login' %}?role=staff" 
+                  class="nav-link-item" 
+                  style="color: #64748B; font-weight: 600; font-size: 0.86rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s ease; text-decoration: none;"
+                  onmouseover="this.style.color='#94A3B8';"
+                  onmouseout="this.style.color='#64748B';"
+                >
+                  ⚙️ Switch to Staff
+                </a>
+              {% else %}
+                <button 
+                  type="button" 
+                  onclick="triggerSessionConflictModal('Staff Admin', false)"
+                  class="nav-link-item" 
+                  style="background: transparent; border: none; cursor: pointer; color: #64748B; font-weight: 600; font-family: inherit; font-size: 0.86rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s ease;"
+                  onmouseover="this.style.color='#94A3B8';"
+                  onmouseout="this.style.color='#64748B';"
+                >
+                  ⚙️ Switch to Staff
+                </button>
+              {% endif %}
+            </li>
+          {% elif user.is_authenticated and request.session.active_admin_role == 'STAFF' %}
+            <li>
+              <a href="{% url 'vault:staff_admin_dashboard' %}" class="nav-link-item" style="color: #38BDF8; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+                ⚙️ Operations Desk
+              </a>
+            </li>
+            <li>
+              {% if user.is_superuser %}
+                <a 
+                  href="{% url 'vault:admin_login' %}?role=lead" 
+                  class="nav-link-item" 
+                  style="color: #64748B; font-weight: 600; font-size: 0.86rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s ease; text-decoration: none;"
+                  onmouseover="this.style.color='#94A3B8';"
+                  onmouseout="this.style.color='#64748B';"
+                >
+                  👑 Switch to Lead
+                </a>
+              {% else %}
+                <button 
+                  type="button" 
+                  onclick="triggerSessionConflictModal('Lead Admin', false)"
+                  class="nav-link-item" 
+                  style="background: transparent; border: none; cursor: pointer; color: #64748B; font-weight: 600; font-family: inherit; font-size: 0.86rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s ease;"
+                  onmouseover="this.style.color='#94A3B8';"
+                  onmouseout="this.style.color='#64748B';"
+                >
+                  👑 Switch to Lead
+                </button>
+              {% endif %}
+            </li>
+          {% else %}
+            <li>
+              <a href="{% url 'vault:admin_login' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                🛡️ Admin
+              </a>
+            </li>
+          {% endif %}
+
+          <li><a href="/#how-it-works" class="nav-link-item" style="white-space: nowrap;">How Claims Work</a></li>
+          <li><a href="/#faq" class="nav-link-item" style="white-space: nowrap;">FAQ</a></li>
+
+          {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            <li>
+              <a 
+                href="{% url 'vault:claimant_dashboard' %}" 
+                class="nav-link-item nav-link-private"
+                title="Open Claimant Private Portal"
+                style="white-space: nowrap;"
+              >
+                Private Dashboard 🔐
+              </a>
+            </li>
+          {% elif not user.is_authenticated %}
+            <li>
+              <a 
+                href="{% url 'vault:claimant_login' %}" 
+                class="nav-link-item nav-link-private"
+                title="Authenticate to Private Estate Vault"
+                style="white-space: nowrap;"
+              >
+                Private Dashboard 🔐
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+
+      <!-- Action Cluster (Desktop) -->
+      <div class="nav-auth-cluster">
+        {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+          <!-- Claimant View -->
+          <span class="user-chip" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.12); white-space: nowrap;">
+            🔐 {{ request.user.username|default:"Claimant" }}
+          </span>
+          <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0; padding: 0; display: inline-flex;">
+            {% csrf_token %}
+            <button type="submit" class="btn-nav-portal" style="border-color: rgba(239, 68, 68, 0.4); color: #FCA5A5; white-space: nowrap;">
+              Log Out 🔒
+            </button>
+          </form>
+
+        {% elif user.is_authenticated %}
+          <!-- Authenticated View -->
+          {% if request.session.active_admin_role == 'LEAD' %}
+            <span class="user-chip" style="border-color: rgba(239, 68, 68, 0.4); color: #FECACA; background: rgba(239, 68, 68, 0.12); font-weight: 800; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis;">
+              👑 Lead Admin: {{ user.username }}
+            </span>
+          {% elif request.session.active_admin_role == 'STAFF' %}
+            <span class="user-chip" style="border-color: rgba(6, 182, 212, 0.4); color: #BAE6FD; background: rgba(6, 182, 212, 0.12); font-weight: 800; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis;">
+              ⚙️ Staff: {{ user.username }}
+            </span>
+          {% else %}
+            <span class="user-chip" style="white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis;">
+              👤 {{ user.username }}
+            </span>
+            <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Dashboard ⚡</a>
+          {% endif %}
+
+          <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0; padding: 0; display: inline-flex;">
+            {% csrf_token %}
+            <button type="submit" class="btn-nav-portal" style="border-color: rgba(255, 255, 255, 0.15); color: #E2E8F0; white-space: nowrap;">
+              Log Out 🔒
+            </button>
+          </form>
+
+        {% else %}
+          <!-- Guest View -->
+          <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="white-space: nowrap;">Sign Up</a>
+          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Open Vault 🔐</a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Touch Hamburger Trigger -->
+      <button 
+        type="button" 
+        class="btn-hamburger no-loader" 
+        id="btn-mobile-menu" 
+        onclick="openMobileDrawer()" 
+        aria-label="Open Navigation Menu"
+      >
+        ☰
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Page Content Injector -->
+  <main class="main-content">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Enterprise Glassmorphic Multi-Column Footer -->
+  <footer class="app-footer">
+    <div class="footer-wrapper">
+      <div class="footer-grid">
+        
+        <!-- Column 1: Brand & Mission -->
+        <div class="footer-brand-col">
+          <a href="/" class="footer-brand-header">
+            <div class="footer-brand-icon">🛡️</div>
+            <span class="footer-brand-name">LegacyTrace Vault</span>
+          </a>
+          <p class="footer-brand-desc">
+            Ghana's sovereign digital legacy archive and verified underwritten policy repository. Protecting lifetime assets, policies, and certified wills for future generations.
+          </p>
+          <div class="footer-security-pill">
+            <span class="security-dot"></span>
+            <span>256-Bit Vault Encryption Active</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Quick Vault Navigation -->
+        <div>
+          <div class="footer-heading">Vault Navigation</div>
+          <ul class="footer-links">
+            <li><a href="/#registry-search" class="footer-link">Search National Registry</a></li>
+            <li><a href="/#vault-features" class="footer-link">Vault Modules & Security</a></li>
+            <li><a href="/#how-it-works" class="footer-link">Claims Verification Flow</a></li>
+            <li><a href="/#faq" class="footer-link">Frequently Asked Questions</a></li>
+            <li><a href="{% url 'vault:dashboard' %}" class="footer-link">Subscriber Dashboard</a></li>
+<li>
+              <a href="{% url 'vault:claimant_dashboard' %}" class="footer-link" style="color: #38BDF8;">
+                🔐 Claimant Private Dashboard
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Legal & Regulatory -->
+        <div>
+          <div class="footer-heading">Compliance & Legal</div>
+          <ul class="footer-links">
+            <li><a href="/#faq" class="footer-link">Data Protection Act 843</a></li>
+            <li><a href="/#faq" class="footer-link">Ghana Card ID Standards</a></li>
+            <li><a href="/#faq" class="footer-link">Privacy & Vault Encryption</a></li>
+            <li><a href="/#faq" class="footer-link">Anti-Fraud & Penal Code</a></li>
+            <li><a href="/#faq" class="footer-link">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: National Integration & Partners -->
+        <div>
+          <div class="footer-heading">Underwriting & Trust</div>
+          <ul class="footer-links">
+            <li><a href="/#registry-search" class="footer-link">🏛️ Life Underwriters Ghana</a></li>
+            <li><a href="/#registry-search" class="footer-link">🇬🇭 National ID Integration</a></li>
+            <li><a href="/#registry-search" class="footer-link">📜 Certified Probate Storage</a></li>
+            <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant Vault Sync</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Divider -->
+      <div class="footer-divider"></div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <div class="footer-copy">
+          &copy; 2026 LegacyTrace Vault. All sovereign rights reserved.
+        </div>
+        <div class="footer-architect">
+          <span>Engineered with excellence by</span>
+          <span class="architect-highlight">Wolvatarr - The Digital Architects</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="{% static 'js/app.js' %}"></script>
+  
+  <!-- Global Route Transition & Loader Controller -->
+  <script>
+    (function () {
+      const loader = document.getElementById('vault-page-loader');
+      const subText = document.getElementById('vault-loader-sub');
+      const iconEl = document.getElementById('vault-loader-icon');
+      if (!loader) return;
+
+      let safetyTimeout;
+      let isSubmitting = false;
+
+      function showLoader(message, icon) {
+        if (subText && message) subText.textContent = message;
+        if (iconEl && icon) iconEl.textContent = icon;
+        
+        loader.classList.add('active');
+        loader.setAttribute('aria-hidden', 'false');
+
+        clearTimeout(safetyTimeout);
+        safetyTimeout = setTimeout(hideLoader, 8000);
+      }
+
+      function hideLoader() {
+        loader.classList.remove('active');
+        loader.setAttribute('aria-hidden', 'true');
+        clearTimeout(safetyTimeout);
+        isSubmitting = false;
+      }
+
+      hideLoader();
+
+      window.addEventListener('pageshow', function () {
+        hideLoader();
+      });
+
+      // Handle Interactive Elements (Links, Buttons, Forms)
+      document.addEventListener('click', function (e) {
+        // 1. Check for Buttons or Submit Inputs (Verify, Register, Unlock, Logout)
+        const btn = e.target.closest('button, input[type="submit"]');
+        if (btn) {
+          if (btn.classList.contains('no-loader') || btn.getAttribute('type') === 'button') {
+            return;
+          }
+          const form = btn.closest('form');
+          const btnText = (btn.innerText || btn.value || '').trim().toLowerCase();
+          const action = (form ? form.getAttribute('action') || '' : '').toLowerCase();
+
+          if (form && form.checkValidity && !form.checkValidity()) {
+            form.reportValidity();
+            return;
+          }
+
+          if (isSubmitting) return;
+
+          // Register & Open Vault Submit
+          if (btnText.includes('register') || btn.classList.contains('btn-signup-submit')) {
+            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
+              e.preventDefault();
+              isSubmitting = true;
+              showLoader('Creating & encrypting digital vault...', '🛡️');
+              setTimeout(function () {
+                if (form.requestSubmit) form.requestSubmit(btn);
+                else form.submit();
+              }, 360);
+            }
+            return;
+          }
+
+          // Verify / Registry Search Action
+          if (btnText.includes('verify') || btnText.includes('search') || btn.classList.contains('btn-verify-search')) {
+            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
+              e.preventDefault();
+              isSubmitting = true;
+              showLoader('Searching National Registry & Verifying...', '🔍');
+              setTimeout(function () {
+                if (form.requestSubmit) form.requestSubmit(btn);
+                else form.submit();
+              }, 360);
+            }
+            return;
+          }
+
+          // Logout Action
+          if (btnText.includes('log out') || action.includes('logout')) {
+            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
+              e.preventDefault();
+              isSubmitting = true;
+              showLoader('Terminating session & locking vault...', '🔒');
+              setTimeout(function () {
+                if (form.requestSubmit) form.requestSubmit(btn);
+                else form.submit();
+              }, 420);
+              return;
+            }
+          }
+
+          // Unlock / Login Submit
+          if (btnText.includes('unlock') || btnText.includes('sign in')) {
+            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
+              e.preventDefault();
+              isSubmitting = true;
+              showLoader('Decrypting vault credentials...', '🔐');
+              setTimeout(function () {
+                if (form.requestSubmit) form.requestSubmit(btn);
+                else form.submit();
+              }, 360);
+            }
+            return;
+          }
+
+          // Generic Form Fallback
+          if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
+            showLoader('Processing request & securing...', '⚡');
+            return;
+          }
+        }
+
+        // 2. Check for Navigation Links (Sign Up, Open Vault, Sign In Here, Create Account, Back to Home)
+        const link = e.target.closest('a');
+        if (!link) return;
+
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        if (
+          href.startsWith('#') ||
+          href.startsWith('javascript:') ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          link.getAttribute('target') === '_blank' ||
+          link.hasAttribute('download') ||
+          link.classList.contains('no-loader')
+        ) {
+          return;
+        }
+
+        try {
+          const targetUrl = new URL(link.href, window.location.href);
+          const currentUrl = new URL(window.location.href);
+          if (
+            targetUrl.pathname === currentUrl.pathname &&
+            targetUrl.search === currentUrl.search &&
+            targetUrl.hash
+          ) {
+            return;
+          }
+        } catch (err) {}
+
+        const linkText = (link.innerText || '').trim().toLowerCase();
+        
+        // Intercept link clicks with a graceful delay so loader is visible
+        e.preventDefault();
+        const destinationUrl = link.href;
+
+        if (linkText.includes('sign in') || linkText.includes('log in') || href.includes('login')) {
+          showLoader('Opening vault sign-in access...', '🔐');
+        } else if (linkText.includes('open') || linkText.includes('vault') || linkText.includes('dashboard')) {
+          showLoader('Accessing Encrypted Vault...', '🔐');
+        } else if (linkText.includes('sign up') || linkText.includes('create account') || linkText.includes('register') || href.includes('signup')) {
+          showLoader('Preparing Vault Registration...', '🛡️');
+        } else if (linkText.includes('back to home') || linkText.includes('home') || href === '/') {
+          showLoader('Returning to Registry Home...', '🛡️');
+        } else {
+          showLoader('Securing session & routing...', '🛡️');
+        }
+
+        setTimeout(function () {
+          window.location.href = destinationUrl;
+        }, 340);
+
+      }, true);
+    })();
+  </script>
+
+  <!-- Session Mode Conflict & Privilege Intercept Modal -->
+  <div id="session-conflict-modal" style="display: none; position: fixed; inset: 0; z-index: 9999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 2px solid #EF4444; border-radius: 24px; padding: 2.5rem 2.25rem; max-width: 460px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.3);">
+      
+      <div id="session-conflict-icon" style="width: 60px; height: 60px; background: rgba(239, 68, 68, 0.15); border: 2px solid #EF4444; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
+        🔒
+      </div>
+
+      <div id="session-conflict-badge" style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid #EF4444; font-size: 0.72rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.6rem;">
+        Active Session Conflict
+      </div>
+
+      <h3 id="session-conflict-title" style="margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
+        Administrative Workspace Locked
+      </h3>
+
+      <p id="session-conflict-msg" style="margin: 0 0 1.75rem; font-size: 0.84rem; color: #94A3B8; line-height: 1.55;">
+        You are currently operating inside an isolated administrative session. To switch dashboards, you must log out of your current session first.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <form id="session-conflict-logout-form" method="POST" action="{% url 'vault:logout' %}" style="margin: 0; width: 100%;">
+          {% csrf_token %}
+          <button type="submit" style="width: 100%; background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.9rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(239, 68, 68, 0.4); font-family: inherit;">
+            Log Out & Switch Portal ➔
+          </button>
+        </form>
+
+        <button 
+          id="session-conflict-stay-btn"
+          type="button" 
+          onclick="closeSessionConflictModal()" 
+          style="width: 100%; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #CBD5E1; padding: 0.8rem; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit;"
+        >
+          Stay in Current Session ✕
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function triggerSessionConflictModal(targetName, hasPrivilege = true) {
+      const modal = document.getElementById('session-conflict-modal');
+      const badge = document.getElementById('session-conflict-badge');
+      const title = document.getElementById('session-conflict-title');
+      const msg = document.getElementById('session-conflict-msg');
+      const icon = document.getElementById('session-conflict-icon');
+      const logoutForm = document.getElementById('session-conflict-logout-form');
+      const stayBtn = document.getElementById('session-conflict-stay-btn');
+
+      if (!hasPrivilege) {
+        if (icon) icon.textContent = '⛔';
+        if (badge) {
+          badge.textContent = 'Access Restricted';
+          badge.style.background = 'rgba(239, 68, 68, 0.2)';
+          badge.style.color = '#FCA5A5';
+        }
+        if (title) title.textContent = 'Clearance Required';
+        if (msg) msg.textContent = 'You do not explicitly have lead admin privileges.';
+        if (logoutForm) logoutForm.style.display = 'none';
+        if (stayBtn) stayBtn.textContent = 'Understood ✕';
+      } else {
+        if (icon) icon.textContent = '🔒';
+        if (badge) {
+          badge.textContent = 'Active Session Conflict';
+          badge.style.background = 'rgba(239, 68, 68, 0.2)';
+          badge.style.color = '#FCA5A5';
+        }
+        if (title) title.textContent = 'Administrative Workspace Locked';
+        if (msg && targetName) {
+          msg.textContent = `You are currently authenticated in an active workspace. To access the ${targetName} dashboard, you must terminate your current session first.`;
+        }
+        if (logoutForm) logoutForm.style.display = 'block';
+        if (stayBtn) stayBtn.textContent = 'Stay in Current Session ✕';
+      }
+
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeSessionConflictModal() {
+      const modal = document.getElementById('session-conflict-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const conflict = urlParams.get('conflict');
+      if (conflict === 'lead') {
+        triggerSessionConflictModal('Lead Admin', true);
+      } else if (conflict === 'staff') {
+        triggerSessionConflictModal('Normal Staff Admin', true);
+      }
+    });
+
+    // Back to Top Scroll Controller
+    document.addEventListener('DOMContentLoaded', function () {
+      const backToTopBtn = document.getElementById('btn-back-to-top');
+      if (!backToTopBtn) return;
+
+      window.addEventListener('scroll', function () {
+        if (window.scrollY > 280) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      });
+
+      backToTopBtn.addEventListener('click', function () {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+
+  <!-- Universal Floating Back to Top Button -->
+  <button 
+    id="btn-back-to-top" 
+    class="btn-back-to-top no-loader" 
+    type="button" 
+    aria-label="Scroll back to top" 
+    title="Back to Top"
+  >
+    ▲
+  </button>
+
+  <!-- Slide-Out Mobile Navigation Drawer -->
+  <div 
+    id="mobile-drawer-backdrop" 
+    class="mobile-drawer-backdrop" 
+    onclick="if(event.target === this) closeMobileDrawer()"
+  >
+    <div class="mobile-drawer" id="mobile-drawer-panel">
+      <div>
+        
+        <!-- Drawer Header -->
+        <div class="mobile-drawer-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="brand-icon-shield" style="width: 32px; height: 32px; font-size: 1rem;">🛡️</div>
+            <strong style="color: #ffffff; font-size: 1.05rem;">LegacyTrace</strong>
+          </div>
+          <button type="button" class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">✕</button>
+        </div>
+
+        <!-- Active User Status Chip -->
+        <div style="margin-bottom: 1.25rem;">
+          {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;">
+              🔐 Claimant: {{ request.user.username|default:"Active Session" }}
+            </div>
+          {% elif user.is_authenticated %}
+            {% if request.session.active_admin_role == 'LEAD' %}
+              <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FECACA; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;">
+                👑 Lead Admin: {{ user.username }}
+              </div>
+            {% elif request.session.active_admin_role == 'STAFF' %}
+              <div style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); color: #BAE6FD; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;">
+                ⚙️ Staff: {{ user.username }}
+              </div>
+            {% else %}
+              <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.25); color: #A5F3FC; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700;">
+                👤 User: {{ user.username }}
+              </div>
+            {% endif %}
+          {% else %}
+            <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); color: #94A3B8; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem;">
+              Guest • Public Registry Gateway
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Navigation Links -->
+        <ul class="mobile-nav-list">
+          <li>
+            <a href="/" class="mobile-nav-link" onclick="closeMobileDrawer()">
+              Home
+            </a>
+          </li>
+
+          <!-- Role-Aware Active Workspace Indicator -->
+          {% if user.is_authenticated and request.session.active_admin_role == 'LEAD' %}
+            <li>
+              <a href="{% url 'vault:lead_admin_dashboard' %}" class="mobile-nav-link" style="color: #F87171; font-weight: 800; border-color: rgba(239, 68, 68, 0.35);">
+                👑 Lead Dashboard
+              </a>
+            </li>
+            <li>
+              {% if user.is_staff or user.is_superuser %}
+                <a 
+                  href="{% url 'vault:admin_login' %}?role=staff" 
+                  class="mobile-nav-link" 
+                  style="color: #64748B; font-weight: 600;"
+                >
+                  ⚙️ Switch to Staff
+                </a>
+              {% else %}
+                <button 
+                  type="button" 
+                  onclick="closeMobileDrawer(); triggerSessionConflictModal('Staff Admin', false);"
+                  class="mobile-nav-link" 
+                  style="width: 100%; text-align: left; background: transparent; cursor: pointer; color: #64748B; font-weight: 600; font-family: inherit;"
+                >
+                  ⚙️ Switch to Staff
+                </button>
+              {% endif %}
+            </li>
+          {% elif user.is_authenticated and request.session.active_admin_role == 'STAFF' %}
+            <li>
+              <a href="{% url 'vault:staff_admin_dashboard' %}" class="mobile-nav-link" style="color: #38BDF8; font-weight: 800; border-color: rgba(6, 182, 212, 0.35);">
+                ⚙️ Operations Desk
+              </a>
+            </li>
+            <li>
+              {% if user.is_superuser %}
+                <a 
+                  href="{% url 'vault:admin_login' %}?role=lead" 
+                  class="mobile-nav-link" 
+                  style="color: #64748B; font-weight: 600;"
+                >
+                  👑 Switch to Lead
+                </a>
+              {% else %}
+                <button 
+                  type="button" 
+                  onclick="closeMobileDrawer(); triggerSessionConflictModal('Lead Admin', false);"
+                  class="mobile-nav-link" 
+                  style="width: 100%; text-align: left; background: transparent; cursor: pointer; color: #64748B; font-weight: 600; font-family: inherit;"
+                >
+                  👑 Switch to Lead
+                </button>
+              {% endif %}
+            </li>
+          {% elif not user.is_authenticated %}
+            <li>
+              <a href="{% url 'vault:admin_login' %}" class="mobile-nav-link" style="color: #F87171; font-weight: 800;">
+                🛡️ Admin
+              </a>
+            </li>
+          {% endif %}
+
+          <!-- Core Section Links -->
+          <li>
+            <a href="/#how-it-works" class="mobile-nav-link" onclick="closeMobileDrawer()">
+              How Claims Work
+            </a>
+          </li>
+          <li>
+            <a href="/#faq" class="mobile-nav-link" onclick="closeMobileDrawer()">
+              FAQ
+            </a>
+          </li>
+
+          <!-- Claimant Private Dashboard -->
+          {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            <li>
+              <a 
+                href="{% url 'vault:claimant_dashboard' %}" 
+                class="mobile-nav-link" 
+                style="color: #38BDF8; font-weight: 700; border-color: rgba(6, 182, 212, 0.35); background: rgba(6, 182, 212, 0.1);"
+              >
+                Private Dashboard 🔐
+              </a>
+            </li>
+          {% elif not user.is_authenticated %}
+            <li>
+              <a 
+                href="{% url 'vault:claimant_login' %}" 
+                class="mobile-nav-link" 
+                style="color: #38BDF8; font-weight: 700; border-color: rgba(6, 182, 212, 0.35); background: rgba(6, 182, 212, 0.1);"
+              >
+                Private Dashboard 🔐
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Action Buttons Cluster (Bottom) -->
+      <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem;">
+        {% if user.is_authenticated and not request.session.active_admin_role and not request.session.active_claimant_token %}
+          <a 
+            href="{% url 'vault:dashboard' %}" 
+            class="btn-nav-cta" 
+            style="justify-content: center; padding: 0.85rem; font-size: 0.9rem; width: 100%; border-radius: 12px;"
+            onclick="closeMobileDrawer()"
+          >
+            Dashboard ⚡
+          </a>
+        {% endif %}
+
+        {% if user.is_authenticated or request.session.active_claimant_token %}
+          <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0; width: 100%;">
+            {% csrf_token %}
+            <button type="submit" style="width: 100%; background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.4); color: #FCA5A5; padding: 0.85rem; border-radius: 12px; font-weight: 800; font-size: 0.9rem; cursor: pointer; font-family: inherit;">
+              Log Out 🔒
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="justify-content: center; padding: 0.85rem; font-size: 0.9rem; width: 100%; border-radius: 12px;">
+            Open Vault 🔐
+          </a>
+          <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="justify-content: center; padding: 0.8rem; font-size: 0.9rem; width: 100%; border-radius: 12px; text-align: center;">
+            Sign Up
+          </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function openMobileDrawer() {
+      const drawer = document.getElementById('mobile-drawer-backdrop');
+      if (drawer) {
+        drawer.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeMobileDrawer() {
+      const drawer = document.getElementById('mobile-drawer-backdrop');
+      if (drawer) {
+        drawer.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeMobileDrawer();
+      }
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

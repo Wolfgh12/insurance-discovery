@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+
+{% block title %}LegacyTrace | Create Your Vault{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-container {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+  }
+
+  .signup-card {
+    background: #ffffff;
+    border: 1px solid var(--accent-light-cyan);
+    border-radius: 24px;
+    padding: clamp(1.75rem, 5vw, 2.5rem);
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 16px 40px rgba(10, 25, 47, 0.1);
+    position: relative;
+  }
+
+  /* Sleek Back to Home Navigation matching login screen */
+  .btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 10px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-back-home:hover {
+    background: #e0f2fe;
+    border-color: #38bdf8;
+    color: #0369a1;
+    transform: translateX(-3px);
+  }
+
+  .signup-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .signup-badge-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--gradient-btn);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.35);
+    margin-bottom: 1rem;
+  }
+
+  .signup-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--primary-deep-navy);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .signup-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    .form-row-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.15rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.5px;
+  }
+
+  .auth-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--text-dark);
+    outline: none;
+    background: #FAFAFA;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .auth-input:focus {
+    border-color: var(--secondary-sea-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  }
+
+  .form-field-errors {
+    color: #DC2626;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 4px;
+    list-style: none;
+    padding: 0;
+  }
+
+  /* Ghana Card Cyan-Green & Cyan-Red Validation States */
+  .auth-input.field-valid {
+    border-color: #10B981 !important;
+    background: #F0FDF4 !important;
+    color: #065F46 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25), 0 0 12px rgba(6, 182, 212, 0.25) !important;
+  }
+
+  .auth-input.field-invalid {
+    border-color: #EF4444 !important;
+    background: #FEF2F2 !important;
+    color: #991B1B !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25), 0 0 12px rgba(244, 63, 94, 0.3) !important;
+    animation: shakeInput 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes shakeInput {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  .ghana-card-msg {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 5px;
+    display: none;
+    transition: all 0.2s ease;
+  }
+
+  .ghana-card-msg.show-error {
+    display: block;
+    color: #DC2626;
+  }
+
+  .ghana-card-msg.show-valid {
+    display: block;
+    color: #059669;
+  }
+
+  /* Strict Statutory Fraud Warning Notice */
+  .fraud-warning-notice {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-left: 4px solid #DC2626;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin: 1.25rem 0 0.5rem 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .fraud-warning-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .fraud-warning-text {
+    font-size: 0.75rem;
+    color: #7F1D1D;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+
+  .fraud-warning-text strong {
+    color: #991B1B;
+    font-weight: 800;
+  }
+
+  .btn-signup-submit {
+    background: var(--gradient-btn);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.95rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    width: 100%;
+    cursor: pointer;
+    min-height: 48px;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-top: 0.75rem;
+  }
+
+  .btn-signup-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+  }
+
+  .signup-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--accent-ice-blue);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .signup-footer a {
+    color: var(--secondary-sea-blue);
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="signup-card">
+
+    <!-- Sleek Back to Home Button -->
+    <div>
+      <a href="{% url 'vault:home' %}" class="btn-back-home">
+        ← Back to Home
+      </a>
+    </div>
+
+    <div class="signup-header">
+      <div class="signup-badge-icon">🛡️</div>
+      <h1 class="signup-title">Create Your Digital Vault</h1>
+      <p class="signup-sub">Register to secure your policies, wills, and family assets</p>
+    </div>
+
+    <form method="POST" action="{% url 'vault:signup' %}">
+      {% csrf_token %}
+
+      <div class="form-row-grid">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+          <div class="form-field-errors">{{ form.first_name.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+          <div class="form-field-errors">{{ form.last_name.errors }}</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        {{ form.username }}
+        <div class="form-field-errors">{{ form.username.errors }}</div>
+      </div>
+
+      <div class="form-row-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_ghana_card_number">Ghana Card ID</label>
+          {{ form.ghana_card_number }}
+          <div id="ghana-card-feedback" class="ghana-card-msg"></div>
+          <div class="form-field-errors">{{ form.ghana_card_number.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          {{ form.phone_number }}
+          <div class="form-field-errors">{{ form.phone_number.errors }}</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Permanent Residential Address</label>
+        {{ form.permanent_address }}
+        <div class="form-field-errors">{{ form.permanent_address.errors }}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        {{ form.password1 }}
+        <div class="form-field-errors">{{ form.password1.errors }}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        {{ form.password2 }}
+        <div class="form-field-errors">{{ form.password2.errors }}</div>
+      </div>
+
+      <!-- Statutory Fraud Warning Banner -->
+      <div class="fraud-warning-notice">
+        <div class="fraud-warning-icon">⚠️</div>
+        <div class="fraud-warning-text">
+          <strong>Mandatory Verification Warning:</strong> If fraudulent Ghana Card or identity details are detected at any time, your vault will be <strong>permanently revoked, deleted, and barred from reopening</strong>. Violations are permanently blacklisted and reported for fraud prosecution.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-signup-submit">Register & Open Vault ⚡</button>
+    </form>
+
+    <div class="signup-footer">
+      <span>Already registered a vault? </span>
+      <a href="{% url 'login' %}">Sign In Here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const cardInput = document.getElementById('id_ghana_card_number') || document.querySelector('input[name="ghana_card_number"]');
+    const feedback = document.getElementById('ghana-card-feedback');
+    const form = cardInput ? cardInput.closest('form') : null;
+
+    if (!cardInput || !feedback) return;
+
+    const PREFIX = 'GHA-';
+
+    function triggerShake() {
+      cardInput.classList.remove('field-invalid');
+      void cardInput.offsetWidth; // Force CSS reflow to re-run animation
+      cardInput.classList.add('field-invalid');
+    }
+
+    function validateGhanaCard() {
+      let raw = cardInput.value.toUpperCase();
+
+      // 1. Prevent removing GHA prefix
+      if (!raw.startsWith('GHA')) {
+        triggerShake();
+        cardInput.classList.remove('field-valid');
+        feedback.className = 'ghana-card-msg show-error';
+        feedback.textContent = '⚠️ Mismatch: Ghana Card must start with "GHA-".';
+        cardInput.value = PREFIX;
+        return;
+      }
+
+      // 2. Extract digits only after GHA
+      const afterPrefix = raw.replace(/^GHA-?/, '');
+      if (/[^0-9\-]/.test(afterPrefix)) {
+        triggerShake();
+        feedback.className = 'ghana-card-msg show-error';
+        feedback.textContent = '⚠️ Invalid Entry: Only numeric digits (0-9) allowed after GHA-.';
+      }
+
+      let digits = afterPrefix.replace(/\D/g, '');
+
+      // 3. Limit to exactly 10 numeric digits
+      if (digits.length > 10) {
+        digits = digits.substring(0, 10);
+      }
+
+      // 4. Auto-format mask (GHA-XXXXXXXXX-X)
+      let formatted = PREFIX;
+      if (digits.length > 0) {
+        if (digits.length <= 9) {
+          formatted += digits;
+        } else {
+          formatted += digits.substring(0, 9) + '-' + digits.substring(9, 10);
+        }
+      }
+      cardInput.value = formatted;
+
+      // 5. Validation Color and Message States
+      if (digits.length === 10) {
+        cardInput.classList.remove('field-invalid');
+        cardInput.classList.add('field-valid');
+        feedback.className = 'ghana-card-msg show-valid';
+        feedback.textContent = '✓ Valid Ghana Card format verified.';
+      } else if (digits.length > 0) {
+        cardInput.classList.remove('field-valid', 'field-invalid');
+        feedback.className = 'ghana-card-msg show-error';
+        feedback.textContent = `⚠️ Enter ${10 - digits.length} more digit(s) (GHA-XXXXXXXXX-X).`;
+      } else {
+        cardInput.classList.remove('field-valid', 'field-invalid');
+        feedback.className = 'ghana-card-msg';
+        feedback.textContent = '';
+      }
+    }
+
+    // Auto-fill prefix on focus if empty
+    cardInput.addEventListener('focus', function () {
+      if (!cardInput.value) {
+        cardInput.value = PREFIX;
+      }
+    });
+
+    cardInput.addEventListener('input', validateGhanaCard);
+
+    // Prevent deleting locked prefix
+    cardInput.addEventListener('keydown', function (e) {
+      if ((e.key === 'Backspace' || e.key === 'Delete') && cardInput.selectionStart <= 4 && cardInput.selectionEnd <= 4) {
+        e.preventDefault();
+        triggerShake();
+      }
+    });
+
+    // Form submission barrier
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        const digits = cardInput.value.replace(/^GHA-?/, '').replace(/\D/g, '');
+        if (digits.length !== 10) {
+          e.preventDefault();
+          triggerShake();
+          feedback.className = 'ghana-card-msg show-error';
+          feedback.textContent = '⚠️ Registration blocked: Exactly 10 numeric digits required (GHA-XXXXXXXXX-X).';
+          cardInput.focus();
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
