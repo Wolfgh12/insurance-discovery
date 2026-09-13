@@ -1,228 +1,657 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Private Estate Vault | {{ policyholder.get_full_name|default:policyholder.username }}{% endblock %}
+{% block title %}Claimant Discovery Dossier | {{ policyholder.get_full_name|default:policyholder.username }} | LegacyTrace{% endblock %}
 
 {% block extra_css %}
 <style>
-  .claimant-hero {
-    background: linear-gradient(135deg, #07162c 0%, #0a2540 100%);
-    border: 1.5px solid rgba(6, 182, 212, 0.4);
-    border-radius: 20px;
-    padding: 2rem;
-    color: #ffffff;
-    margin-bottom: 2rem;
-    box-shadow: 0 16px 36px rgba(2, 12, 27, 0.3);
+  :root {
+    --bg-surface: #F8FAFC;
+    --card-surface: #FFFFFF;
+    --navy-primary: #0F172A;
+    --navy-secondary: #1E293B;
+    --text-muted: #64748B;
+    --border-light: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --cyan-accent: #0284C7;
+    --cyan-hover: #0369A1;
+    --cyan-light: #E0F2FE;
+    --emerald-green: #059669;
+    --emerald-light: #ECFDF5;
+    --amber-tag: #D97706;
+    --amber-light: #FEF3C7;
+    --disclaimer-bg: #FFF7ED;
+    --disclaimer-border: #FFEDD5;
+    --disclaimer-accent: #EA580C;
+    --disclaimer-text: #9A3412;
   }
 
-  .grant-pill {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid #10B981;
-    color: #34D399;
-    font-size: 0.72rem;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 6px;
-    text-transform: uppercase;
+  body {
+    background-color: var(--bg-surface);
+    color: var(--navy-primary);
   }
 
-  /* Financial Metrics Overview Bar */
-  .financial-stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  .claimant-dossier-wrapper {
+    max-width: 1040px;
+    margin: 2rem auto 5rem auto;
+    padding: 0 1.25rem;
+  }
+
+  /* Top Navigation & Status Bar */
+  .top-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(6, 182, 212, 0.2);
+    margin-bottom: 1.5rem;
   }
 
-  .fin-stat-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(6, 182, 212, 0.25);
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-  }
-
-  .fin-stat-label {
-    font-size: 0.72rem;
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--emerald-light);
+    border: 1px solid #A7F3D0;
+    color: var(--emerald-green);
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
     font-weight: 800;
-    color: #94A3B8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
+    letter-spacing: 0.3px;
   }
 
-  .fin-stat-value {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: #ffffff;
-    font-family: monospace;
+  .btn-bar-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFFFFF;
+    border: 1.5px solid var(--border-light);
+    color: var(--navy-primary);
+    padding: 7px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    cursor: pointer;
   }
 
-  .fin-stat-sub {
-    font-size: 0.72rem;
-    color: #38BDF8;
-    margin-top: 2px;
+  .btn-bar-action:hover {
+    background: #F1F5F9;
+    border-color: var(--border-strong);
   }
 
-  .vault-layout-grid {
+  /* Tabbed Navigation Bar (Fixed Multi-Column Grid Layout) */
+  .dossier-tabs-nav {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 6px;
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
   }
 
-  @media (max-width: 860px) {
-    .vault-layout-grid { 
-      grid-template-columns: 1fr; 
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--navy-primary);
+    background: #F8FAFC;
+    border: 1.5px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.18s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .tab-btn:hover {
+    background: #FFFFFF;
+    border-color: var(--cyan-accent);
+    color: var(--cyan-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.12);
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+    border-color: #0284C7;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .tab-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Main Container Sheet */
+  .dossier-sheet {
+    background: var(--card-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  }
+
+  /* Identity Header */
+  .dossier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1.5px solid #F1F5F9;
+    margin-bottom: 2rem;
+  }
+
+  .dossier-heading {
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--navy-primary);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .dossier-subheading {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .citizen-tag {
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 10px 16px;
+    text-align: right;
+  }
+
+  @media (max-width: 640px) {
+    .citizen-tag {
+      text-align: left;
+      width: 100%;
     }
   }
 
-  .estate-card {
-    background: #ffffff;
-    border: 1px solid var(--accent-light-cyan);
-    border-radius: 18px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+  /* Tab Panes */
+  .tab-pane {
+    display: none;
   }
 
-  .claimant-dossier-card {
-    background: #ffffff;
-    border: 1.5px solid #38BDF8;
-    border-radius: 18px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.08);
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn 0.25s ease-in-out;
   }
 
-  .card-header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--accent-ice-blue);
-    padding-bottom: 0.75rem;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Payout Hero Banner */
+  .hero-payout-box {
+    background: linear-gradient(135deg, #F0FDF4 0%, #E0F2FE 100%);
+    border: 1.5px solid #BAE6FD;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
     margin-bottom: 1.25rem;
   }
 
-  .card-heading {
+  .payout-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--cyan-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+    margin-bottom: 0.35rem;
+  }
+
+  .payout-figure {
+    font-size: clamp(2.4rem, 6vw, 3.25rem);
+    font-weight: 900;
+    color: #065F46;
+    letter-spacing: -1px;
+    margin-bottom: 0.35rem;
+  }
+
+  .payout-caption {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  /* Statutory Liability & Non-Responsibility Callout */
+  .figure-liability-banner {
+    background: var(--disclaimer-bg);
+    border: 1.5px solid var(--disclaimer-border);
+    border-left: 4.5px solid var(--disclaimer-accent);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .liability-icon {
+    font-size: 1.35rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .liability-text {
+    font-size: 0.82rem;
+    color: var(--disclaimer-text);
+    line-height: 1.55;
+  }
+
+  .liability-text strong {
+    color: #7C2D12;
+    font-weight: 800;
+  }
+
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+
+  /* Policy Grid */
+  .policy-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .meta-tile {
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+  }
+
+  .meta-tile-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .meta-tile-val {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--navy-primary);
+  }
+
+  /* Underwriter Follow-Up Card */
+  .catchup-card {
+    background: #FFFBEB;
+    border: 1.5px solid #FDE68A;
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .catchup-title {
     font-size: 1.05rem;
     font-weight: 800;
-    color: var(--primary-deep-navy);
+    color: #92400E;
+    margin: 0 0 0.5rem 0;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .claimant-tag {
-    background: rgba(6, 182, 212, 0.12);
-    border: 1px solid #06B6D4;
-    color: #0284C7;
-    font-size: 0.72rem;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 6px;
+  .catchup-text {
+    font-size: 0.86rem;
+    color: #78350F;
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+  }
+
+  .contact-points {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .contact-tile {
+    background: #FFFFFF;
+    border: 1px solid #FCD34D;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+  }
+
+  .contact-tile-label {
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
+    color: #B45309;
+    margin-bottom: 0.2rem;
   }
 
-  .vault-data-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #F1F5F9;
-    font-size: 0.85rem;
-  }
-
-  .vault-data-row:last-child { 
-    border-bottom: none; 
-  }
-
-  .data-title { 
-    color: #64748B; 
-    font-weight: 600; 
-  }
-
-  .data-content { 
-    color: var(--primary-deep-navy); 
-    font-weight: 800; 
-  }
-
-  .doc-vault-item {
-    background: var(--accent-ice-blue);
-    border: 1px solid var(--accent-light-cyan);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .btn-action-view {
-    background: var(--primary-deep-navy);
-    color: var(--accent-cyan);
-    border: 1px solid var(--accent-cyan);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.78rem;
+  .contact-tile-value {
+    font-size: 0.92rem;
     font-weight: 800;
-    text-decoration: none;
-    cursor: pointer;
-    display: inline-flex;
+    color: var(--navy-primary);
+    word-break: break-all;
+  }
+
+  /* Biometric Photos Showcase Grid */
+  .biometric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .biometric-card {
+    background: #FFFFFF;
+    border: 1.5px solid var(--border-light);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .biometric-photo-wrapper {
+    height: 240px;
+    background: #0F172A;
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    overflow: hidden;
   }
 
-  .btn-action-view:hover { 
-    background: var(--secondary-sea-blue); 
-    color: #ffffff; 
+  .biometric-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  /* Claim Status Badges */
-  .claim-badge {
+  .biometric-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    gap: 8px;
+  }
+
+  .biometric-angle-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    color: #00D4FF;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    border-radius: 6px;
     font-size: 0.7rem;
     font-weight: 800;
     padding: 3px 8px;
-    border-radius: 6px;
     text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
   }
-  .claim-pending { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
-  .claim-approved { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
-  .claim-disbursed { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
 
-  /* Navigation Buttons */
-  .btn-vault-back {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-size: 0.76rem;
+  .biometric-verified-tag {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(5, 150, 105, 0.9);
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-size: 0.68rem;
     font-weight: 800;
-    padding: 6px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+    padding: 3px 8px;
+    text-transform: uppercase;
   }
 
-  .btn-vault-back:hover {
-    background: rgba(6, 182, 212, 0.2);
-    border-color: #06B6D4;
-    color: #38BDF8;
-    transform: translateY(-1px);
+  .biometric-card-body {
+    padding: 1.15rem;
+    background: #FFFFFF;
+    text-align: left;
+    flex-grow: 1;
   }
 
-  .btn-vault-logout {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.45);
-    color: #FCA5A5;
-    font-size: 0.76rem;
+  .biometric-title {
+    font-size: 0.95rem;
     font-weight: 800;
-    padding: 6px 14px;
+    color: var(--navy-primary);
+    margin: 0 0 4px 0;
+  }
+
+  .biometric-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Estate Items & Coming Soon Blocks */
+  .estate-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.15rem;
+    margin-bottom: 2rem;
+  }
+
+  .estate-card {
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  .estate-card-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--navy-primary);
+    margin: 0 0 0.35rem 0;
+  }
+
+  .estate-card-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .coming-soon-notice-card {
+    background: #FAFAFA;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 14px;
+    padding: 1.75rem;
+    text-align: center;
+    margin-top: 1.25rem;
+  }
+
+  .pill-soon {
+    display: inline-block;
+    background: var(--amber-light);
+    color: var(--amber-tag);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Telemetry Footer */
+  .statutory-foot-note {
+    background: #F1F5F9;
+    border-radius: 10px;
+    padding: 0.9rem 1.15rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-top: 2rem;
+  }
+
+  @media print {
+    /* Reset sheet canvas */
+    body {
+      background: #FFFFFF !important;
+      color: #0F172A !important;
+      font-size: 11pt !important;
+    }
+
+    /* Hide interface controls, navigation, and supplementary tabs */
+    .top-action-bar,
+    .dossier-tabs-nav,
+    #tab-biometrics,
+    #tab-banking,
+    #tab-wills,
+    #tab-assets,
+    .coming-soon-notice-card,
+    .statutory-foot-note {
+      display: none !important;
+    }
+
+    .claimant-dossier-wrapper {
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .dossier-sheet {
+      border: 1.5px solid #0F172A !important;
+      border-radius: 12px !important;
+      box-shadow: none !important;
+      padding: 24px !important;
+      background: #FFFFFF !important;
+    }
+
+    /* Force the core policy discovery slip to print cleanly */
+    #tab-overview {
+      display: block !important;
+    }
+
+    .hero-payout-box {
+      border: 2px solid #0F172A !important;
+      background: #F8FAFC !important;
+      padding: 1.25rem !important;
+      margin-bottom: 1rem !important;
+      page-break-inside: avoid;
+    }
+
+    .payout-figure {
+      color: #0F172A !important;
+      font-size: 28pt !important;
+    }
+
+    .policy-meta-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 12px !important;
+      margin-bottom: 1rem !important;
+      page-break-inside: avoid;
+    }
+
+    .meta-tile {
+      border: 1px solid #CBD5E1 !important;
+      background: #FFFFFF !important;
+    }
+
+    .catchup-card {
+      border: 1.5px solid #0F172A !important;
+      background: #FFFFFF !important;
+      padding: 1rem !important;
+      margin-bottom: 1rem !important;
+      page-break-inside: avoid;
+    }
+
+    .contact-points {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .contact-tile {
+      border: 1px solid #CBD5E1 !important;
+      background: #F8FAFC !important;
+    }
+
+    .figure-liability-banner {
+      border: 1px solid #94A3B8 !important;
+      background: #F8FAFC !important;
+      padding: 0.75rem !important;
+      margin-bottom: 1rem !important;
+      page-break-inside: avoid;
+    }
+
+    .figure-liability-banner .liability-text {
+      color: #334155 !important;
+      font-size: 8pt !important;
+    }
+  }
+
+  /* Multi-Estate Switcher Bar */
+  .estate-switcher-box {
+    background: #FFFFFF;
+    border: 1.5px solid var(--border-light);
+    border-radius: 14px;
+    padding: 0.85rem 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  }
+
+  .estate-select-input {
+    background: #F8FAFC;
+    border: 1.5px solid var(--border-strong);
+    color: var(--navy-primary);
+    font-size: 0.84rem;
+    font-weight: 800;
+    padding: 7px 12px;
+    border-radius: 9px;
+    outline: none;
+    cursor: pointer;
+    max-width: 380px;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .estate-select-input:focus {
+    border-color: var(--cyan-accent);
+  }
+
+  /* Interactive Receipt Trigger Badge */
+  .receipt-trigger-badge {
+    background: rgba(2, 132, 199, 0.08);
+    border: 1.5px dashed #0284C7;
+    color: #0284C7;
+    font-family: monospace;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 5px 10px;
     border-radius: 8px;
     cursor: pointer;
     display: inline-flex;
@@ -231,276 +660,930 @@
     transition: all 0.2s ease;
   }
 
-  .btn-vault-logout:hover {
-    background: #EF4444;
-    color: #ffffff;
-    border-color: #EF4444;
-    box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+  .receipt-trigger-badge:hover {
+    background: #0284C7;
+    color: #FFFFFF;
+    border-style: solid;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
   }
 
-  .dispatch-packet-box {
-    background: #F0FDF4;
-    border: 1.5px solid #86EFAC;
-    border-radius: 16px;
-    padding: 1.5rem;
-    text-align: center;
+  /* Centered Modal Backdrop */
+  .inspect-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 999999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    box-sizing: border-box;
   }
 
-  /* Statutory Print Stylesheet */
+  .inspect-modal-backdrop.active {
+    display: flex;
+  }
+
+  .receipt-slip-container {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    max-width: 520px;
+    width: 100%;
+    padding: 2rem 2.25rem;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.3);
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  /* Receipt Specific Print Rules */
   @media print {
-    .app-header, .app-footer, .btn-vault-logout, .btn-vault-back, .btn-action-view, form {
+    body.receipt-modal-open * {
+      visibility: hidden !important;
+    }
+    body.receipt-modal-open #paystack-receipt-modal,
+    body.receipt-modal-open #paystack-receipt-modal * {
+      visibility: visible !important;
+    }
+    body.receipt-modal-open #paystack-receipt-modal {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      background: #FFFFFF !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: block !important;
+    }
+    body.receipt-modal-open .receipt-slip-container {
+      box-shadow: none !important;
+      border: 1.5px solid #0F172A !important;
+      max-width: 100% !important;
+      border-radius: 0 !important;
+      padding: 1.5rem !important;
+      page-break-inside: avoid;
+    }
+    body.receipt-modal-open .no-print {
       display: none !important;
     }
-    body {
-      background: #ffffff !important;
-      color: #000000 !important;
+  }
+
+  /* Live Policy Claim Milestone Stepper */
+  .claim-progress-box {
+    background: #FFFFFF;
+    border: 1.5px solid var(--border-light);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+  }
+
+  .progress-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-stepper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+    gap: 0.5rem;
+  }
+
+  .progress-stepper::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 15%;
+    right: 15%;
+    height: 3px;
+    background: #E2E8F0;
+    z-index: 1;
+  }
+
+  .step-node {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step-bubble {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #F8FAFC;
+    border: 2px solid #CBD5E1;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .step-node.completed .step-bubble {
+    background: #10B981;
+    border-color: #059669;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+  }
+
+  .step-node.active .step-bubble {
+    background: #0284C7;
+    border-color: #0369A1;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2);
+    animation: pulseStep 1.8s infinite;
+  }
+
+  @keyframes pulseStep {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  .step-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--navy-primary);
+    margin-bottom: 2px;
+  }
+
+  .step-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+    max-width: 190px;
+  }
+
+  @media (max-width: 640px) {
+    .progress-stepper {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      text-align: left;
     }
-    .claimant-hero {
-      background: #0A192F !important;
-      color: #ffffff !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+    .progress-stepper::before {
+      display: none;
     }
-    .estate-card, .claimant-dossier-card {
-      border: 1px solid #000000 !important;
-      box-shadow: none !important;
-      page-break-inside: avoid;
+    .step-node {
+      flex-direction: row;
+      gap: 12px;
+      text-align: left;
+    }
+    .step-bubble {
+      margin-bottom: 0;
+      flex-shrink: 0;
     }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Master Hero Header with Financial Metrics Overview -->
-<div class="claimant-hero">
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-    <div>
-      <span class="grant-pill">✓ Verified Next-of-Kin Access</span>
-      <h1 style="font-size: 1.6rem; font-weight: 900; margin: 0.5rem 0 0.2rem;">
-        Estate Vault: {{ policyholder.get_full_name|default:policyholder.username }}
-      </h1>
-      <p style="margin: 0; font-size: 0.85rem; color: #94A3B8;">
-        Ghana Card: <strong style="color: #38BDF8;">{{ policyholder.ghana_card_number|default:"Verified" }}</strong>
-      </p>
+<div class="claimant-dossier-wrapper">
+
+  <!-- Top Action Navigation -->
+  <div class="top-action-bar">
+    <div class="status-badge">
+      ✓ Verified Claimant Dossier Unlocked
     </div>
-    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-      <span style="font-family: monospace; font-size: 0.75rem; color: #10B981;">TOKEN: {{ access_token|slice:":12" }}...</span>
-     
-      <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0;">
-        {% csrf_token %}
-        <button type="submit" class="btn-vault-logout" title="Lock vault and terminate session">
-          <span>Lock & Exit</span> 🔒
-        </button>
-      </form>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button onclick="window.print()" class="btn-bar-action">
+        🖨️ Print Discovery Slip
+      </button>
+      <a href="{% url 'vault:logout' %}" class="btn-bar-action">
+        Exit Vault
+      </a>
     </div>
   </div>
 
-  <!-- Cumulative Contributions & Financial Overview -->
-  <div class="financial-stat-grid">
-    <div class="fin-stat-card">
-      <div class="fin-stat-label">Total Premiums Paid</div>
-      <div class="fin-stat-value" style="color: #34D399;">GHS {{ policy.total_premiums_paid|floatformat:2 }}</div>
-      <div class="fin-stat-sub">Cumulative policyholder contributions</div>
+  <!-- Multi-Estate Portfolio Switcher -->
+  {% if all_grants and all_grants|length > 1 %}
+    <div class="estate-switcher-box">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.35rem;">🗂️</span>
+        <div>
+          <div style="font-size: 0.72rem; font-weight: 800; color: var(--cyan-accent); text-transform: uppercase; letter-spacing: 0.5px;">
+            Unlocked Estate Portfolio ({{ all_grants|length }} Relatives Linked)
+          </div>
+          <div style="font-size: 0.88rem; font-weight: 800; color: var(--navy-primary);">
+            Currently Viewing: {{ policyholder.get_full_name|default:policyholder.username }}
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <label for="estate-select" style="font-size: 0.76rem; font-weight: 700; color: var(--text-muted);">Switch Estate:</label>
+        <select id="estate-select" class="estate-select-input" onchange="if(this.value) window.location.href=this.value;">
+          {% for g in all_grants %}
+            <option value="{% url 'vault:claimant_vault' g.access_token %}" {% if g.access_token == access_token %}selected{% endif %}>
+              {{ g.policyholder.get_full_name|default:g.policyholder.username }} ({{ g.relationship_to_deceased }}) — {{ g.policy.insurer.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-    <div class="fin-stat-card">
-      <div class="fin-stat-label">Sum Assured Benefit</div>
-      <div class="fin-stat-value" style="color: #38BDF8;">GHS {{ policy.sum_assured|floatformat:2 }}</div>
-      <div class="fin-stat-sub">Guaranteed underwritten payout</div>
+  {% endif %}
+
+  <!-- Tabbed Menu (Mirroring Admin Desk UI) -->
+  <div class="dossier-tabs-nav">
+    <button class="tab-btn active" data-tab="tab-overview">
+      <span>🛡️</span> Policy & Payout Discovery
+    </button>
+    <button class="tab-btn" data-tab="tab-biometrics">
+      <span>📸</span> Biometric Capture & Intake Photos
+    </button>
+    <button class="tab-btn" data-tab="tab-banking">
+      <span>🏦</span> Bank Accounts & Deposits
+    </button>
+    <button class="tab-btn" data-tab="tab-wills">
+      <span>📜</span> Legal Documents & Wills
+    </button>
+    <button class="tab-btn" data-tab="tab-assets">
+      <span>🏡</span> Real Estate & Assets
+    </button>
+    <button class="tab-btn" data-tab="tab-receipts">
+      <span>🧾</span> Payment Receipts & Ledger
+    </button>
+  </div>
+
+  <!-- Primary White Sheet Card -->
+  <div class="dossier-sheet">
+
+    <!-- Header Section -->
+    <div class="dossier-header">
+      <div>
+        <h1 class="dossier-heading">Verified Estate Discovery Dossier</h1>
+        <p class="dossier-subheading">Official beneficiary match certificate & claims settlement telemetry</p>
+      </div>
+      <div class="citizen-tag">
+        <div style="font-size: 0.7rem; font-weight: 800; color: var(--cyan-accent); text-transform: uppercase;">
+          Insured Citizen
+        </div>
+        <div style="font-size: 1.05rem; font-weight: 800; color: var(--navy-primary); margin: 2px 0;">
+          {{ policyholder.get_full_name|default:policyholder.username }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">
+          Ghana Card: {{ policyholder.ghana_card_number|default:"Not Registered" }}
+        </div>
+      </div>
     </div>
-    <div class="fin-stat-card">
-      <div class="fin-stat-label">Monthly Premium</div>
-      <div class="fin-stat-value">GHS {{ policy.monthly_premium|floatformat:2 }}</div>
-      <div class="fin-stat-sub">{{ policy.get_payment_frequency_display }}</div>
+
+    <!-- ============================================== -->
+    <!-- TAB 1: POLICY & LUMP SUM PAYOUT DISCOVERY -->
+    <!-- ============================================== -->
+    <div id="tab-overview" class="tab-pane active">
+
+      <!-- Lump Sum Payout Hero -->
+      <div class="hero-payout-box">
+        <div class="payout-title">Guaranteed Lump Sum Entitlement (Sum Assured)</div>
+        <div class="payout-figure">
+          GHS {{ policy.sum_assured|floatformat:2 }}
+        </div>
+        <div class="payout-caption">
+          Statutory insurance policy settlement figure recorded under the primary beneficiary schedule.
+        </div>
+      </div>
+
+      <!-- Live Claim Resolution Milestone Stepper -->
+      <div class="claim-progress-box">
+        <div class="progress-header-row">
+          <div>
+            <div style="font-size: 0.72rem; font-weight: 800; color: var(--cyan-accent); text-transform: uppercase; letter-spacing: 0.5px;">
+              National Registry Status Monitor
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 900; color: var(--navy-primary); margin: 2px 0 0;">
+              Settlement Lifecycle Progress
+            </h3>
+          </div>
+          <div>
+            {% if policy.policy_status == 'SETTLED' %}
+              <span class="status-badge" style="background: #DCFCE7; color: #15803D; border-color: #86EFAC;">
+                ✓ Benefit Fully Settled
+              </span>
+            {% elif policy.policy_status == 'CLAIM_IN_PROGRESS' %}
+              <span class="status-badge" style="background: #FEF3C7; color: #B45309; border-color: #FDE68A;">
+                ⏳ Review In Progress
+              </span>
+            {% else %}
+              <span class="status-badge" style="background: #E0F2FE; color: #0369A1; border-color: #BAE6FD;">
+                ● Policy Discovered
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="progress-stepper">
+          <!-- Stage 1: Discovery & Biometric Unlock -->
+          <div class="step-node completed">
+            <div class="step-bubble">✓</div>
+            <div class="step-title">1. Vault Unlocked</div>
+            <div class="step-desc">Identity verified and discovery docket issued.</div>
+          </div>
+
+          <!-- Stage 2: Underwriting Desk Processing -->
+          <div class="step-node {% if policy.policy_status == 'CLAIM_IN_PROGRESS' %}active{% elif policy.policy_status == 'SETTLED' %}completed{% endif %}">
+            <div class="step-bubble">
+              {% if policy.policy_status == 'SETTLED' %}✓{% else %}2{% endif %}
+            </div>
+            <div class="step-title">2. Underwriter Adjudication</div>
+            <div class="step-desc">
+              {% if policy.policy_status == 'CLAIM_IN_PROGRESS' %}
+                Under active review with {{ policy.insurer.name }}[cite: 5].
+              {% elif policy.policy_status == 'SETTLED' %}
+                Documentation audited and approved.
+              {% else %}
+                Pending submission of certified death certificate.
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Stage 3: Final Settlement & Disbursement -->
+          <div class="step-node {% if policy.policy_status == 'SETTLED' %}completed active{% endif %}">
+            <div class="step-bubble">
+              {% if policy.policy_status == 'SETTLED' %}✓{% else %}3{% endif %}
+            </div>
+            <div class="step-title">3. Benefit Settlement</div>
+            <div class="step-desc">
+              {% if policy.policy_status == 'SETTLED' %}
+                Claim concluded and funds disbursed by underwriter.
+              {% else %}
+                Lump sum release following document approval.
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prominent Figures Liability Disclaimer Callout -->
+      <div class="figure-liability-banner">
+        <div class="liability-icon">⚠️</div>
+        <div class="liability-text">
+          <strong>Non-Liability & Figure Reconciliation Notice:</strong> LegacyTrace serves exclusively as a digital discovery registry and <strong>does not calculate, guarantee, or disburse insurance benefits</strong>. The lump sum and policy figures displayed above reflect self-declared policyholder deposits and archived index records. LegacyTrace bears <strong>no responsibility or liability</strong> for any figures, discrepancies, or policy standing. All payout calculations, policy audits, surrender values, and actual financial settlements <strong>must be handled directly with {{ policy.insurer.name }}</strong>.
+        </div>
+      </div>
+
+      <!-- Policy Overview -->
+      <div class="section-label">Insured Policy Details</div>
+      <div class="policy-meta-grid">
+        <div class="meta-tile">
+          <div class="meta-tile-label">Insured Policy Type</div>
+          <div class="meta-tile-val">{{ policy.get_policy_type_display }}</div>
+        </div>
+
+        <div class="meta-tile">
+          <div class="meta-tile-label">Policy / Certificate No.</div>
+          <div class="meta-tile-val" style="font-family: monospace; color: var(--cyan-accent);">
+            {{ policy.policy_number }}
+          </div>
+        </div>
+
+        <div class="meta-tile">
+          <div class="meta-tile-label">Underwriting Institution</div>
+          <div class="meta-tile-val">{{ policy.insurer.name }}</div>
+        </div>
+
+        <div class="meta-tile">
+          <div class="meta-tile-label">Current Policy Status</div>
+          <div class="meta-tile-val" style="color: var(--emerald-green);">
+            {{ policy.get_policy_status_display }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurer Contact & Catch-up Desk -->
+      <div class="catchup-card">
+        <h3 class="catchup-title">
+          <span>🏢</span> Underwriter Claims Desk & Follow-Up Directions
+        </h3>
+        <p class="catchup-text">
+          Present this verified discovery slip along with your <strong>Ghana Card</strong> and the certified death documentation directly to <strong>{{ policy.insurer.name }}</strong> to initiate claim adjudication and financial disbursement.
+        </p>
+
+        <div class="contact-points">
+          <div class="contact-tile">
+            <div class="contact-tile-label">Claims Direct Hotline</div>
+            <div class="contact-tile-value">
+              {{ policy.insurer.claims_hotline|default:"+233 (0) 30 200 0000" }}
+            </div>
+          </div>
+
+          <div class="contact-tile">
+            <div class="contact-tile-label">Claims Processing Email</div>
+            <div class="contact-tile-value">
+              {{ policy.insurer.contact_email|default:"claims@underwriter.com.gh" }}
+            </div>
+          </div>
+
+          <div class="contact-tile">
+            <div class="contact-tile-label">Discovery Settlement Ref</div>
+            <div class="contact-tile-value" style="margin-top: 4px;">
+              <button 
+                type="button" 
+                class="receipt-trigger-badge btn-open-receipt"
+                data-ref="{{ grant_record.payment_reference }}"
+                data-claimant="{{ grant_record.claimant_name|default:grant_record.claimant_user.get_full_name|default:grant_record.claimant_user.username }}"
+                data-card="{{ grant_record.claimant_ghana_card|default:'Not Provided' }}"
+                data-phone="{{ grant_record.claimant_phone|default:'N/A' }}"
+                data-email="{{ grant_record.claimant_email|default:'' }}"
+                data-kinship="{{ grant_record.relationship_to_deceased|default:'Next of Kin' }}"
+                data-policyholder="{{ policyholder.get_full_name|default:policyholder.username }}"
+                data-policy="{{ policy.policy_number }}"
+                data-insurer="{{ policy.insurer.name }}"
+                data-amount="{% if platform_config.unlock_fee %}{{ platform_config.unlock_fee|floatformat:2 }}{% else %}50.00{% endif %}"
+                data-date="{{ grant_record.unlocked_at|date:'l, d F Y' }}"
+                data-time="{{ grant_record.unlocked_at|date:'h:i:s A' }} GMT"
+                title="View & Print Official Paystack Transaction Receipt"
+              >
+                🧾 {{ grant_record.payment_reference|default:"LT-RECEIPT" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="fin-stat-card">
-      <div class="fin-stat-label">Net Estimated Payout</div>
-      <div class="fin-stat-value" style="color: #FCD34D;">GHS {{ policy.net_estimated_benefit|floatformat:2 }}</div>
-      <div class="fin-stat-sub">{{ policy.get_policy_status_display }}</div>
+
+    <!-- ============================================== -->
+    <!-- TAB 2: BIOMETRIC CAPTURE & INTAKE PHOTOS -->
+    <!-- ============================================== -->
+    <div id="tab-biometrics" class="tab-pane">
+
+      <div class="section-label">Verified Intake Telemetry & Facial Biometrics</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        These three-angle facial biometric snapshots were captured in real-time during your claim unlock intake on {{ audit_log.created_at|date:"M d, Y @ H:i"|default:"this session" }}. They are permanently bound to your Ghana Card verification dossier.
+      </p>
+
+      <div class="biometric-grid">
+        <!-- Front Angle Photo -->
+        <div class="biometric-card">
+          <div class="biometric-photo-wrapper">
+            <span class="biometric-angle-tag">Angle 1: Front Profile</span>
+            {% if audit_log and audit_log.biometric_front_photo %}
+              <img src="{{ audit_log.biometric_front_photo.url }}" class="biometric-img" alt="Frontal Facial Capture">
+            {% else %}
+              <div class="biometric-placeholder">
+                <span style="font-size: 2.2rem;">👤</span>
+                <span style="font-size: 0.75rem; font-weight: 700;">Frontal Capture Secured</span>
+              </div>
+            {% endif %}
+            <span class="biometric-verified-tag">✓ Liveness Confirmed</span>
+          </div>
+          <div class="biometric-card-body">
+            <h4 class="biometric-title">Direct Facial Frame</h4>
+            <p class="biometric-sub">High-resolution biometric snapshot taken during initial identity challenge.</p>
+          </div>
+        </div>
+
+        <!-- Left Angle Photo -->
+        <div class="biometric-card">
+          <div class="biometric-photo-wrapper">
+            <span class="biometric-angle-tag">Angle 2: Left Profile</span>
+            {% if audit_log and audit_log.biometric_left_photo %}
+              <img src="{{ audit_log.biometric_left_photo.url }}" class="biometric-img" alt="Left Profile Capture">
+            {% else %}
+              <div class="biometric-placeholder">
+                <span style="font-size: 2.2rem;">👤</span>
+                <span style="font-size: 0.75rem; font-weight: 700;">Left Profile Secured</span>
+              </div>
+            {% endif %}
+            <span class="biometric-verified-tag">✓ Telemetry Signed</span>
+          </div>
+          <div class="biometric-card-body">
+            <h4 class="biometric-title">Left Profile Sweep</h4>
+            <p class="biometric-sub">Multi-angle contour verification ensuring camera liveness integrity.</p>
+          </div>
+        </div>
+
+        <!-- Right Angle Photo -->
+        <div class="biometric-card">
+          <div class="biometric-photo-wrapper">
+            <span class="biometric-angle-tag">Angle 3: Right Profile</span>
+            {% if audit_log and audit_log.biometric_right_photo %}
+              <img src="{{ audit_log.biometric_right_photo.url }}" class="biometric-img" alt="Right Profile Capture">
+            {% else %}
+              <div class="biometric-placeholder">
+                <span style="font-size: 2.2rem;">👤</span>
+                <span style="font-size: 0.75rem; font-weight: 700;">Right Profile Secured</span>
+              </div>
+            {% endif %}
+            <span class="biometric-verified-tag">✓ Hash Logged</span>
+          </div>
+          <div class="biometric-card-body">
+            <h4 class="biometric-title">Right Profile Sweep</h4>
+            <p class="biometric-sub">Forensic angle capture stored for anti-impersonation cross-auditing.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Identity Metadata Table -->
+      <div class="section-label">Intake Identity Dossier</div>
+      <div class="policy-meta-grid">
+        <div class="meta-tile">
+          <div class="meta-tile-label">Claimant Full Name</div>
+          <div class="meta-tile-val">{{ grant_record.claimant_name|default:request.user.get_full_name }}</div>
+        </div>
+        <div class="meta-tile">
+          <div class="meta-tile-label">Ghana Card ID</div>
+          <div class="meta-tile-val" style="font-family: monospace;">{{ grant_record.claimant_ghana_card|default:"Registered" }}</div>
+        </div>
+        <div class="meta-tile">
+          <div class="meta-tile-label">Stated Kinship</div>
+          <div class="meta-tile-val">{{ grant_record.relationship_to_deceased|default:"Next of Kin" }}</div>
+        </div>
+        <div class="meta-tile">
+          <div class="meta-tile-label">Intake Audit Reference</div>
+          <div class="meta-tile-val" style="font-family: monospace; color: var(--cyan-accent);">
+            LOG-{{ audit_log.id|default:"SEC-0041" }}
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 3: BANK ACCOUNTS & LIQUID DEPOSITS -->
+    <!-- ============================================== -->
+    <div id="tab-banking" class="tab-pane">
+      <div class="section-label">Commercial Bank Accounts & Cash Vaults</div>
+
+      {% if bank_accounts %}
+        <div class="estate-items-grid">
+          {% for bank in bank_accounts %}
+            <div class="estate-card">
+              <h4 class="estate-card-title">{{ bank.bank_name }}</h4>
+              <div class="estate-card-meta">
+                <div><strong>Account No:</strong> {{ bank.account_number|slice:":4" }}••••{{ bank.account_number|slice:"-4:" }}</div>
+                <div><strong>Branch:</strong> {{ bank.branch_name|default:"Main Branch" }}</div>
+                <div><strong>Account Type:</strong> {{ bank.account_type }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 12px; padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+          No active bank accounts individually indexed for this vault yet.
+        </div>
+      {% endif %}
+
+      <div class="coming-soon-notice-card">
+        <span class="pill-soon">Upcoming Phase</span>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--navy-primary); margin: 0 0 0.25rem 0;">Direct Banking & Liquidity Protocol</h4>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.45;">
+          Direct inter-bank balance synchronization and Bank of Ghana dormant asset discovery integration will activate in the next registry upgrade.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 4: LEGAL DOCUMENTS & WILLS -->
+    <!-- ============================================== -->
+    <div id="tab-wills" class="tab-pane">
+      <div class="section-label">Testamentary Documents & Custodial Wills</div>
+
+      {% if documents %}
+        <div class="estate-items-grid">
+          {% for doc in documents %}
+            <div class="estate-card">
+              <h4 class="estate-card-title">{{ doc.title }}</h4>
+              <div class="estate-card-meta">
+                <div><strong>Document Type:</strong> {{ doc.get_document_type_display }}</div>
+                <div><strong>Notes:</strong> {{ doc.notes|default:"Deposited in Sovereign Registry" }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 12px; padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+          No public testamentary documents uploaded directly to this citizen profile.
+        </div>
+      {% endif %}
+
+      <div class="coming-soon-notice-card">
+        <span class="pill-soon">Upcoming Phase</span>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--navy-primary); margin: 0 0 0.25rem 0;">Probate Registry Direct Verification</h4>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.45;">
+          Online High Court probate filing validation and automated legal testament retrieval are currently under active technical pilot.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 5: REAL ESTATE & PHYSICAL ASSETS -->
+    <!-- ============================================== -->
+    <div id="tab-assets" class="tab-pane">
+      <div class="section-label">Real Estate, Vehicles & Security Holdings</div>
+
+      {% if assets or investments %}
+        <div class="estate-items-grid">
+          {% for asset in assets %}
+            <div class="estate-card">
+              <h4 class="estate-card-title">{{ asset.title }}</h4>
+              <div class="estate-card-meta">
+                <div><strong>Category:</strong> {{ asset.get_asset_type_display }}</div>
+                <div><strong>Identifier:</strong> {{ asset.location_or_identifier }}</div>
+                {% if asset.estimated_value %}
+                  <div><strong>Estimated Value:</strong> GHS {{ asset.estimated_value|floatformat:2 }}</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+
+          {% for inv in investments %}
+            <div class="estate-card">
+              <h4 class="estate-card-title">{{ inv.title }}</h4>
+              <div class="estate-card-meta">
+                <div><strong>Broker / Firm:</strong> {{ inv.institution_or_broker }}</div>
+                <div><strong>Ref:</strong> {{ inv.portfolio_reference }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 12px; padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+          No property or securities listed under public discovery.
+        </div>
+      {% endif %}
+
+      <div class="coming-soon-notice-card">
+        <span class="pill-soon">Upcoming Phase</span>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--navy-primary); margin: 0 0 0.25rem 0;">Lands Commission Deed Indexing</h4>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.45;">
+          Automated Lands Commission cadastral search and DVLA vehicular title record verification will connect in the subsequent registry release.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 6: PAYMENT RECEIPTS & TRANSACTION LEDGER   -->
+    <!-- ============================================== -->
+    <div id="tab-receipts" class="tab-pane">
+      <div class="section-label">Paystack Unlock Transactions & Official Receipts</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Click any payment reference below to inspect, save, or print your official statutory receipt with verified Paystack payment timestamps.
+      </p>
+
+      <div style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 16px; overflow-x: auto; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 1.5px solid var(--border-light); color: var(--text-muted); font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+              <th style="padding: 0.9rem 1.15rem;">Payment Reference</th>
+              <th style="padding: 0.9rem 1.15rem;">Deceased Relative</th>
+              <th style="padding: 0.9rem 1.15rem;">Policy & Underwriter</th>
+              <th style="padding: 0.9rem 1.15rem;">Fee Paid</th>
+              <th style="padding: 0.9rem 1.15rem;">Transaction Date</th>
+              <th style="padding: 0.9rem 1.15rem; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for g in all_grants %}
+              <tr style="border-bottom: 1px solid #F1F5F9; transition: background 0.15s ease;">
+                <td style="padding: 0.9rem 1.15rem;">
+                  <button 
+                    type="button" 
+                    class="receipt-trigger-badge btn-open-receipt"
+                    data-ref="{{ g.payment_reference }}"
+                    data-claimant="{{ g.claimant_name }}"
+                    data-card="{{ g.claimant_ghana_card }}"
+                    data-phone="{{ g.claimant_phone }}"
+                    data-email="{{ g.claimant_email }}"
+                    data-kinship="{{ g.relationship_to_deceased }}"
+                    data-policyholder="{{ g.policyholder.get_full_name|default:g.policyholder.username }}"
+                    data-policy="{{ g.policy.policy_number }}"
+                    data-insurer="{{ g.policy.insurer.name }}"
+                    data-amount="{% if platform_config.unlock_fee %}{{ platform_config.unlock_fee|floatformat:2 }}{% else %}50.00{% endif %}"
+                    data-date="{{ g.unlocked_at|date:'l, d F Y' }}"
+                    data-time="{{ g.unlocked_at|date:'h:i:s A' }} GMT"
+                    title="View & Print Official Receipt"
+                  >
+                    🧾 {{ g.payment_reference }}
+                  </button>
+                </td>
+                <td style="padding: 0.9rem 1.15rem;">
+                  <strong style="color: var(--navy-primary);">{{ g.policyholder.get_full_name|default:g.policyholder.username }}</strong>
+                  <div style="font-size: 0.74rem; color: var(--text-muted);">Kinship: {{ g.relationship_to_deceased }}</div>
+                </td>
+                <td style="padding: 0.9rem 1.15rem;">
+                  <div style="font-weight: 700; color: var(--cyan-accent);">{{ g.policy.policy_number }}</div>
+                  <div style="font-size: 0.74rem; color: var(--text-muted);">{{ g.policy.insurer.name }}</div>
+                </td>
+                <td style="padding: 0.9rem 1.15rem; font-weight: 800; color: #065F46;">
+                  GHS {% if platform_config.unlock_fee %}{{ platform_config.unlock_fee|floatformat:2 }}{% else %}50.00{% endif %}
+                </td>
+                <td style="padding: 0.9rem 1.15rem; font-family: monospace; font-size: 0.78rem; color: var(--text-muted);">
+                  {{ g.unlocked_at|date:"Y-m-d H:i" }}
+                </td>
+                <td style="padding: 0.9rem 1.15rem; text-align: right;">
+                  <button 
+                    type="button" 
+                    class="btn-bar-action btn-open-receipt"
+                    style="padding: 4px 10px; font-size: 0.75rem;"
+                    data-ref="{{ g.payment_reference }}"
+                    data-claimant="{{ g.claimant_name }}"
+                    data-card="{{ g.claimant_ghana_card }}"
+                    data-phone="{{ g.claimant_phone }}"
+                    data-email="{{ g.claimant_email }}"
+                    data-kinship="{{ g.relationship_to_deceased }}"
+                    data-policyholder="{{ g.policyholder.get_full_name|default:g.policyholder.username }}"
+                    data-policy="{{ g.policy.policy_number }}"
+                    data-insurer="{{ g.policy.insurer.name }}"
+                    data-amount="{% if platform_config.unlock_fee %}{{ platform_config.unlock_fee|floatformat:2 }}{% else %}50.00{% endif %}"
+                    data-date="{{ g.unlocked_at|date:'l, d F Y' }}"
+                    data-time="{{ g.unlocked_at|date:'h:i:s A' }} GMT"
+                  >
+                    View Receipt ➔
+                  </button>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No transaction receipts on record.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Statutory Audit Telemetry Disclaimer -->
+    <div class="statutory-foot-note">
+      <div style="font-size: 1.15rem; line-height: 1;">🛡️</div>
+      <div>
+        <strong>Legal Telemetry & Registry Integrity:</strong> This discovery certificate and its associated biometric snapshots are bound to statutory identity verification logs. All access timestamps, camera metadata, and network traces are permanently recorded in the National Insurance Discovery ledger.
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="vault-layout-grid">
-  <div>
-    <!-- Policy & Underwriter File -->
-    <div class="estate-card">
-      <div class="card-header-bar">
-        <div class="card-heading"><span>🏛️</span> Underwriter Claim Dossier</div>
-        <span style="color: #10B981; font-weight: 800; font-size: 0.75rem;">● {{ policy.get_policy_status_display }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Underwriting Insurer</span>
-        <span class="data-content" style="color: #0284C7;">{{ policy.insurer.name }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Policy Number</span>
-        <span class="data-content">{{ policy.policy_number }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Policy Category</span>
-        <span class="data-content">{{ policy.get_policy_type_display }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Policy Start Date</span>
-        <span class="data-content">{{ policy.policy_start_date|default:"Active & Registered" }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Claims Department Email</span>
-        <span class="data-content">{{ policy.insurer.contact_email }}</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Claims Direct Hotline</span>
-        <span class="data-content">{{ policy.insurer.claims_hotline }}</span>
-      </div>
-    </div>
-
-    <!-- Claims Filed & Settlement Ledger -->
-    <div class="estate-card">
-      <div class="card-header-bar">
-        <div class="card-heading"><span>📑</span> Claims History & Disbursements</div>
-        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ claims.count }} Record(s)</span>
-      </div>
-      {% if claims %}
-        {% for claim in claims %}
-          <div class="doc-vault-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong style="color: var(--primary-deep-navy); font-size: 0.92rem;">{{ claim.claim_reference }}</strong>
-                <span style="font-size: 0.75rem; color: #64748B; margin-left: 6px;">{{ claim.get_claim_type_display }}</span>
-              </div>
-              <span class="claim-badge {% if claim.status == 'APPROVED' %}claim-approved{% elif claim.status == 'DISBURSED' %}claim-disbursed{% else %}claim-pending{% endif %}">
-                ● {{ claim.get_status_display }}
-              </span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px dashed #CBD5E1; padding-top: 6px;">
-              <span style="color: #64748B;">Amount Claimed: <strong style="color: var(--primary-deep-navy);">GHS {{ claim.amount_claimed|floatformat:2 }}</strong></span>
-              <span style="color: #059669;">Disbursed: <strong>GHS {{ claim.amount_disbursed|floatformat:2 }}</strong></span>
-            </div>
-            {% if claim.insurer_notes %}
-              <div style="font-size: 0.74rem; color: #475569; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 6px;">
-                <em>Underwriter Remark: {{ claim.insurer_notes }}</em>
-              </div>
-            {% endif %}
-          </div>
-        {% endfor %}
-      {% else %}
-        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">
-          No previous claims filed under this policy. Eligible for primary death benefit settlement.
-        </p>
-      {% endif %}
-    </div>
-
-    <!-- Certified Digital Wills & Legal Deeds -->
-    <div class="estate-card">
-      <div class="card-header-bar">
-        <div class="card-heading"><span>📜</span> Deposited Wills & Indentures</div>
-        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ documents.count }} File(s)</span>
-      </div>
-      {% if documents %}
-        {% for doc in documents %}
-          <div class="doc-vault-item">
-            <div>
-              <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.9rem;">{{ doc.title }}</div>
-              <div style="font-size: 0.75rem; color: #64748B;">{{ doc.get_document_type_display }} • Uploaded {{ doc.uploaded_at|date:"M d, Y" }}</div>
-            </div>
-            {% if doc.document_file %}
-              <a href="{{ doc.document_file.url }}" target="_blank" class="btn-action-view">Download ⬇</a>
-            {% endif %}
-          </div>
-        {% endfor %}
-      {% else %}
-        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">No separate digital will documents attached.</p>
-      {% endif %}
-    </div>
-  </div>
-
-  <div>
-    <!-- Verified Relative / Claimant Intake Dossier -->
-    <div class="claimant-dossier-card">
-      <div class="card-header-bar">
-        <div class="card-heading"><span>📋</span> Verified Claimant Dossier</div>
-        <span class="claimant-tag">Audited Next-of-Kin</span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Claimant Legal Name</span>
-        <span class="data-content" style="color: #0284C7;">
-          {{ grant.claimant_name|default:grant_record.claimant_name|default:request.user.get_full_name|default:request.user.username }}
-        </span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Relationship to Deceased</span>
-        <span class="data-content">
-          {{ grant.relationship|default:grant_record.relationship_to_deceased|default:"Direct Next-of-Kin" }}
-        </span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Claimant Ghana Card ID</span>
-        <span class="data-content" style="font-family: monospace; color: #059669;">
-          {{ grant.claimant_ghana_card|default:grant_record.claimant_ghana_card|default:"GHA-VERIFIED" }}
-        </span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Contact Phone</span>
-        <span class="data-content">
-          {{ grant.claimant_phone|default:grant_record.claimant_phone|default:request.user.phone_number|default:"On Record" }}
-        </span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Registered Email</span>
-        <span class="data-content">
-          {{ grant_record.claimant_email|default:request.user.email }}
-        </span>
-      </div>
-      <div class="vault-data-row" style="flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span class="data-title">Permanent Residential Address</span>
-        <span class="data-content" style="font-size: 0.82rem; line-height: 1.4; color: #334155;">
-          {{ grant.permanent_address|default:grant_record.permanent_address|default:"Address authenticated on file." }}
-        </span>
-      </div>
-      <div class="vault-data-row">
-        <span class="data-title">Statutory Audit Ref</span>
-        <span class="data-content" style="font-family: monospace; font-size: 0.78rem; color: #64748B;">
-          {{ grant.reference|default:grant_record.payment_reference }}
-        </span>
-      </div>
-    </div>
-
-    <!-- Physical Assets & Land Ledger -->
-    <div class="estate-card">
-      <div class="card-header-bar">
-        <div class="card-heading"><span>🏡</span> Registered Real Estate & Assets</div>
-        <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">{{ assets.count }} Item(s)</span>
-      </div>
-      {% if assets %}
-        {% for asset in assets %}
-          <div class="doc-vault-item">
-            <div>
-              <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.9rem;">{{ asset.title }}</div>
-              <div style="font-size: 0.75rem; color: #64748B;">
-                {{ asset.get_asset_type_display }} • Est. GHS {{ asset.estimated_value|default:"N/A" }}
-              </div>
-            </div>
-            {% if asset.document_proof %}
-              <a href="{{ asset.document_proof.url }}" target="_blank" class="btn-action-view">Proof ↗</a>
-            {% endif %}
-          </div>
-        {% endfor %}
-      {% else %}
-        <p style="color: #64748B; font-size: 0.85rem; text-align: center; margin: 1rem 0;">No physical asset listings on file.</p>
-      {% endif %}
-    </div>
-
-    <!-- Statutory Claim Bundle Dispatch -->
-    <div class="dispatch-packet-box">
-      <h4 style="margin: 0 0 0.5rem; color: #065F46; font-size: 1.05rem;">Statutory Claim Packet Ready</h4>
-      <p style="font-size: 0.8rem; color: #047857; margin-bottom: 1rem;">
-        Your identity verification and reference ({{ grant.reference|default:grant_record.payment_reference }}) have been logged with underwriting partners.
-      </p>
-      <button onclick="window.print()" class="btn-action-view" style="width: 100%; padding: 0.75rem; font-size: 0.85rem;">
-        Print Certified Claim Dossier 🖨️
+<!-- Official Paystack Transaction Receipt Modal (Self-Service Printable) -->
+<div id="paystack-receipt-modal" class="inspect-modal-backdrop no-loader">
+  <div class="receipt-slip-container">
+    
+    <!-- Action Controls (Hidden on Print) -->
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #CBD5E1;">
+      <button type="button" onclick="printReceiptSlip()" class="btn-bar-action" style="background: var(--cyan-accent); color: #FFFFFF; border-color: var(--cyan-accent); font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+        🖨️ Print Receipt
+      </button>
+      <button type="button" id="btn-close-receipt" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #64748B; padding: 2px 6px; line-height: 1;">
+        ✕
       </button>
     </div>
+
+    <!-- Receipt Header -->
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; border: 1px solid var(--cyan-accent);">
+          <img src="{% static 'images/LegacyTrace_shield_logo_design_.jpeg' %}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <span style="font-weight: 900; font-size: 1.2rem; color: var(--navy-primary); letter-spacing: -0.3px;">LegacyTrace Vault</span>
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 800; color: var(--emerald-green); text-transform: uppercase; letter-spacing: 0.6px; background: var(--emerald-light); border: 1px solid #BBF7D0; padding: 3px 10px; border-radius: 50px; display: inline-block;">
+        ✓ Official Transaction Receipt
+      </div>
+    </div>
+
+    <!-- Total Paid Display -->
+    <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 12px; padding: 1rem; text-align: center; margin-bottom: 1.25rem;">
+      <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Amount Paid (GHS)</div>
+      <div style="font-size: 1.85rem; font-weight: 900; color: var(--navy-primary); margin: 0.15rem 0;" id="rcpt-amount">GHS 0.00</div>
+      <div style="font-size: 0.72rem; color: var(--cyan-accent); font-weight: 700;">Processed via Paystack Payments Ghana Ltd</div>
+    </div>
+
+    <!-- Transaction Telemetry Ledger -->
+    <div style="font-size: 0.8rem; color: #334155; display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.25rem; font-family: monospace;">
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Payment Ref:</span>
+        <strong id="rcpt-ref" style="color: var(--cyan-accent);">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Transaction Day & Date:</span>
+        <strong id="rcpt-date">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Transaction Time:</span>
+        <strong id="rcpt-time">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Payment Purpose:</span>
+        <strong>Statutory Next-of-Kin Vault Unlock</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Verified Relative:</span>
+        <strong id="rcpt-claimant">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Claimant Ghana Card:</span>
+        <strong id="rcpt-card">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Stated Kinship:</span>
+        <strong id="rcpt-kinship">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Target Policyholder:</span>
+        <strong id="rcpt-policyholder">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: var(--text-muted);">Policy Number:</span>
+        <strong id="rcpt-policy">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--text-muted);">Underwriting Partner:</span>
+        <strong id="rcpt-insurer">--</strong>
+      </div>
+    </div>
+
+    <!-- Statutory Footnote -->
+    <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.68rem; color: var(--text-muted); line-height: 1.45; text-align: center;">
+      This receipt certifies that the statutory one-time estate dossier unlock fee was settled and validated through the Paystack gateway under Ghana Act 843 compliance.
+    </div>
+
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function printReceiptSlip() {
+    document.body.classList.add('receipt-modal-open');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('receipt-modal-open');
+    }, 800);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // 1. Tab Switching Controller
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-tab');
+
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
+
+        this.classList.add('active');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          targetPane.classList.add('active');
+        }
+      });
+    });
+
+    // 2. Paystack Transaction Receipt Modal Controller
+    const receiptModal = document.getElementById('paystack-receipt-modal');
+    const closeReceiptBtn = document.getElementById('btn-close-receipt');
+
+    document.querySelectorAll('.btn-open-receipt').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        document.getElementById('rcpt-ref').textContent = this.getAttribute('data-ref') || '--';
+        document.getElementById('rcpt-amount').textContent = `GHS ${this.getAttribute('data-amount') || '0.00'}`;
+        document.getElementById('rcpt-date').textContent = this.getAttribute('data-date') || '--';
+        document.getElementById('rcpt-time').textContent = this.getAttribute('data-time') || '--';
+        document.getElementById('rcpt-claimant').textContent = this.getAttribute('data-claimant') || '--';
+        document.getElementById('rcpt-card').textContent = this.getAttribute('data-card') || '--';
+        document.getElementById('rcpt-kinship').textContent = this.getAttribute('data-kinship') || '--';
+        document.getElementById('rcpt-policyholder').textContent = this.getAttribute('data-policyholder') || '--';
+        document.getElementById('rcpt-policy').textContent = this.getAttribute('data-policy') || '--';
+        document.getElementById('rcpt-insurer').textContent = this.getAttribute('data-insurer') || '--';
+
+        if (receiptModal) {
+          receiptModal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+
+    if (closeReceiptBtn) {
+      closeReceiptBtn.addEventListener('click', () => {
+        if (receiptModal) receiptModal.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+
+    if (receiptModal) {
+      receiptModal.addEventListener('click', function (e) {
+        if (e.target === receiptModal) {
+          receiptModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

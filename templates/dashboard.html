@@ -199,6 +199,54 @@
     box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
   }
 
+  /* Disabled / Coming Soon Modules */
+  .sidebar-nav-btn.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #F8FAFC;
+    border-color: #E2E8F0;
+    color: #64748B;
+  }
+
+  .sidebar-nav-btn.is-disabled:hover {
+    background: #F8FAFC;
+    color: #64748B;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .badge-coming-soon {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-chip.is-soon {
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  .stat-chip-badge-soon {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #FCD34D;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+  }
+
   .vault-main-content {
     min-width: 0;
   }
@@ -253,10 +301,13 @@
   }
 
   /* ----------------------------------------------------
-     Form Controls & Styling
+     Form Controls & Styling (Strictly Proportioned)
   ---------------------------------------------------- */
   .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.15rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .form-label {
@@ -271,20 +322,79 @@
 
   .form-input {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 0.75rem 1rem;
     border: 1.5px solid #CBD5E1;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--text-dark);
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background: #FAFAFA;
   }
 
-  .form-input:focus {
-    border-color: var(--secondary-sea-blue);
+  /* Hard Container Lock for All Dropdowns Across Desktops & Phones */
+  select.form-input,
+  .form-group select,
+  #modal-add-memory select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    padding-right: 2rem !important;
+    cursor: pointer !important;
+    background-color: #FAFAFA !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 10px !important;
+    font-family: inherit !important;
+    font-size: 0.88rem !important;
+    color: #0F172A !important;
+  }
+
+  #modal-add-memory select option {
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    color: #0F172A;
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+    max-width: 100%;
+  }
+
+  .form-input:focus,
+  select.form-input:focus,
+  #modal-add-memory select:focus {
+    border-color: var(--secondary-sea-blue) !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15) !important;
+  }
+
+  /* Registry Search Input Color & Focus Protection */
+  #dash-search-input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+  }
+  #dash-search-input:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-color: #38BDF8 !important;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25) !important;
+  }
+  #dash-search-input.input-valid {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border-color: #10B981 !important;
+    color: #ffffff !important;
+  }
+  #dash-search-input.input-invalid {
+    background: rgba(239, 68, 68, 0.22) !important;
+    border-color: #EF4444 !important;
+    color: #ffffff !important;
+  }
+  #dash-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.55) !important;
   }
 
   /* Ghana Card Validation States */
@@ -404,6 +514,61 @@
     font-weight: 500;
   }
 
+  /* Standardized Pagination Controls */
+  .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #F1F5F9;
+    font-size: 0.8rem;
+    color: #64748B;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pagination-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-page {
+    background: #ffffff;
+    border: 1px solid #CBD5E1;
+    color: #334155;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+
+  .btn-page:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #F8FAFC;
+    border-color: #E2E8F0;
+  }
+
+  .btn-page:not(:disabled):hover {
+    background: #0284C7;
+    color: #ffffff;
+    border-color: #0284C7;
+  }
+
+  .page-counter-pill {
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
   /* ----------------------------------------------------
      Mobile & Tablet Responsiveness
   ---------------------------------------------------- */
@@ -440,10 +605,219 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ----------------------------------------------------
+     Mobile-Optimized Memory Keepsakes Grid
+  ---------------------------------------------------- */
+  .memories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .memories-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  /* ----------------------------------------------------
+     Visual Branching Family Tree (Warm, Human & Mobile-First)
+  ---------------------------------------------------- */
+  .tree-viewport-container {
+    background: radial-gradient(circle at 50% 12%, #08281D 0%, #02120D 100%);
+    border: 1.5px solid rgba(16, 185, 129, 0.35);
+    border-radius: 20px;
+    padding: 1.75rem 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.45);
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .tree-viewport-container::-webkit-scrollbar {
+    height: 7px;
+  }
+
+  .tree-viewport-container::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+  }
+
+  .tree-stage {
+    min-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.75rem;
+    position: relative;
+    padding: 0.5rem 0 1.5rem;
+    margin: 0 auto;
+  }
+
+  .tree-tier-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .tree-tier-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #A7F3D0;
+    background: rgba(6, 78, 59, 0.85);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 3px 12px;
+    border-radius: 20px;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tree-tier {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1rem;
+    position: relative;
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  /* Branch Connecting Lines */
+  .tree-stem-line {
+    width: 2px;
+    height: 1.75rem;
+    background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.55);
+  }
+
+  /* Family Member Card */
+  .tree-node-card {
+    background: #0A1C15;
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+    border-radius: 14px;
+    padding: 0.9rem;
+    min-width: 160px;
+    max-width: 205px;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .tree-node-card:hover {
+    transform: translateY(-2px);
+    border-color: #34D399;
+  }
+
+  /* Your Personal Family Card */
+  .tree-node-card.node-owner {
+    background: linear-gradient(135deg, #0A192F 0%, #0C2442 100%);
+    border: 2px solid #06B6D4;
+    box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+  }
+
+  .tree-node-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin: 0 auto 0.5rem;
+    object-fit: cover;
+    border: 2px solid #10B981;
+    background: rgba(16, 185, 129, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #34D399;
+  }
+
+  .node-owner .tree-node-avatar {
+    border-color: #06B6D4;
+    color: #38BDF8;
+    background: rgba(6, 182, 212, 0.15);
+  }
+
+  .tree-node-name {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-bottom: 2px;
+  }
+
+  .tree-node-role {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #A7F3D0;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+
+  .node-owner .tree-node-role {
+    color: #7DD3FC;
+    background: rgba(6, 182, 212, 0.2);
+  }
+
+  .tree-node-sub {
+    font-size: 0.72rem;
+    color: #94A3B8;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 768px) {
+    .tree-tier-label {
+      position: static;
+      transform: none;
+      margin-bottom: 0.5rem;
+      align-self: flex-start;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
+{% if not user.has_paid_registration_fee %}
+  <!-- Inactive Dashboard Screen (GHS 10.00 Activation Gate) -->
+  <div style="min-height: 65vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+    <div style="background: #ffffff; border: 2px dashed #0284C7; border-radius: 24px; padding: clamp(2rem, 5vw, 3rem); max-width: 580px; width: 100%; text-align: center; box-shadow: 0 16px 40px rgba(10, 25, 47, 0.08);">
+      <div style="width: 64px; height: 64px; border-radius: 20px; background: #F0F9FF; border: 1.5px solid #BAE6FD; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.25rem;">
+        🛡️
+      </div>
+      <div style="display: inline-block; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; padding: 4px 12px; border-radius: 50px; margin-bottom: 0.85rem;">
+        Vault Inactive • Registration Pending
+      </div>
+      <h2 style="font-size: 1.5rem; font-weight: 900; color: #0F172A; margin: 0 0 0.65rem;">
+        Activate Your Citizen Vault
+      </h2>
+      <p style="font-size: 0.88rem; color: #64748B; line-height: 1.6; margin: 0 auto 1.75rem; max-width: 460px;">
+        Welcome, <strong>{{ user.get_full_name|default:user.username }}</strong>. Your citizen profile and security recovery keys are configured, but your vault account remains inactive. Settle the one-time statutory onboarding fee of <strong>GHS 10.00</strong> to activate your depository.
+      </p>
+      <button type="button" id="btn-pay-registration-fee" class="btn-submit-action" style="width: auto; padding: 0.9rem 2.25rem; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; margin: 0 auto; box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);">
+        Pay GHS 10.00 Activation Fee ➔
+      </button>
+    </div>
+  </div>
+{% else %}
 <!-- Master Telemetry Header -->
 <div class="vault-hero">
   <div class="vault-user-strip">
@@ -454,8 +828,23 @@
         <div class="vault-card-id">Ghana Card: <strong>{{ user.ghana_card_number|default:"Not Registered" }}</strong></div>
       </div>
     </div>
-    <div class="badge-status-live">
-      <span>●</span> Active Vault Registry
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      {% if user.subscription and user.subscription.is_valid %}
+        <div class="badge-status-live" style="background: rgba(16, 185, 129, 0.18); border-color: #10B981; color: #34D399;">
+          <span>🛡️</span> {{ user.subscription.get_tier_display }} • {{ user.subscription.get_billing_cycle_display }} (Active until {{ user.subscription.current_period_end|date:"M d, Y" }})
+        </div>
+        <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Are you sure you want to cancel your active subscription? You will be able to subscribe to a new plan immediately afterwards.');" style="margin: 0; display: inline;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="cancel_subscription">
+          <button type="submit" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.45); color: #FCA5A5; font-size: 0.72rem; font-weight: 800; padding: 6px 14px; border-radius: 30px; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.color='#FCA5A5';">
+            Cancel Plan ✕
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'vault:pricing' %}" class="badge-status-live" style="background: rgba(239, 68, 68, 0.18); border-color: #EF4444; color: #FCA5A5; text-decoration: none;">
+          <span>⚠️</span> No Active Plan • Activate Protection ➔
+        </a>
+      {% endif %}
     </div>
   </div>
 
@@ -468,13 +857,21 @@
       <div class="stat-chip-count">{{ emergency_contacts.count }}</div>
       <div class="stat-chip-label">Emergency Contacts</div>
     </div>
-    <div class="stat-chip">
-      <div class="stat-chip-count">{{ assets.count }}</div>
-      <div class="stat-chip-label">Physical Assets</div>
+    <div class="stat-chip" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35);">
+      <div class="stat-chip-count" style="color: #38BDF8;">{{ memories.count }}</div>
+      <div class="stat-chip-label" style="color: #E0F2FE;">Keepsakes & Firsts</div>
     </div>
-    <div class="stat-chip">
-      <div class="stat-chip-count">{{ documents.count }}</div>
-      <div class="stat-chip-label">Wills & Deeds</div>
+    <div class="stat-chip" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35);">
+      <div class="stat-chip-count" style="color: #34D399;">{{ family_members.count }}</div>
+      <div class="stat-chip-label" style="color: #ECFDF5;">Family Lineage</div>
+    </div>
+    <div class="stat-chip is-soon">
+      <div class="stat-chip-badge-soon">SOON</div>
+      <div class="stat-chip-label">Bank Accounts</div>
+    </div>
+    <div class="stat-chip is-soon">
+      <div class="stat-chip-badge-soon">SOON</div>
+      <div class="stat-chip-label">Investments</div>
     </div>
   </div>
 </div>
@@ -505,13 +902,25 @@
       <span>📑 Insurance Policies</span>
       <span>➔</span>
     </button>
-    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-assets')">
-      <span>🏡 Assets & Properties</span>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-memories')">
+      <span>💎 Memory Lane & Keepsakes</span>
       <span>➔</span>
     </button>
-    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-wills')">
-      <span>📜 Wills & Deeds</span>
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-family')">
+      <span>🌳 Family Tree & Lineage</span>
       <span>➔</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Commercial bank account discovery launching soon">
+      <span>🏦 Bank Accounts</span>
+      <span class="badge-coming-soon">Coming Soon</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="T-Bills and investment holdings launching soon">
+      <span>📈 Investments & T-Bills</span>
+      <span class="badge-coming-soon">Coming Soon</span>
+    </button>
+    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital will depository launching soon">
+      <span>📜 Wills & Deeds</span>
+      <span class="badge-coming-soon">Coming Soon</span>
     </button>
     <button type="button" class="sidebar-nav-btn search-highlight {% if has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-search')">
       <span>🔍 Search Relative Policy</span>
@@ -620,15 +1029,43 @@
             <div class="card-title-text"><span>👥</span> Registered Contacts</div>
           </div>
           {% if emergency_contacts %}
-            {% for contact in emergency_contacts %}
-              <div class="record-item">
-                <div>
-                  <div class="record-main-title">{{ contact.full_name }}</div>
-                  <div class="record-sub-meta">{{ contact.relationship }} • {{ contact.phone_number }}</div>
+            <!-- Emergency Contacts Live Search Filter -->
+            <div style="margin-bottom: 1rem; position: relative;">
+              <input 
+                type="text" 
+                id="filter-contacts-search" 
+                placeholder="Search by contact name, relationship, or phone number..." 
+                style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #FAFAFA; box-sizing: border-box;"
+              >
+              <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+            </div>
+
+            <div id="emergency-contacts-list">
+              {% for contact in emergency_contacts %}
+                <div class="record-item page-item-contact">
+                  <div>
+                    <div class="record-main-title">{{ contact.full_name }}</div>
+                    <div class="record-sub-meta">{{ contact.relationship }} • {{ contact.phone_number }}</div>
+                  </div>
+                  <span class="pill-badge pill-success">Next of Kin</span>
                 </div>
-                <span class="pill-badge pill-success">Next of Kin</span>
+              {% endfor %}
+
+              <!-- Dynamic No-Match Box for Real-Time Search -->
+              <div id="contacts-no-match" style="display: none; text-align: center; padding: 2rem 1rem; background: var(--accent-ice-blue); border-radius: 12px; border: 1.5px dashed var(--accent-light-cyan); margin-top: 0.5rem;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">🔍</div>
+                <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Contacts Located</div>
+                <div id="contacts-no-match-detail" style="font-size: 0.8rem; color: var(--text-muted);">No emergency contacts match your search query.</div>
               </div>
-            {% endfor %}
+            </div>
+
+            <div id="contacts-pagination" class="pagination-bar" style="display: none;">
+              <span class="page-counter-pill page-counter">Page 1 of 1</span>
+              <div class="pagination-btn-group">
+                <button type="button" class="btn-page btn-prev">‹ Previous</button>
+                <button type="button" class="btn-page btn-next">Next ›</button>
+              </div>
+            </div>
           {% else %}
             <div class="empty-placeholder">No emergency contacts registered yet.</div>
           {% endif %}
@@ -638,111 +1075,701 @@
 
     <!-- TAB 3: Multi-Policy Management -->
     <div id="tab-policies" class="tab-pane">
-      <div class="dashboard-grid">
-        <div class="dash-card">
-          <div class="card-header-line">
-            <div class="card-title-text"><span>📑</span> Register Insurance Policy</div>
+      {% if not has_active_subscription %}
+        <!-- Subscription Lock Banner -->
+        <div class="dash-card" style="text-align: center; padding: 3rem 1.5rem; max-width: 620px; margin: 0 auto; border: 2px dashed #0284C7; background: #F0F9FF; border-radius: 20px;">
+          <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔒</div>
+          <div style="display: inline-block; background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; padding: 4px 12px; border-radius: 50px; margin-bottom: 1rem;">
+            Subscription Required
           </div>
-          <form method="POST" action="{% url 'vault:dashboard' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="add_policy">
-            
-            <div class="form-group">
-              <label class="form-label">Underwriting Insurer</label>
-              {{ policy_form.insurer }}
-            </div>
-            <div class="form-group">
-              <label class="form-label">Policy Number</label>
-              {{ policy_form.policy_number }}
-            </div>
-            <div class="form-group">
-              <label class="form-label">Policy Type</label>
-              {{ policy_form.policy_type }}
-            </div>
-            <button type="submit" class="btn-submit-action">Link Policy to Vault</button>
-          </form>
+          <h3 style="font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0 0 0.5rem 0;">
+            Activate Vault Protection to Link Policies
+          </h3>
+          <p style="font-size: 0.88rem; color: #64748B; line-height: 1.6; max-width: 480px; margin: 0 auto 1.75rem auto;">
+            Cataloging and linking insurance policies to the National Discovery Registry requires an active Sovereign Vault subscription. Choose an annual or quarterly plan to safeguard your family's coverage.
+          </p>
+          <a href="{% url 'vault:pricing' %}" class="btn-submit-action" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: auto; padding: 0.85rem 2rem; text-decoration: none; font-size: 0.92rem; margin: 0 auto;">
+            Choose Protection Plan ➔
+          </a>
         </div>
-
-        <div class="dash-card">
-          <div class="card-header-line">
-            <div class="card-title-text"><span>🛡️</span> Active Policy Records</div>
-          </div>
-          {% if policies %}
-            {% for policy in policies %}
-              <div class="record-item">
-                <div>
-                  <div class="record-main-title">{{ policy.policy_number }}</div>
-                  <div class="record-sub-meta">{{ policy.insurer.name }} • {{ policy.get_policy_type_display }}</div>
-                </div>
-                <span class="pill-badge pill-primary">Active</span>
+      {% else %}
+        <div class="dashboard-grid">
+          <div class="dash-card">
+            <div class="card-header-line">
+              <div class="card-title-text"><span>📑</span> Register Insurance Policy</div>
+            </div>
+            <form method="POST" action="{% url 'vault:dashboard' %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add_policy">
+              
+              <div class="form-group">
+                <label class="form-label">Underwriting Insurer</label>
+                {{ policy_form.insurer }}
               </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty-placeholder">No insurance policies registered yet.</div>
-          {% endif %}
+              <div class="form-group">
+                <label class="form-label">Policy Number</label>
+                {{ policy_form.policy_number }}
+              </div>
+              <div class="form-group">
+                <label class="form-label">Policy Type</label>
+                {{ policy_form.policy_type }}
+              </div>
+              <button type="submit" class="btn-submit-action">Link Policy to Vault</button>
+            </form>
+          </div>
+
+          <div class="dash-card">
+            <div class="card-header-line">
+              <div class="card-title-text"><span>🛡️</span> Active Policy Records</div>
+            </div>
+            {% if policies %}
+              <!-- Policies Live Search Filter -->
+              <div style="margin-bottom: 1rem; position: relative;">
+                <input 
+                  type="text" 
+                  id="filter-policies-search" 
+                  placeholder="Search by policy number, insurer name, or policy type..." 
+                  style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #FAFAFA; box-sizing: border-box;"
+                >
+                <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+              </div>
+
+              <div id="policies-list">
+                {% for policy in policies %}
+                  <div class="record-item page-item-policy">
+                    <div>
+                      <div class="record-main-title">{{ policy.policy_number }}</div>
+                      <div class="record-sub-meta">{{ policy.insurer.name }} • {{ policy.get_policy_type_display }}</div>
+                    </div>
+                    <span class="pill-badge pill-primary">Active</span>
+                  </div>
+                {% endfor %}
+
+                <!-- Dynamic No-Match Box for Real-Time Search -->
+                <div id="policies-no-match" style="display: none; text-align: center; padding: 2rem 1rem; background: var(--accent-ice-blue); border-radius: 12px; border: 1.5px dashed var(--accent-light-cyan); margin-top: 0.5rem;">
+                  <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">🔍</div>
+                  <div style="font-weight: 800; color: var(--primary-deep-navy); font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Policies Located</div>
+                  <div id="policies-no-match-detail" style="font-size: 0.8rem; color: var(--text-muted);">No policy records match your search query.</div>
+                </div>
+              </div>
+
+              <div id="policies-pagination" class="pagination-bar" style="display: none;">
+                <span class="page-counter-pill page-counter">Page 1 of 1</span>
+                <div class="pagination-btn-group">
+                  <button type="button" class="btn-page btn-prev">‹ Previous</button>
+                  <button type="button" class="btn-page btn-next">Next ›</button>
+                </div>
+              </div>
+            {% else %}
+              <div class="empty-placeholder">No insurance policies registered yet.</div>
+            {% endif %}
+          </div>
         </div>
-      </div>
+      {% endif %}
     </div>
 
-    <!-- TAB 4: Assets & Properties -->
-    <div id="tab-assets" class="tab-pane">
+    <!-- TAB: Memory Lane & Keepsakes (Digital Time Capsule) -->
+    <div id="tab-memories" class="tab-pane">
+      <div class="dash-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #0A192F 0%, #0B223D 100%); border: 1.5px solid rgba(6, 182, 212, 0.45); color: #ffffff; padding: clamp(1.25rem, 3vw, 1.75rem);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="max-width: 580px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+              <span style="font-size: 1.35rem;">💎</span>
+              <h2 style="font-size: clamp(1.15rem, 3vw, 1.35rem); font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.3px;">
+                Family Keepsakes & Life Milestones
+              </h2>
+              <span style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                Time Capsule
+              </span>
+            </div>
+            <p style="margin: 0; font-size: 0.85rem; color: #94A3B8; line-height: 1.55;">
+              Wills and title deeds show what you owned, but your memories show who you were. Record your first car, old high school nicknames, and the photos your children will treasure one day.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; max-width: 320px;">
+            <button type="button" class="btn-submit-action" onclick="openMemoryModal()" style="margin: 0; padding: 0.75rem 1.25rem; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>+</span> Add a Keepsake
+            </button>
+            <button type="button" class="btn-page" onclick="openSuggestionModal()" style="border-color: rgba(6, 182, 212, 0.4); background: rgba(15, 23, 42, 0.7); color: #38BDF8; font-weight: 800; width: 100%; padding: 0.65rem;">
+              💡 Suggest a New Milestone/Keepsake
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Feed for Citizen's Submitted Suggestions -->
+      {% if my_suggestions %}
+        <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 6px;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: #0F172A; display: flex; align-items: center; gap: 6px;">
+              <span>📬</span> Your Milestone Suggestions & Reviews
+            </div>
+            <span style="font-size: 0.72rem; color: #64748B;">Live feedback from registry curators</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {% for sug in my_suggestions %}
+              <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.75rem 1rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <div style="font-weight: 800; font-size: 0.9rem; color: #0F172A;">
+                    {{ sug.title }}
+                  </div>
+                  <div style="font-size: 0.72rem; color: #64748B;">
+                    Submitted {{ sug.created_at|date:"M d, Y" }} • Category: {{ sug.get_category_display }}
+                  </div>
+                </div>
+
+                <div>
+                  {% if sug.status == 'APPROVED' %}
+                    <span style="background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                      ✓ Approved & Live on Vaults
+                    </span>
+                  {% elif sug.status == 'REJECTED' %}
+                    <span style="background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                      ✕ Declined by Curators • Disappears in 24h
+                    </span>
+                  {% else %}
+                    <span style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                      ⏳ Under Curator Review
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Keepsakes Responsive Grid -->
+      {% if memories %}
+        <div class="memories-grid">
+          {% for memory in memories %}
+            <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(2, 132, 199, 0.12)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.04)';">
+              
+              {% if memory.photo %}
+                <div style="position: relative; height: 190px; background: #0F172A; cursor: pointer; overflow: hidden;" onclick="openLightbox('{{ memory.photo.url }}', '{{ memory.prompt.title|escapejs }}')">
+                  <img src="{{ memory.photo.url }}" alt="{{ memory.prompt.title }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                  <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(10, 25, 47, 0.75); backdrop-filter: blur(4px); color: #38BDF8; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                    🔍 Click to Enlarge
+                  </span>
+                </div>
+              {% endif %}
+
+              <div style="padding: 1.15rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                    <span style="background: #E0F2FE; color: #0284C7; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; text-transform: uppercase;">
+                      {{ memory.prompt.title }}
+                    </span>
+                    {% if memory.approximate_year_or_era %}
+                      <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">
+                        {{ memory.approximate_year_or_era }}
+                      </span>
+                    {% endif %}
+                  </div>
+
+                  <p style="margin: 0.5rem 0 1rem; font-size: 0.86rem; color: #334155; line-height: 1.55; white-space: pre-line;">
+                    {{ memory.story_or_answer }}
+                  </p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 0.75rem; font-size: 0.72rem; color: #94A3B8;">
+                  <span>Deposited {{ memory.created_at|date:"M d, Y" }}</span>
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove this keepsake from your vault?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_memory">
+                    <input type="hidden" name="memory_id" value="{{ memory.id }}">
+                    <button type="submit" style="background: none; border: none; color: #EF4444; font-weight: 700; cursor: pointer; padding: 3px 8px; border-radius: 4px;" onmouseover="this.style.background='#FEE2E2';" onmouseout="this.style.background='none';">
+                      Delete ✕
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="dash-card" style="text-align: center; padding: 3.5rem 1.5rem; border: 2px dashed #CBD5E1; background: #F8FAFC;">
+          <div style="font-size: 2.75rem; margin-bottom: 0.6rem;">📸</div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0;">Your Time Capsule is Waiting</h3>
+          <p style="font-size: 0.85rem; color: #64748B; max-width: 460px; margin: 0 auto 1.5rem; line-height: 1.55;">
+            You haven't added any memories yet. Start with something simple: the story of your first job, a favorite traditional dish from your hometown, or an old photo with your siblings.
+          </p>
+          <button type="button" class="btn-submit-action" onclick="openMemoryModal()" style="width: auto; padding: 0.8rem 1.85rem; display: inline-flex; align-items: center; gap: 6px;">
+            <span>+</span> Record Your First Keepsake
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- TAB: Family Tree & Generational Lineage (Restored & Human-Centered) -->
+    <div id="tab-family" class="tab-pane">
+      <div class="dash-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #064E3B 0%, #065F46 100%); border: 1.5px solid rgba(16, 185, 129, 0.45); color: #ffffff; padding: clamp(1.25rem, 3vw, 1.75rem);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="max-width: 580px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+              <span style="font-size: 1.35rem;">🌳</span>
+              <h2 style="font-size: clamp(1.15rem, 3vw, 1.35rem); font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.3px;">
+                Your Family Tree & Heritage
+              </h2>
+              <span style="background: rgba(16, 185, 129, 0.25); border: 1px solid #34D399; color: #A7F3D0; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                Family Lineage
+              </span>
+            </div>
+            <p style="margin: 0; font-size: 0.85rem; color: #D1FAE5; line-height: 1.55;">
+              Every family has roots worth remembering. Mapping your elders, spouse, brothers, sisters, and children keeps your lineage unbroken and helps your relatives establish their identity whenever claims or estate settlements are verified.
+            </p>
+          </div>
+          <button type="button" class="btn-submit-action" onclick="openFamilyModal()" style="width: auto; margin: 0; padding: 0.75rem 1.5rem; font-size: 0.85rem; background: linear-gradient(135deg, #059669 0%, #10B981 100%); border: none;">
+            <span>+</span> Add a Family Member
+          </button>
+        </div>
+      </div>
+
+      {% if family_members %}
+        <!-- Visual Branching Canvas -->
+        <div class="tree-viewport-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.65rem; border-bottom: 1px solid rgba(16, 185, 129, 0.2); flex-wrap: wrap; gap: 8px;">
+            <span style="color: #6EE7B7; font-size: 0.76rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🏡</span> {{ user.first_name|default:user.username }}'s Family Circle
+            </span>
+            <span style="color: #94A3B8; font-size: 0.72rem; font-weight: 600;">
+              👉 Swipe horizontally on your screen to view all family members
+            </span>
+          </div>
+
+          <div class="tree-stage">
+
+            <!-- TIER 1: Grandparents & Elders -->
+            <div class="tree-tier-wrapper">
+              <div class="tree-tier-label">
+                <span>👵</span> Grandparents & Elders
+              </div>
+              <div class="tree-tier">
+                {% for rel in family_members %}
+                  {% if rel.relationship == 'GRANDPARENT' %}
+                    <div class="tree-node-card">
+                      <div>
+                        {% if rel.photo %}
+                          <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                        {% else %}
+                          <div class="tree-node-avatar">👴</div>
+                        {% endif %}
+                        <span class="tree-node-role">Grandparent</span>
+                        <div class="tree-node-name">{{ rel.full_name }}</div>
+                        <div class="tree-node-sub">
+                          {% if rel.birth_place %}{{ rel.birth_place }}{% endif %}
+                          {% if rel.birth_year %} • {{ rel.birth_year }}{% endif %}
+                        </div>
+                      </div>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_family_member">
+                        <input type="hidden" name="member_id" value="{{ rel.id }}">
+                        <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Branch Stem -->
+            <div class="tree-stem-line"></div>
+
+            <!-- TIER 2: Parents -->
+            <div class="tree-tier-wrapper">
+              <div class="tree-tier-label">
+                <span>👨‍👩‍👦</span> Parents
+              </div>
+              <div class="tree-tier">
+                {% for rel in family_members %}
+                  {% if rel.relationship == 'FATHER' or rel.relationship == 'MOTHER' %}
+                    <div class="tree-node-card">
+                      <div>
+                        {% if rel.photo %}
+                          <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                        {% else %}
+                          <div class="tree-node-avatar">{% if rel.relationship == 'MOTHER' %}👵{% else %}👨{% endif %}</div>
+                        {% endif %}
+                        <span class="tree-node-role">{{ rel.get_relationship_display }}</span>
+                        <div class="tree-node-name">{{ rel.full_name }}</div>
+                        {% if rel.maiden_name %}
+                          <div style="font-size: 0.68rem; color: #A7F3D0;">née {{ rel.maiden_name }}</div>
+                        {% endif %}
+                        <div class="tree-node-sub">
+                          {% if rel.birth_place %}{{ rel.birth_place }}{% endif %}
+                          {% if rel.birth_year %} • {{ rel.birth_year }}{% endif %}
+                        </div>
+                      </div>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_family_member">
+                        <input type="hidden" name="member_id" value="{{ rel.id }}">
+                        <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Branch Stem -->
+            <div class="tree-stem-line"></div>
+
+            <!-- TIER 3: Your Generation (You, Your Partner & Siblings) -->
+            <div class="tree-tier-wrapper">
+              <div class="tree-tier-label">
+                <span>🤝</span> You, Your Partner & Siblings
+              </div>
+              <div class="tree-tier">
+                <!-- Siblings -->
+                {% for rel in family_members %}
+                  {% if rel.relationship == 'SIBLING' %}
+                    <div class="tree-node-card">
+                      <div>
+                        {% if rel.photo %}
+                          <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                        {% else %}
+                          <div class="tree-node-avatar">🤝</div>
+                        {% endif %}
+                        <span class="tree-node-role">Brother / Sister</span>
+                        <div class="tree-node-name">{{ rel.full_name }}</div>
+                        <div class="tree-node-sub">
+                          {% if rel.birth_place %}{{ rel.birth_place }}{% endif %}
+                        </div>
+                      </div>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_family_member">
+                        <input type="hidden" name="member_id" value="{{ rel.id }}">
+                        <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+
+                <!-- You (Primary Account Holder) -->
+                <div class="tree-node-card node-owner">
+                  <div>
+                    <div class="tree-node-avatar">⭐</div>
+                    <span class="tree-node-role">You (Account Holder)</span>
+                    <div class="tree-node-name" style="color: #38BDF8;">
+                      {{ user.get_full_name|default:user.username }}
+                    </div>
+                    <div class="tree-node-sub" style="color: #93C5FD; font-family: monospace; font-size: 0.72rem;">
+                      {{ user.ghana_card_number|default:"Vault Primary" }}
+                    </div>
+                  </div>
+                  <div style="font-size: 0.68rem; color: #67E8F9; font-weight: 800; margin-top: 6px; border-top: 1px solid rgba(6, 182, 212, 0.3); padding-top: 4px;">
+                    Family Vault Custodian
+                  </div>
+                </div>
+
+                <!-- Spouse / Partner -->
+                {% for rel in family_members %}
+                  {% if rel.relationship == 'SPOUSE' %}
+                    <div class="tree-node-card">
+                      <div>
+                        {% if rel.photo %}
+                          <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                        {% else %}
+                          <div class="tree-node-avatar">💍</div>
+                        {% endif %}
+                        <span class="tree-node-role">Spouse / Partner</span>
+                        <div class="tree-node-name">{{ rel.full_name }}</div>
+                        <div class="tree-node-sub">
+                          {% if rel.birth_place %}{{ rel.birth_place }}{% endif %}
+                        </div>
+                      </div>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_family_member">
+                        <input type="hidden" name="member_id" value="{{ rel.id }}">
+                        <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Branch Stem -->
+            <div class="tree-stem-line"></div>
+
+            <!-- TIER 4: Children -->
+            <div class="tree-tier-wrapper">
+              <div class="tree-tier-label">
+                <span>🌱</span> Children
+              </div>
+              <div class="tree-tier">
+                {% for rel in family_members %}
+                  {% if rel.relationship == 'CHILD' %}
+                    <div class="tree-node-card">
+                      <div>
+                        {% if rel.photo %}
+                          <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                        {% else %}
+                          <div class="tree-node-avatar">🌱</div>
+                        {% endif %}
+                        <span class="tree-node-role">Son / Daughter</span>
+                        <div class="tree-node-name">{{ rel.full_name }}</div>
+                        <div class="tree-node-sub">
+                          {% if rel.birth_year %}Born {{ rel.birth_year }}{% endif %}
+                        </div>
+                      </div>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_family_member">
+                        <input type="hidden" name="member_id" value="{{ rel.id }}">
+                        <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- TIER 5: Grandchildren (If present) -->
+            {% for rel in family_members %}
+              {% if rel.relationship == 'GRANDCHILD' %}
+                {% if forloop.first %}
+                  <div class="tree-stem-line"></div>
+                  <div class="tree-tier-wrapper">
+                    <div class="tree-tier-label">
+                      <span>👶</span> Grandchildren
+                    </div>
+                    <div class="tree-tier">
+                {% endif %}
+
+                <div class="tree-node-card">
+                  <div>
+                    {% if rel.photo %}
+                      <img src="{{ rel.photo.url }}" alt="{{ rel.full_name }}" class="tree-node-avatar">
+                    {% else %}
+                      <div class="tree-node-avatar">👶</div>
+                    {% endif %}
+                    <span class="tree-node-role">Grandchild</span>
+                    <div class="tree-node-name">{{ rel.full_name }}</div>
+                  </div>
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ rel.full_name }} from your family tree?');" style="margin-top: 6px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_family_member">
+                    <input type="hidden" name="member_id" value="{{ rel.id }}">
+                    <button type="submit" style="background: none; border: none; color: #FCA5A5; font-size: 0.68rem; font-weight: 700; cursor: pointer;">✕ Remove</button>
+                  </form>
+                </div>
+
+                {% if forloop.last %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+          </div>
+        </div>
+      {% else %}
+        <div class="dash-card" style="text-align: center; padding: 3.5rem 1.5rem; border: 2px dashed #CBD5E1; background: #F8FAFC;">
+          <div style="font-size: 2.75rem; margin-bottom: 0.6rem;">🌳</div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0;">Start Your Family Tree</h3>
+          <p style="font-size: 0.85rem; color: #64748B; max-width: 460px; margin: 0 auto 1.5rem; line-height: 1.55;">
+            No family members have been added yet. Begin by adding your parents, partner, brothers, sisters, or children to start connecting the generations.
+          </p>
+          <button type="button" class="btn-submit-action" onclick="openFamilyModal()" style="width: auto; padding: 0.8rem 1.85rem; background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
+            <span>+</span> Add Your First Family Member
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- TAB: Commercial Bank Accounts -->
+    <div id="tab-banks" class="tab-pane">
       <div class="dashboard-grid">
         <div class="dash-card">
           <div class="card-header-line">
-            <div class="card-title-text"><span>🏡</span> Log Physical Property / Asset</div>
+            <div class="card-title-text"><span>🏦</span> Register Bank Account</div>
           </div>
           <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
             {% csrf_token %}
-            <input type="hidden" name="action" value="add_asset">
-            
+            <input type="hidden" name="action" value="add_bank_account">
+
             <div class="form-group">
-              <label class="form-label">Asset Classification</label>
-              {{ asset_form.asset_type }}
+              <label class="form-label">Bank Institution Name *</label>
+              <input type="text" name="bank_name" class="form-input" placeholder="e.g. GCB Bank, Ecobank, Absa, Stanbic" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Title / Asset Identifier</label>
-              {{ asset_form.title }}
+              <label class="form-label">Branch Name</label>
+              <input type="text" name="branch_name" class="form-input" placeholder="e.g. High Street, Spintex, Airport City">
             </div>
             <div class="form-group">
-              <label class="form-label">Estimated Value (GHS)</label>
-              {{ asset_form.estimated_value }}
+              <label class="form-label">Account Number *</label>
+              <input type="text" name="account_number" class="form-input" placeholder="e.g. 1012345678901" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">Account Type</label>
+                <select name="account_type" class="form-input">
+                  <option value="SAVINGS">Savings Account</option>
+                  <option value="CURRENT">Current / Checking Account</option>
+                  <option value="FIXED_DEPOSIT">Fixed Deposit</option>
+                  <option value="FOREIGN_CURRENCY">Foreign Currency (FCA/FEA)</option>
+                  <option value="TREASURY_CASH">Call / Treasury Account</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Currency</label>
+                <select name="currency" class="form-input">
+                  <option value="GHS">GHS (Ghanaian Cedi)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Location / Registration Number</label>
-              {{ asset_form.location_or_identifier }}
+              <label class="form-label">Estimated Balance (Optional)</label>
+              <input type="number" step="0.01" name="estimated_balance" class="form-input" placeholder="0.00">
             </div>
             <div class="form-group">
-              <label class="form-label">Proof Document / Receipt (PDF/Image)</label>
-              {{ asset_form.document_proof }}
+              <label class="form-label">Account Statement / Certificate (Optional)</label>
+              <input type="file" name="document_proof" class="form-input-file">
             </div>
-            <button type="submit" class="btn-submit-action">Secure Asset Record</button>
+            <div class="form-group">
+              <label class="form-label">Claim Instructions for Next-of-Kin</label>
+              <textarea name="instructions" class="form-input" rows="2" placeholder="e.g. Contact Branch Manager with statutory grant..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit-action">Secure Bank Record</button>
           </form>
         </div>
 
         <div class="dash-card">
           <div class="card-header-line">
-            <div class="card-title-text"><span>📊</span> Logged Asset Portfolio</div>
+            <div class="card-title-text"><span>🔐</span> Secured Bank Depository</div>
           </div>
-          {% if assets %}
-            {% for asset in assets %}
+          {% if bank_accounts %}
+            {% for bank in bank_accounts %}
               <div class="record-item">
                 <div>
-                  <div class="record-main-title">{{ asset.title }}</div>
-                  <div class="record-sub-meta">{{ asset.get_asset_type_display }} • Value: GHS {{ asset.estimated_value|default:"N/A" }}</div>
+                  <div class="record-main-title">{{ bank.bank_name }} ({{ bank.masked_account_number }})</div>
+                  <div class="record-sub-meta">
+                    {{ bank.get_account_type_display }} • {{ bank.currency }} {% if bank.estimated_balance %}• {{ bank.estimated_balance }}{% endif %}
+                    {% if bank.branch_name %} • Branch: {{ bank.branch_name }}{% endif %}
+                  </div>
                 </div>
-                {% if asset.document_proof %}
-                  <a href="{{ asset.document_proof.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">View File ↗</a>
-                {% endif %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  {% if bank.document_proof %}
+                    <a href="{{ bank.document_proof.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">Doc ↗</a>
+                  {% endif %}
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Delete this bank account record?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_bank_account">
+                    <input type="hidden" name="bank_id" value="{{ bank.id }}">
+                    <button type="submit" style="background: transparent; border: none; color: #EF4444; font-size: 0.85rem; font-weight: 800; cursor: pointer;">✕</button>
+                  </form>
+                </div>
               </div>
             {% endfor %}
           {% else %}
-            <div class="empty-placeholder">No physical assets logged yet.</div>
+            <div class="empty-placeholder">No commercial bank accounts secured yet.</div>
           {% endif %}
         </div>
       </div>
     </div>
 
-    <!-- TAB 5: Wills & Estate Depository -->
+    <!-- TAB: Investments & Securities -->
+    <div id="tab-investments" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📈</span> Add Investment Portfolio</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_investment">
+
+            <div class="form-group">
+              <label class="form-label">Institution / Broker Firm *</label>
+              <input type="text" name="institution_or_broker" class="form-input" placeholder="e.g. Databank, EDC, CalBank Brokerage, Bank of Ghana" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Investment Asset Category</label>
+              <select name="investment_type" class="form-input">
+                <option value="TREASURY_BILL">Government of Ghana Treasury Bill (91/182/364-Day)</option>
+                <option value="MUTUAL_FUND">Mutual Fund / Collective Investment</option>
+                <option value="EQUITY_SHARES">Listed Equities / GSE Shares</option>
+                <option value="TIER3_PENSION">Tier-3 Private / Voluntary Pension</option>
+                <option value="GOVT_BOND">Government / Corporate Bond</option>
+                <option value="OTHER">Other Securities</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asset Title / Investment Name *</label>
+              <input type="text" name="title" class="form-input" placeholder="e.g. Databank MFund, 182-Day GoG T-Bill, MTN Ghana Shares" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CSD / Portfolio Account Reference *</label>
+              <input type="text" name="portfolio_reference" class="form-input" placeholder="e.g. CSD-984210, Account/Folio No." required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">Invested Value (GHS)</label>
+                <input type="number" step="0.01" name="face_or_invested_value" class="form-input" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Maturity Date (If applicable)</label>
+                <input type="date" name="maturity_date" class="form-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CSD Statement / Contract Certificate</label>
+              <input type="file" name="document_proof" class="form-input-file">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Directives / Next-of-Kin Notes</label>
+              <textarea name="notes" class="form-input" rows="2" placeholder="e.g. Rollover principal on maturity, broker contact details..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit-action">Secure Investment Asset</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📊</span> Tracked Investment Holdings</div>
+          </div>
+          {% if investments %}
+            {% for inv in investments %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ inv.title }}</div>
+                  <div class="record-sub-meta">
+                    {{ inv.institution_or_broker }} • {{ inv.get_investment_type_display }}
+                    {% if inv.face_or_invested_value %} • Principal: GHS {{ inv.face_or_invested_value }}{% endif %}
+                    {% if inv.maturity_date %} • Due: {{ inv.maturity_date|date:"M d, Y" }}{% endif %}
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  {% if inv.document_proof %}
+                    <a href="{{ inv.document_proof.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">Doc ↗</a>
+                  {% endif %}
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Delete this investment holding record?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_investment">
+                    <input type="hidden" name="investment_id" value="{{ inv.id }}">
+                    <button type="submit" style="background: transparent; border: none; color: #EF4444; font-size: 0.85rem; font-weight: 800; cursor: pointer;">✕</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No securities or investment holdings registered yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+<!-- TAB 5: Wills & Estate Depository -->
     <div id="tab-wills" class="tab-pane">
       <div class="dashboard-grid">
         <div class="dash-card">
@@ -839,7 +1866,7 @@
         {% elif search_results %}
           <div style="display: grid; gap: 1rem;">
             {% for rec in search_results %}
-              <div style="background: #0B192C; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 16px; padding: 1.25rem; color: #ffffff; box-shadow: 0 8px 24px rgba(2, 12, 27, 0.35);">
+              <div class="page-item-dash-search" style="background: #0B192C; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 16px; padding: 1.25rem; color: #ffffff; box-shadow: 0 8px 24px rgba(2, 12, 27, 0.35);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px dashed rgba(6, 182, 212, 0.25); padding-bottom: 0.5rem;">
                   <span style="color: #38BDF8; font-family: monospace; font-size: 0.8rem; font-weight: 800;">
                     SEC-MATCH: {{ rec.policyholder.masked_ghana_card }}
@@ -869,6 +1896,14 @@
               </div>
             {% endfor %}
           </div>
+
+          <div id="dash-search-pagination" class="pagination-bar" style="display: none;">
+            <span class="page-counter-pill page-counter">Page 1 of 1</span>
+            <div class="pagination-btn-group">
+              <button type="button" class="btn-page btn-prev">‹ Previous</button>
+              <button type="button" class="btn-page btn-next">Next ›</button>
+            </div>
+          </div>
         {% else %}
           <div class="dash-card" style="text-align: center; padding: 2rem 1rem;">
             <div style="font-size: 1.8rem; margin-bottom: 0.35rem;">🔍</div>
@@ -880,10 +1915,463 @@
     </div>
   </main>
 </div>
-{% endblock %}
 
+<!-- MODAL 1: Deposit a Keepsake (Features Interactive Milestone Selector) -->
+<div id="modal-add-memory" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 0.75rem; box-sizing: border-box;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 94%; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: clamp(1.2rem, 3.5vw, 1.6rem); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); position: relative; box-sizing: border-box; margin: auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 0.9rem;">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+        <span>💎</span> Deposit a Keepsake
+      </h3>
+      <button type="button" onclick="closeMemoryModal()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Mandatory Content Warning Banner -->
+    <div style="background: #FEF2F2; border: 1.5px solid #FCA5A5; border-left: 4px solid #DC2626; border-radius: 12px; padding: 0.75rem 0.9rem; margin-bottom: 1.15rem;">
+      <div style="display: flex; align-items: flex-start; gap: 8px;">
+        <span style="font-size: 1.15rem; line-height: 1;">⚠️</span>
+        <div style="font-size: 0.74rem; color: #7F1D1D; line-height: 1.45; font-weight: 600;">
+          <strong style="color: #991B1B;">Family Content Rule:</strong>
+          This vault is an official family record. Uploading explicit, inappropriate, defamatory, or fraudulent photos will result in <strong>immediate permanent vault termination and an irreversible account ban</strong>.
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data" style="width: 100%; box-sizing: border-box;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add_memory">
+
+      <!-- Contained Milestone Selector with Modal Trigger -->
+      <div class="form-group" style="width: 100%; max-width: 100%; box-sizing: border-box;">
+        <label class="form-label">Life Milestone *</label>
+        
+        <!-- Underlying field remains populated for form submission -->
+        <div style="display: none;">
+          {{ memory_form.prompt }}
+        </div>
+
+        <!-- Interactive Selection Card Button -->
+        <div 
+          id="milestone-picker-trigger" 
+          onclick="openMilestonePicker()" 
+          style="background: #F8FAFC; border: 1.5px dashed #0284C7; border-radius: 12px; padding: 0.85rem 1rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.2s ease; width: 100%; box-sizing: border-box;"
+          onmouseover="this.style.background='#F0F9FF'; this.style.borderColor='#0284C7';"
+          onmouseout="this.style.background='#F8FAFC'; this.style.borderColor='#0284C7';"
+        >
+          <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+            <span style="font-size: 1.25rem;">💎</span>
+            <div style="min-width: 0; flex: 1;">
+              <div id="trigger-milestone-title" style="font-size: 0.88rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Choose a Milestone...
+              </div>
+              <div id="trigger-milestone-category" style="font-size: 0.72rem; color: #64748B;">
+                Tap to browse directory
+              </div>
+            </div>
+          </div>
+          <span style="background: #E0F2FE; color: #0284C7; font-size: 0.72rem; font-weight: 800; padding: 5px 12px; border-radius: 6px; white-space: nowrap;">
+            Browse ➔
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group" style="width: 100%; max-width: 100%; box-sizing: border-box;">
+        <label class="form-label">Approximate Year or Era</label>
+        {{ memory_form.approximate_year_or_era }}
+      </div>
+
+      <div class="form-group" style="width: 100%; max-width: 100%; box-sizing: border-box;">
+        <label class="form-label">The Story or Detail *</label>
+        {{ memory_form.story_or_answer }}
+      </div>
+
+      <div class="form-group" style="width: 100%; max-width: 100%; box-sizing: border-box;">
+        <label class="form-label">Attach a Picture (Optional, Max 8MB)</label>
+        {{ memory_form.photo }}
+      </div>
+
+      <button type="submit" class="btn-submit-action">Deposit into Time Capsule ⚡</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: Suggest a New Milestone Prompt -->
+<div id="modal-suggest-milestone" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; padding: 1.75rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); position: relative;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 1rem;">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+        <span>💡</span> Suggest a Milestone
+      </h3>
+      <button type="button" onclick="closeSuggestionModal()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <p style="font-size: 0.82rem; color: #64748B; line-height: 1.5; margin-top: 0; margin-bottom: 1.25rem;">
+      Have an important family tradition or milestone our directory hasn't listed yet? Suggest it to our curators. Once approved, it will be added to the registry for you and others to record.
+    </p>
+
+    <form method="POST" action="{% url 'vault:dashboard' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="suggest_milestone">
+
+      <div class="form-group">
+        <label class="form-label">Milestone Title *</label>
+        {{ milestone_suggestion_form.title }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Classification Group</label>
+        {{ milestone_suggestion_form.category }}
+      </div>
+
+      <button type="submit" class="btn-submit-action">Send to Registry Curators ➔</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 3: Add Family Member to Lineage Tree -->
+<div id="modal-add-family" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 1.75rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); position: relative;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 1rem;">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+        <span>🌳</span> Register Family Member
+      </h3>
+      <button type="button" onclick="closeFamilyModal()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add_family_member">
+
+      <div class="form-group">
+        <label class="form-label">Kinship / Relationship *</label>
+        {{ family_member_form.relationship }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Legal or Ancestral Name *</label>
+        {{ family_member_form.full_name }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="form-group">
+          <label class="form-label">Maiden Name (Optional)</label>
+          {{ family_member_form.maiden_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Birth Year / Date</label>
+          {{ family_member_form.birth_year }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Town / City of Origin</label>
+        {{ family_member_form.birth_place }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Link to Emergency Contact (Optional)</label>
+        {{ family_member_form.linked_emergency_contact }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Portrait Photograph</label>
+        {{ family_member_form.photo }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Biographical Notes & Anecdotes</label>
+        {{ family_member_form.bio_notes }}
+      </div>
+
+      <button type="submit" class="btn-submit-action" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);">Save to Family Tree 🌳</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 4: Keepsake Photo Zoom Lightbox -->
+<div id="modal-memory-lightbox" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 999999; align-items: center; justify-content: center; padding: 1.5rem;" onclick="closeLightbox()">
+  <div style="max-width: 780px; width: 100%; text-align: center; position: relative;" onclick="event.stopPropagation();">
+    <button type="button" onclick="closeLightbox()" style="position: absolute; top: -38px; right: 0; background: none; border: none; color: #ffffff; font-size: 1.8rem; cursor: pointer;">✕</button>
+    <img id="lightbox-img" src="" alt="Keepsake Zoom" style="max-width: 100%; max-height: 80vh; border-radius: 14px; border: 2px solid #06B6D4; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);">
+    <div id="lightbox-caption" style="color: #E0F2FE; font-size: 0.95rem; font-weight: 800; margin-top: 12px;"></div>
+  </div>
+</div>
+
+<!-- MODAL 5: Paginated Milestone Selection Directory -->
+<div id="modal-milestone-picker" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(6px); z-index: 999999; align-items: center; justify-content: center; padding: 0.75rem; box-sizing: border-box;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 500px; width: 96%; max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: clamp(1.2rem, 3.5vw, 1.6rem); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); position: relative; box-sizing: border-box; margin: auto; display: flex; flex-direction: column;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 1rem;">
+      <div>
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+          <span>📖</span> Choose a Milestone
+        </h3>
+        <div style="font-size: 0.75rem; color: #64748B;">Pick a milestone from the verified directory to record your keepsake</div>
+      </div>
+      <button type="button" onclick="closeMilestonePicker()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Real-Time Search Filter -->
+    <div style="position: relative; margin-bottom: 1rem;">
+      <input 
+        type="text" 
+        id="filter-picker-milestones-search" 
+        placeholder="Search milestones (e.g. First Car, High School, Nickname)..." 
+        style="width: 100%; padding: 0.65rem 0.85rem 0.65rem 2.2rem; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 0.85rem; outline: none; font-family: inherit; background: #FAFAFA; box-sizing: border-box;"
+      >
+      <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+    </div>
+
+    <!-- Paginated Milestones List -->
+    <div id="milestone-picker-items" style="display: flex; flex-direction: column; gap: 8px; min-height: 240px;">
+      {% for prompt_obj in memory_form.fields.prompt.queryset %}
+        <div 
+          class="page-item-milestone-pick"
+          onclick="selectMilestone('{{ prompt_obj.id }}', '{{ prompt_obj.title|escapejs }}', '{{ prompt_obj.get_category_display|escapejs }}')"
+          style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.85rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: all 0.15s ease;"
+          onmouseover="this.style.background='#F0F9FF'; this.style.borderColor='#0284C7'; this.style.transform='translateY(-1px)';"
+          onmouseout="this.style.background='#F8FAFC'; this.style.borderColor='#E2E8F0'; this.style.transform='none';"
+        >
+          <div style="min-width: 0; flex: 1;">
+            <div style="font-weight: 800; color: #0F172A; font-size: 0.9rem; margin-bottom: 2px;">
+              {{ prompt_obj.title }}
+            </div>
+            <span style="background: #E0F2FE; color: #0284C7; font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 4px; text-transform: uppercase;">
+              {{ prompt_obj.get_category_display }}
+            </span>
+          </div>
+          <span style="color: #0284C7; font-size: 1.1rem; font-weight: 800;">➔</span>
+        </div>
+      {% empty %}
+        <div style="text-align: center; color: #94A3B8; padding: 2rem; font-size: 0.85rem;">
+          No approved milestones available in the directory.
+        </div>
+      {% endfor %}
+
+      <!-- Dynamic No-Match Notice -->
+      <div id="picker-milestones-no-match" style="display: none; text-align: center; padding: 2rem 1rem; background: #F8FAFC; border-radius: 12px; border: 1.5px dashed #CBD5E1;">
+        <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔍</div>
+        <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 0.2rem;">No Milestone Found</div>
+        <div style="font-size: 0.78rem; color: #64748B; margin-bottom: 1rem;">Have a milestone idea that is not listed here?</div>
+        <button type="button" onclick="closeMilestonePicker(); openSuggestionModal();" class="btn-page" style="border-color: #0284C7; color: #0284C7; font-weight: 800;">
+          💡 Suggest this Milestone
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination Bar -->
+    <div id="picker-milestones-pagination" class="pagination-bar" style="margin-top: 1rem; display: none;">
+      <span class="page-counter-pill page-counter">Page 1 of 1</span>
+      <div class="pagination-btn-group">
+        <button type="button" class="btn-page btn-prev">‹ Previous</button>
+        <button type="button" class="btn-page btn-next">Next ›</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endif %}
+{% endblock %}
 {% block extra_js %}
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
+  // Keepsakes & Lineage Modal Controls
+  function openMemoryModal() {
+    const el = document.getElementById('modal-add-memory');
+    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeMemoryModal() {
+    const el = document.getElementById('modal-add-memory');
+    if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+
+  // Milestone Directory Picker Modal Controls
+  function openMilestonePicker() {
+    const el = document.getElementById('modal-milestone-picker');
+    if (el) {
+      el.style.display = 'flex';
+      const search = document.getElementById('filter-picker-milestones-search');
+      if (search) {
+        search.value = '';
+        search.dispatchEvent(new Event('input'));
+        setTimeout(() => search.focus(), 100);
+      }
+    }
+  }
+
+  function closeMilestonePicker() {
+    const el = document.getElementById('modal-milestone-picker');
+    if (el) { el.style.display = 'none'; }
+  }
+
+  function selectMilestone(id, title, category) {
+    const select = document.querySelector('#modal-add-memory select[name="prompt"]');
+    if (select) {
+      select.value = id;
+    }
+
+    const titleEl = document.getElementById('trigger-milestone-title');
+    const catEl = document.getElementById('trigger-milestone-category');
+    const triggerBox = document.getElementById('milestone-picker-trigger');
+
+    if (titleEl) titleEl.textContent = title;
+    if (catEl) catEl.textContent = `Category: ${category}`;
+    if (triggerBox) {
+      triggerBox.style.background = '#ECFDF5';
+      triggerBox.style.borderColor = '#10B981';
+    }
+
+    closeMilestonePicker();
+  }
+
+  function openSuggestionModal() {
+    const el = document.getElementById('modal-suggest-milestone');
+    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeSuggestionModal() {
+    const el = document.getElementById('modal-suggest-milestone');
+    if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+
+  function openFamilyModal() {
+    const el = document.getElementById('modal-add-family');
+    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeFamilyModal() {
+    const el = document.getElementById('modal-add-family');
+    if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+
+  function openLightbox(url, caption) {
+    const box = document.getElementById('modal-memory-lightbox');
+    const img = document.getElementById('lightbox-img');
+    const cap = document.getElementById('lightbox-caption');
+    if (box && img) {
+      img.src = url;
+      if (cap) cap.textContent = caption;
+      box.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  function closeLightbox() {
+    const box = document.getElementById('modal-memory-lightbox');
+    if (box) { box.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+
+  // Universal Real-Time Filter & Pagination Controller
+  function setupFilterablePagination({
+    itemSelector,
+    controlsId,
+    searchInputId = null,
+    emptyElementId = null,
+    emptyDetailId = null,
+    pageSize = 7
+  }) {
+    const allItems = Array.from(document.querySelectorAll(itemSelector));
+    const controls = document.getElementById(controlsId);
+    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
+    const emptyEl = emptyElementId ? document.getElementById(emptyElementId) : null;
+    const emptyDetailEl = emptyDetailId ? document.getElementById(emptyDetailId) : null;
+
+    let activeItems = [...allItems];
+    let currentPage = 1;
+
+    function refreshPagination() {
+      const total = activeItems.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+      // Handle Empty Search State
+      if (emptyEl) {
+        const hasQuery = searchInput && searchInput.value.trim().length > 0;
+        if (total === 0 && hasQuery) {
+          emptyEl.style.display = 'block';
+          if (emptyDetailEl) {
+            emptyDetailEl.textContent = `No records match "${searchInput.value.trim()}". Check for typos or clear your search.`;
+          }
+        } else {
+          emptyEl.style.display = 'none';
+        }
+      }
+
+      if (!controls) return;
+
+      if (total <= pageSize) {
+        controls.style.display = 'none';
+      } else {
+        controls.style.display = 'flex';
+      }
+
+      const prevBtn = controls.querySelector('.btn-prev');
+      const nextBtn = controls.querySelector('.btn-next');
+      const counterEl = controls.querySelector('.page-counter');
+
+      if (currentPage > totalPages) currentPage = 1;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+
+      // Hide all elements
+      allItems.forEach(item => { item.style.display = 'none'; });
+
+      // Display matching paginated slice
+      activeItems.forEach((item, idx) => {
+        if (idx >= start && idx < end) {
+          item.style.display = '';
+        }
+      });
+
+      if (counterEl) {
+        counterEl.textContent = `Page ${currentPage} of ${totalPages} • ${total} Results`;
+      }
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages || total === 0;
+    }
+
+    function applyFilter() {
+      const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+      activeItems = allItems.filter(item => {
+        return !term || item.textContent.toLowerCase().includes(term);
+      });
+
+      currentPage = 1;
+      refreshPagination();
+    }
+
+    if (controls) {
+      const prevBtn = controls.querySelector('.btn-prev');
+      const nextBtn = controls.querySelector('.btn-next');
+
+      if (prevBtn) {
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            refreshPagination();
+          }
+        };
+      }
+
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          const totalPages = Math.ceil(activeItems.length / pageSize);
+          if (currentPage < totalPages) {
+            currentPage++;
+            refreshPagination();
+          }
+        };
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilter);
+    }
+
+    applyFilter();
+  }
+
   function switchTab(evt, tabId) {
     const tabPanes = document.querySelectorAll('.tab-pane');
     tabPanes.forEach(pane => pane.classList.remove('active'));
@@ -1015,6 +2503,100 @@
 
     setupGhanaCardMasking(cardInput, feedback);
     setupGhanaCardMasking(dashSearchInput, null);
+
+    // Initialize filterable pagination on policyholder dashboard lists
+    setupFilterablePagination({
+      itemSelector: '.page-item-contact',
+      controlsId: 'contacts-pagination',
+      searchInputId: 'filter-contacts-search',
+      emptyElementId: 'contacts-no-match',
+      emptyDetailId: 'contacts-no-match-detail',
+      pageSize: 7
+    });
+
+    setupFilterablePagination({
+      itemSelector: '.page-item-policy',
+      controlsId: 'policies-pagination',
+      searchInputId: 'filter-policies-search',
+      emptyElementId: 'policies-no-match',
+      emptyDetailId: 'policies-no-match-detail',
+      pageSize: 7
+    });
+
+setupFilterablePagination({
+      itemSelector: '.page-item-dash-search',
+      controlsId: 'dash-search-pagination',
+      pageSize: 7
+    });
+
+    // Milestone Picker Search & Pagination Controller (5 items per page)
+    setupFilterablePagination({
+      itemSelector: '.page-item-milestone-pick',
+      controlsId: 'picker-milestones-pagination',
+      searchInputId: 'filter-picker-milestones-search',
+      emptyElementId: 'picker-milestones-no-match',
+      pageSize: 5
+    });
+
+    // Inactive Dashboard GHS 10.00 Paystack Settlement Handler
+    const regFeeBtn = document.getElementById('btn-pay-registration-fee');
+    if (regFeeBtn) {
+      regFeeBtn.addEventListener('click', function () {
+        regFeeBtn.disabled = true;
+        regFeeBtn.textContent = 'Connecting to Paystack... ⏳';
+
+        // Sanitize Paystack Public Key (bypasses dummy placeholders like 'pk_test_...')
+        let pKey = '{{ paystack_public_key|default:"" }}'.trim();
+        if (!pKey || pKey.includes('...') || pKey.length < 25) {
+          pKey = 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3';
+        }
+
+        // Sanitize Citizen Email (guarantees Paystack never receives an empty string or 'None')
+        let pEmail = '{{ user.email|default:"" }}'.trim();
+        if (!pEmail || pEmail === 'None' || !pEmail.includes('@')) {
+          pEmail = 'citizen@legacytrace.gov.gh';
+        }
+
+        const handler = PaystackPop.setup({
+          key: pKey,
+          email: pEmail,
+          amount: 1000, // GHS 10.00 in pesewas
+          currency: 'GHS',
+          channels: ['card', 'mobile_money'],
+          ref: 'REG-' + Math.floor((Math.random() * 1000000000) + 1),
+          callback: function (response) {
+            fetch("{% url 'vault:verify_registration_fee' %}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: JSON.stringify({ reference: response.reference })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.status === 'success') {
+                window.location.reload();
+              } else {
+                alert('Verification Error: ' + data.message);
+                regFeeBtn.disabled = false;
+                regFeeBtn.textContent = 'Pay GHS 10.00 Activation Fee ➔';
+              }
+            })
+            .catch(() => {
+              alert('Network error while verifying payment.');
+              regFeeBtn.disabled = false;
+              regFeeBtn.textContent = 'Pay GHS 10.00 Activation Fee ➔';
+            });
+          },
+          onClose: function () {
+            regFeeBtn.disabled = false;
+            regFeeBtn.textContent = 'Pay GHS 10.00 Activation Fee ➔';
+          }
+        });
+        handler.openIframe();
+      });
+    }
   });
 </script>
 {% endblock %}

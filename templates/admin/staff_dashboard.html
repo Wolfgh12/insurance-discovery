@@ -356,6 +356,25 @@
     padding: 4px 10px;
     border-radius: 6px;
   }
+
+  /* Coming Soon State for Inspection Drawers */
+  .modal-box-soon {
+    opacity: 0.72;
+    border-style: dashed !important;
+  }
+
+  .badge-soon-pill {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+    display: inline-block;
+  }
 </style>
 {% endblock %}
 
@@ -366,11 +385,18 @@
   <div class="admin-header-strip">
     <div>
       <div style="font-size: 0.75rem; font-weight: 800; color: #0284C7; text-transform: uppercase; letter-spacing: 0.6px;">Operations & Claims Desk</div>
-      <h1 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0.2rem 0 0;">Normal Admin Operations</h1>
+      <h1 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0.2rem 0 0;">Staff Admin Operations</h1>
     </div>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-      <a href="{% url 'vault:dashboard' %}" class="btn-action-sm" style="text-decoration: none; padding: 0.6rem 1rem;">Personal Vault ➔</a>
-      <a href="/admin/" class="btn-action-sm" style="text-decoration: none; padding: 0.6rem 1rem; background: #0F172A; color: #ffffff; border-color: #0F172A;">Django Core Admin ⚙️</a>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span style="font-size: 0.75rem; font-weight: 800; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 6px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+        ● Operations Desk Active
+      </span>
+      <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn-action-sm" style="background: #FEE2E2; border-color: #FECACA; color: #991B1B; padding: 0.6rem 1rem; font-weight: 800; cursor: pointer;">
+          Lock & Exit 🔒
+        </button>
+      </form>
     </div>
   </div>
 
@@ -515,8 +541,31 @@
           <div style="font-size: 0.8rem; color: #64748B;">Execute statutory decisions, approve disbursements, or update claim status notes.</div>
         </div>
         <div style="font-size: 0.78rem; font-weight: 700; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 4px 10px; border-radius: 6px;">
-          Total Claims: {{ recent_claims|length }}
+          Total Claims: <span id="staff-claims-count-badge">{{ recent_claims|length }}</span>
         </div>
+      </div>
+
+      <!-- Claims Real-Time Search & Status Filter -->
+      <div style="display: flex; gap: 10px; margin-bottom: 1.15rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 220px; position: relative;">
+          <input 
+            type="text" 
+            id="filter-staff-claims-search" 
+            placeholder="Search claim ref, underwriter, policyholder, or filer..." 
+            style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #ffffff;"
+          >
+          <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+        </div>
+        <select 
+          id="filter-staff-claims-status" 
+          style="padding: 0.55rem 0.85rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; font-weight: 700; color: #334155; background: #ffffff; outline: none; cursor: pointer;"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="PENDING">Under Review / Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="DISBURSED">Disbursed</option>
+          <option value="REJECTED">Declined / Ineligible</option>
+        </select>
       </div>
 
       <div class="table-responsive">
@@ -568,6 +617,15 @@
             {% empty %}
               <tr><td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No claims records on file.</td></tr>
             {% endfor %}
+
+            <!-- Dynamic No-Match Row for Real-Time Search -->
+            <tr id="staff-claims-no-match" style="display: none;">
+              <td colspan="8" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
+                <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
+                <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Claims Located</div>
+                <div id="staff-claims-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No claims match your search and status filter.</div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -591,8 +649,19 @@
           <div style="font-size: 0.8rem; color: #64748B;">Tap any policyholder's record to view their verified dossier, policies, and documents.</div>
         </div>
         <div style="font-size: 0.78rem; font-weight: 700; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 4px 10px; border-radius: 6px;">
-          {{ policyholders|length }} Registered
+          <span id="staff-policyholders-count-badge">{{ policyholders|length }}</span> Registered
         </div>
+      </div>
+
+      <!-- Policyholders Live Search Filter -->
+      <div style="margin-bottom: 1.15rem; position: relative;">
+        <input 
+          type="text" 
+          id="filter-staff-policyholders-search" 
+          placeholder="Filter by citizen name, @username, or Ghana Card ID (GHA-)..." 
+          style="width: 100%; padding: 0.6rem 0.85rem 0.6rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #ffffff;"
+        >
+        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
       </div>
 
       <div id="staff-policyholders-list-container" style="display: flex; flex-direction: column; gap: 8px;">
@@ -638,17 +707,41 @@
                 "policies": [
                   {% for p in holder.policies.all %}
                     {
+                      "id": "{{ p.id }}",
                       "number": "{{ p.policy_number|escapejs }}",
                       "insurer": "{{ p.insurer.name|escapejs }}",
                       "type": "{{ p.get_policy_type_display|escapejs }}",
                       "sum": "GHS {{ p.sum_assured|floatformat:2|escapejs }}",
+                      "status_code": "{{ p.policy_status|escapejs }}",
                       "status": "{{ p.get_policy_status_display|escapejs }}"
                     }{% if not forloop.last %},{% endif %}
                   {% endfor %}
                 ],
                 "assets": [
                   {% for a in holder.assets.all %}
-                    "{{ a.asset_name|escapejs }} ({{ a.get_asset_type_display|escapejs }})"{% if not forloop.last %},{% endif %}
+                    "{{ a.title|default:a.asset_name|escapejs }} ({{ a.get_asset_type_display|escapejs }})"{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "bank_accounts": [
+                  {% for b in holder.bank_accounts.all %}
+                    {
+                      "bank": "{{ b.bank_name|escapejs }}",
+                      "account": "{{ b.masked_account_number|escapejs }}",
+                      "type": "{{ b.get_account_type_display|escapejs }}",
+                      "currency": "{{ b.currency|escapejs }}",
+                      "balance": "{% if b.estimated_balance %}{{ b.currency }} {{ b.estimated_balance|floatformat:2 }}{% else %}N/A{% endif %}"
+                    }{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "investments": [
+                  {% for i in holder.investments.all %}
+                    {
+                      "title": "{{ i.title|escapejs }}",
+                      "broker": "{{ i.institution_or_broker|escapejs }}",
+                      "type": "{{ i.get_investment_type_display|escapejs }}",
+                      "ref": "{{ i.portfolio_reference|escapejs }}",
+                      "value": "{% if i.face_or_invested_value %}GHS {{ i.face_or_invested_value|floatformat:2 }}{% else %}N/A{% endif %}"
+                    }{% if not forloop.last %},{% endif %}
                   {% endfor %}
                 ],
                 "documents": [
@@ -673,6 +766,13 @@
             No registered policyholders found.
           </div>
         {% endfor %}
+
+        <!-- Dynamic No-Match Box for Real-Time Search -->
+        <div id="staff-policyholders-no-match" style="display: none; text-align: center; padding: 2.5rem 1.5rem; background: #F8FAFC; border-radius: 14px; border: 1.5px dashed #CBD5E1;">
+          <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
+          <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Policyholders Located</div>
+          <div id="staff-policyholders-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No citizen records match your query. Try searching by legal name, username, or Ghana Card ID.</div>
+        </div>
       </div>
 
       <div id="staff-policyholders-pagination" class="pagination-bar" style="display: none;">
@@ -694,8 +794,19 @@
           <div style="font-size: 0.8rem; color: #64748B;">Surviving relatives who verified their identities, satisfied statutory match parameters, and unlocked credentials.</div>
         </div>
         <div style="font-size: 0.78rem; font-weight: 700; color: #059669; background: #DCFCE7; border: 1px solid #BBF7D0; padding: 4px 10px; border-radius: 6px;">
-          Active Grants: {{ claimants|length }}
+          Active Grants: <span id="staff-claimants-count-badge">{{ claimants|length }}</span>
         </div>
+      </div>
+
+      <!-- Claimant Grants Live Search Filter -->
+      <div style="margin-bottom: 1.15rem; position: relative;">
+        <input 
+          type="text" 
+          id="filter-staff-claimants-search" 
+          placeholder="Search by claimant name, Ghana Card, phone, target policyholder, or ref..." 
+          style="width: 100%; padding: 0.6rem 0.85rem 0.6rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #ffffff;"
+        >
+        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
       </div>
 
       <div class="table-responsive">
@@ -746,7 +857,18 @@
                 </td>
                 <td>
                   <div style="font-weight: 700; color: #0284C7; font-size: 0.8rem;">{{ grant.policy.policy_number }}</div>
-                  <div style="font-size: 0.74rem; color: #475569;">{{ grant.policy.insurer.name }}</div>
+                  <div style="font-size: 0.74rem; color: #475569; margin-bottom: 4px;">{{ grant.policy.insurer.name }}</div>
+                  <form method="POST" action="{% url 'vault:update_policy_status' grant.policy.id %}" style="display: flex; gap: 4px; align-items: center; margin: 0;">
+                    {% csrf_token %}
+                    <select name="policy_status" style="font-size: 0.7rem; font-weight: 700; padding: 2px 4px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC;">
+                      <option value="ACTIVE" {% if grant.policy.policy_status == 'ACTIVE' %}selected{% endif %}>Active</option>
+                      <option value="CLAIM_IN_PROGRESS" {% if grant.policy.policy_status == 'CLAIM_IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                      <option value="SETTLED" {% if grant.policy.policy_status == 'SETTLED' %}selected{% endif %}>Settled</option>
+                    </select>
+                    <button type="submit" class="btn-action-sm" style="padding: 2px 6px; font-size: 0.7rem; background: #0284C7; color: #ffffff; border: none;">
+                      Save
+                    </button>
+                  </form>
                 </td>
                 <td style="font-family: monospace; font-size: 0.78rem; color: #64748B;">
                   {{ grant.unlocked_at|date:"Y-m-d H:i" }}
@@ -757,6 +879,15 @@
                 <td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No verified next-of-kin access grants on record.</td>
               </tr>
             {% endfor %}
+
+            <!-- Dynamic No-Match Row for Real-Time Search -->
+            <tr id="staff-claimants-no-match" style="display: none;">
+              <td colspan="8" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
+                <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
+                <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Access Grants Located</div>
+                <div id="staff-claimants-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No next-of-kin grants match your query. Verify the claimant details or target policyholder.</div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -782,6 +913,27 @@
         <span class="badge-status badge-success">● Act 843 Tamper-Proof Active</span>
       </div>
 
+      <!-- Verification Logs Search & Status Filter -->
+      <div style="display: flex; gap: 10px; margin-bottom: 1.15rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 220px; position: relative;">
+          <input 
+            type="text" 
+            id="filter-staff-telemetry-search" 
+            placeholder="Search claimant name, Ghana Card, target policy, or IP..." 
+            style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #ffffff;"
+          >
+          <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+        </div>
+        <select 
+          id="filter-staff-telemetry-status" 
+          style="padding: 0.55rem 0.85rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; font-weight: 700; color: #334155; background: #ffffff; outline: none; cursor: pointer;"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="MATCH">✓ SSOT Match</option>
+          <option value="DISCREPANCY">⚠️ Discrepancy</option>
+        </select>
+      </div>
+
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -793,7 +945,7 @@
               <th>Relation</th>
               <th>Target Policy</th>
               <th>Network IP</th>
-              <th>Biometric Inspection</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="staff-telemetry-audits-body">
@@ -813,19 +965,27 @@
                 <td>{{ log.policy.policy_number }}</td>
                 <td style="font-family: monospace; font-size: 0.78rem; color: #475569;">{{ log.ip_address|default:"127.0.0.1" }}</td>
                 <td>
-                  <button 
-                    type="button" 
-                    class="btn-action-sm btn-inspect-bio"
-                    data-name="{{ log.claimant_name }}"
-                    data-card="{{ log.claimant_ghana_card }}"
-                    data-ip="{{ log.ip_address|default:'127.0.0.1' }}"
-                    data-time="{{ log.created_at|date:'Y-m-d H:i:s T' }}"
-                    data-front="{% if log.biometric_front_photo %}{{ log.biometric_front_photo.url }}{% endif %}"
-                    data-left="{% if log.biometric_left_photo %}{{ log.biometric_left_photo.url }}{% endif %}"
-                    data-right="{% if log.biometric_right_photo %}{{ log.biometric_right_photo.url }}{% endif %}"
-                  >
-                    View 3-Angle Scan 🔍
-                  </button>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <button 
+                      type="button" 
+                      class="btn-action-sm btn-inspect-bio"
+                      data-name="{{ log.claimant_name }}"
+                      data-card="{{ log.claimant_ghana_card }}"
+                      data-ip="{{ log.ip_address|default:'127.0.0.1' }}"
+                      data-time="{{ log.created_at|date:'Y-m-d H:i:s T' }}"
+                      data-front="{% if log.biometric_front_photo %}{{ log.biometric_front_photo.url }}{% endif %}"
+                      data-left="{% if log.biometric_left_photo %}{{ log.biometric_left_photo.url }}{% endif %}"
+                      data-right="{% if log.biometric_right_photo %}{{ log.biometric_right_photo.url }}{% endif %}"
+                    >
+                      View 3-Angle Scan 🔍
+                    </button>
+                    <form method="POST" action="{% url 'vault:delete_audit_log' log.id %}" onsubmit="return confirm('Permanently delete this verification log for {{ log.claimant_name }}?');" style="margin: 0; display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-action-sm" style="background: #FEE2E2; border-color: #FECACA; color: #DC2626; padding: 5px 9px;" title="Delete Verification Log">
+                        🗑️
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% empty %}
@@ -833,6 +993,15 @@
                 <td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No security audit logs recorded yet.</td>
               </tr>
             {% endfor %}
+
+            <!-- Dynamic No-Match Row for Real-Time Search -->
+            <tr id="staff-telemetry-no-match" style="display: none;">
+              <td colspan="8" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
+                <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
+                <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Verification Logs Located</div>
+                <div id="staff-telemetry-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No verification logs match your search and status filter.</div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -928,19 +1097,43 @@
       <div id="ph-modal-policies" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
 
-    <!-- Assets & Documents Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.15rem;">
-      <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 0.75rem;">
-        <div id="ph-modal-assets-title" style="font-size: 0.72rem; font-weight: 800; color: #92400E; text-transform: uppercase; margin-bottom: 0.35rem;">🏛️ Assets & Deeds</div>
-        <div id="ph-modal-assets-list"></div>
+    <!-- Commercial Bank Accounts & Investment Portfolios Grid (Phase 2 Modules) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+      <div class="modal-box-soon" style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-banks-title" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 0.35rem;">
+          <span>🏦 Bank Accounts</span>
+          <span class="badge-soon-pill">Coming Soon</span>
+        </div>
+        <div id="ph-modal-banks-list"></div>
       </div>
 
-      <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 10px; padding: 0.75rem;">
-        <div id="ph-modal-docs-title" style="font-size: 0.72rem; font-weight: 800; color: #3730A3; text-transform: uppercase; margin-bottom: 0.35rem;">📜 Legal Files & Wills</div>
-        <div id="ph-modal-docs-list"></div>
+      <div class="modal-box-soon" style="background: #ECFEFF; border: 1.5px dashed #A5F3FC; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-investments-title" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 800; color: #0E7490; text-transform: uppercase; margin-bottom: 0.35rem;">
+          <span>📈 Investments & T-Bills</span>
+          <span class="badge-soon-pill">Coming Soon</span>
+        </div>
+        <div id="ph-modal-investments-list"></div>
       </div>
     </div>
 
+    <!-- Assets & Documents Grid (Phase 2 Modules) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.15rem;">
+      <div class="modal-box-soon" style="background: #FFFBEB; border: 1.5px dashed #FDE68A; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-assets-title" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 800; color: #92400E; text-transform: uppercase; margin-bottom: 0.35rem;">
+          <span>🏛️ Assets & Deeds</span>
+          <span class="badge-soon-pill">Coming Soon</span>
+        </div>
+        <div id="ph-modal-assets-list"></div>
+      </div>
+
+      <div class="modal-box-soon" style="background: #EEF2FF; border: 1.5px dashed #C7D2FE; border-radius: 10px; padding: 0.75rem;">
+        <div id="ph-modal-docs-title" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 800; color: #3730A3; text-transform: uppercase; margin-bottom: 0.35rem;">
+          <span>📜 Legal Files & Wills</span>
+          <span class="badge-soon-pill">Coming Soon</span>
+        </div>
+        <div id="ph-modal-docs-list"></div>
+      </div>
+    </div>
     <!-- Emergency Contacts -->
     <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.75rem;">
       <div id="ph-modal-contacts-title" style="font-size: 0.72rem; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 0.35rem;">👥 Registered Next-of-Kin</div>
@@ -1001,58 +1194,140 @@
     if (btn) btn.classList.add('active');
   }
 
-  // Universal 10-Item Client-Side Pagination Controller
-  function setupClientPagination(itemSelector, controlsId, pageSize = 10) {
-    const items = Array.from(document.querySelectorAll(itemSelector));
+  // Universal Real-Time Filter & Pagination Controller
+  function setupFilterablePagination({
+    itemSelector,
+    controlsId,
+    searchInputId = null,
+    statusSelectId = null,
+    countBadgeId = null,
+    emptyElementId = null,
+    emptyDetailId = null,
+    pageSize = 7,
+    statusPredicate = null
+  }) {
+    const allItems = Array.from(document.querySelectorAll(itemSelector));
     const controls = document.getElementById(controlsId);
-    if (!controls) return;
+    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
+    const statusSelect = statusSelectId ? document.getElementById(statusSelectId) : null;
+    const countBadge = countBadgeId ? document.getElementById(countBadgeId) : null;
+    const emptyEl = emptyElementId ? document.getElementById(emptyElementId) : null;
+    const emptyDetailEl = emptyDetailId ? document.getElementById(emptyDetailId) : null;
 
-    const totalItems = items.length;
-    if (totalItems <= pageSize) {
-      controls.style.display = 'none';
-      return;
-    }
-    controls.style.display = 'flex';
-
+    let activeItems = [...allItems];
     let currentPage = 1;
-    const totalPages = Math.ceil(totalItems / pageSize);
 
-    const prevBtn = controls.querySelector('.btn-prev');
-    const nextBtn = controls.querySelector('.btn-next');
-    const counterEl = controls.querySelector('.page-counter');
+    function refreshPagination() {
+      const total = activeItems.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-    function renderPage(page) {
-      currentPage = page;
-      const start = (page - 1) * pageSize;
+      if (countBadge) {
+        countBadge.textContent = total;
+      }
+
+      // Handle Empty Search & Filter State
+      if (emptyEl) {
+        const hasQuery = searchInput && searchInput.value.trim().length > 0;
+        const hasFilter = statusSelect && statusSelect.value !== 'ALL';
+
+        if (total === 0 && (hasQuery || hasFilter)) {
+          emptyEl.style.display = emptyEl.tagName === 'TR' ? 'table-row' : 'block';
+          if (emptyDetailEl) {
+            if (hasQuery) {
+              emptyDetailEl.textContent = `No records match "${searchInput.value.trim()}". Check for typos or clear your search.`;
+            } else {
+              emptyDetailEl.textContent = `No records match the selected status filter.`;
+            }
+          }
+        } else {
+          emptyEl.style.display = 'none';
+        }
+      }
+
+      if (!controls) return;
+
+      if (total <= pageSize) {
+        controls.style.display = 'none';
+      } else {
+        controls.style.display = 'flex';
+      }
+
+      const prevBtn = controls.querySelector('.btn-prev');
+      const nextBtn = controls.querySelector('.btn-next');
+      const counterEl = controls.querySelector('.page-counter');
+
+      if (currentPage > totalPages) currentPage = 1;
+
+      const start = (currentPage - 1) * pageSize;
       const end = start + pageSize;
 
-      items.forEach((item, index) => {
-        if (index >= start && index < end) {
+      // Hide all items first
+      allItems.forEach(item => { item.style.display = 'none'; });
+
+      // Show only current page of filtered items
+      activeItems.forEach((item, idx) => {
+        if (idx >= start && idx < end) {
           item.style.display = '';
-        } else {
-          item.style.display = 'none';
         }
       });
 
       if (counterEl) {
-        counterEl.textContent = `Page ${page} of ${totalPages} • ${totalItems} Total`;
+        counterEl.textContent = `Page ${currentPage} of ${totalPages} • ${total} Results`;
       }
-      if (prevBtn) prevBtn.disabled = page === 1;
-      if (nextBtn) nextBtn.disabled = page === totalPages;
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages || total === 0;
     }
 
-    if (prevBtn) {
-      prevBtn.onclick = () => {
-        if (currentPage > 1) renderPage(currentPage - 1);
-      };
-    }
-    if (nextBtn) {
-      nextBtn.onclick = () => {
-        if (currentPage < totalPages) renderPage(currentPage + 1);
-      };
+    function applyFilter() {
+      const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      const selectedStatus = statusSelect ? statusSelect.value : 'ALL';
+
+      activeItems = allItems.filter(item => {
+        const textMatch = !term || item.textContent.toLowerCase().includes(term);
+        let statusMatch = true;
+        if (statusPredicate && selectedStatus !== 'ALL') {
+          statusMatch = statusPredicate(item, selectedStatus);
+        }
+        return textMatch && statusMatch;
+      });
+
+      currentPage = 1;
+      refreshPagination();
     }
 
-    renderPage(1);
+    if (controls) {
+      const prevBtn = controls.querySelector('.btn-prev');
+      const nextBtn = controls.querySelector('.btn-next');
+
+      if (prevBtn) {
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            refreshPagination();
+          }
+        };
+      }
+
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          const totalPages = Math.ceil(activeItems.length / pageSize);
+          if (currentPage < totalPages) {
+            currentPage++;
+            refreshPagination();
+          }
+        };
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilter);
+    }
+
+    if (statusSelect) {
+      statusSelect.addEventListener('change', applyFilter);
+    }
+
+    applyFilter();
   }
 
   function viewPolicyholderDossier(holderId) {
@@ -1080,17 +1355,28 @@
       addressRow.style.display = 'none';
     }
 
+    const csrfToken = '{{ csrf_token }}';
     const policiesContainer = document.getElementById('ph-modal-policies');
     if (data.policies.length > 0) {
       policiesContainer.innerHTML = data.policies.map(p => `
-        <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+        <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; flex-wrap: wrap; gap: 8px;">
           <div>
             <strong style="color: #0F172A;">${p.number}</strong>
             <div style="font-size: 0.74rem; color: #64748B;">${p.insurer} • ${p.type}</div>
           </div>
-          <div style="text-align: right;">
-            <div style="color: #059669; font-weight: 900;">${p.sum}</div>
-            <span style="font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #DCFCE7; color: #166534;">${p.status}</span>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div style="color: #059669; font-weight: 900; font-size: 0.88rem;">${p.sum}</div>
+            <form method="POST" action="/portal/policies/${p.id}/update-status/" style="display: inline-flex; align-items: center; gap: 4px; margin: 0;">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+              <select name="policy_status" style="font-size: 0.72rem; font-weight: 700; padding: 3px 6px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;">
+                <option value="ACTIVE" ${p.status_code === 'ACTIVE' ? 'selected' : ''}>Active</option>
+                <option value="CLAIM_IN_PROGRESS" ${p.status_code === 'CLAIM_IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
+                <option value="SETTLED" ${p.status_code === 'SETTLED' ? 'selected' : ''}>Settled</option>
+              </select>
+              <button type="submit" class="btn-action-sm" style="padding: 3px 8px; font-size: 0.72rem; background: #0284C7; color: #ffffff; border: none; font-weight: 800;">
+                Update
+              </button>
+            </form>
           </div>
         </div>
       `).join('');
@@ -1098,17 +1384,33 @@
       policiesContainer.innerHTML = `<div style="background: #F8FAFC; border: 1px dashed #CBD5E1; padding: 0.75rem; border-radius: 8px; font-size: 0.78rem; color: #94A3B8; text-align: center;">No active policies linked.</div>`;
     }
 
-    document.getElementById('ph-modal-assets-title').textContent = `🏛️ Assets & Deeds (${data.assets.length})`;
-    const assetsList = document.getElementById('ph-modal-assets-list');
-    assetsList.innerHTML = data.assets.length > 0
-      ? data.assets.map(a => `<div style="font-size: 0.76rem; font-weight: 700; color: #78350F; margin-bottom: 2px;">• ${a}</div>`).join('')
-      : `<div style="font-size: 0.72rem; color: #B45309; font-style: italic;">No asset deeds deposited.</div>`;
+    document.getElementById('ph-modal-banks-title').innerHTML = `
+      <span>🏦 Bank Accounts</span>
+      <span class="badge-soon-pill">Coming Soon</span>
+    `;
+    const banksList = document.getElementById('ph-modal-banks-list');
+    banksList.innerHTML = `<div style="font-size: 0.72rem; color: #64748B; font-style: italic;">Banking depository module scheduled for Phase 2 rollout.</div>`;
 
-    document.getElementById('ph-modal-docs-title').textContent = `📜 Legal Files & Wills (${data.documents.length})`;
+    document.getElementById('ph-modal-investments-title').innerHTML = `
+      <span>📈 Investments & T-Bills</span>
+      <span class="badge-soon-pill">Coming Soon</span>
+    `;
+    const invList = document.getElementById('ph-modal-investments-list');
+    invList.innerHTML = `<div style="font-size: 0.72rem; color: #0891B2; font-style: italic;">Securities & investment ledger scheduled for Phase 2 rollout.</div>`;
+
+    document.getElementById('ph-modal-assets-title').innerHTML = `
+      <span>🏛️ Assets & Deeds</span>
+      <span class="badge-soon-pill">Coming Soon</span>
+    `;
+    const assetsList = document.getElementById('ph-modal-assets-list');
+    assetsList.innerHTML = `<div style="font-size: 0.72rem; color: #B45309; font-style: italic;">Physical property deeds module scheduled for Phase 2 rollout.</div>`;
+
+    document.getElementById('ph-modal-docs-title').innerHTML = `
+      <span>📜 Legal Files & Wills</span>
+      <span class="badge-soon-pill">Coming Soon</span>
+    `;
     const docsList = document.getElementById('ph-modal-docs-list');
-    docsList.innerHTML = data.documents.length > 0
-      ? data.documents.map(d => `<div style="font-size: 0.76rem; font-weight: 700; color: #312E81; margin-bottom: 2px;">• ${d}</div>`).join('')
-      : `<div style="font-size: 0.72rem; color: #4338CA; font-style: italic;">No estate documents deposited.</div>`;
+    docsList.innerHTML = `<div style="font-size: 0.72rem; color: #4338CA; font-style: italic;">Digital will vault scheduled for Phase 2 rollout.</div>`;
 
     document.getElementById('ph-modal-contacts-title').textContent = `👥 Registered Next-of-Kin (${data.contacts.length})`;
     const contactsList = document.getElementById('ph-modal-contacts-list');
@@ -1126,13 +1428,67 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    // Initialize 10-item client-side pagination across staff dashboard sections
-    setupClientPagination('.page-item-staff-overview-claims', 'staff-overview-claims-pagination', 10);
-    setupClientPagination('.page-item-staff-claims-docket', 'staff-claims-pagination', 10);
-    setupClientPagination('.page-item-staff-policyholder', 'staff-policyholders-pagination', 10);
-    setupClientPagination('.page-item-staff-claimant-grant', 'staff-claimants-pagination', 10);
-    setupClientPagination('.page-item-staff-telemetry', 'staff-telemetry-pagination', 10);
+    // Initialize filterable pagination across staff dashboard sections
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-overview-claims',
+      controlsId: 'staff-overview-claims-pagination',
+      pageSize: 7
+    });
 
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-claims-docket',
+      controlsId: 'staff-claims-pagination',
+      searchInputId: 'filter-staff-claims-search',
+      statusSelectId: 'filter-staff-claims-status',
+      countBadgeId: 'staff-claims-count-badge',
+      emptyElementId: 'staff-claims-no-match',
+      emptyDetailId: 'staff-claims-no-match-detail',
+      pageSize: 7,
+      statusPredicate: (row, status) => {
+        const text = row.textContent.toUpperCase();
+        if (status === 'PENDING') return text.includes('REVIEW') || text.includes('PENDING');
+        if (status === 'APPROVED') return text.includes('APPROVED');
+        if (status === 'DISBURSED') return text.includes('DISBURSED');
+        if (status === 'REJECTED') return text.includes('REJECTED') || text.includes('DECLINED');
+        return true;
+      }
+    });
+
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-policyholder',
+      controlsId: 'staff-policyholders-pagination',
+      searchInputId: 'filter-staff-policyholders-search',
+      countBadgeId: 'staff-policyholders-count-badge',
+      emptyElementId: 'staff-policyholders-no-match',
+      emptyDetailId: 'staff-policyholders-no-match-detail',
+      pageSize: 7
+    });
+
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-claimant-grant',
+      controlsId: 'staff-claimants-pagination',
+      searchInputId: 'filter-staff-claimants-search',
+      countBadgeId: 'staff-claimants-count-badge',
+      emptyElementId: 'staff-claimants-no-match',
+      emptyDetailId: 'staff-claimants-no-match-detail',
+      pageSize: 7
+    });
+
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-telemetry',
+      controlsId: 'staff-telemetry-pagination',
+      searchInputId: 'filter-staff-telemetry-search',
+      statusSelectId: 'filter-staff-telemetry-status',
+      emptyElementId: 'staff-telemetry-no-match',
+      emptyDetailId: 'staff-telemetry-no-match-detail',
+      pageSize: 7,
+      statusPredicate: (row, status) => {
+        const text = row.textContent;
+        if (status === 'MATCH') return text.includes('SSOT Match');
+        if (status === 'DISCREPANCY') return text.includes('Discrepancy');
+        return true;
+      }
+    });
     // 1. Claim Review Modal Handling
     const reviewModal = document.getElementById('review-modal');
     const closeReviewBtn = document.getElementById('btn-close-review');

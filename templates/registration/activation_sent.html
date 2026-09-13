@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Activation Email Sent | LegacyTrace{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+  <div class="auth-card" style="max-width: 480px; width: 100%; background: #0B132B; border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 16px; padding: 2.5rem; text-align: center;">
+    
+    <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); border: 1px solid #00D4FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+      </svg>
+    </div>
+
+    <h2 style="color: #FFFFFF; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Verify Your Vault</h2>
+    <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+      An activation link has been dispatched to <br>
+      <strong style="color: #00D4FF;">{{ email }}</strong>.
+    </p>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: #CBD5E1; text-align: left;">
+      <strong style="color: #F59E0B;">Notice on email delivery:</strong>
+      <p style="margin: 0.25rem 0 0 0;">Check your <strong>Spam or Junk</strong> folder if the email does not appear in your inbox within 60 seconds.</p>
+    </div>
+
+    <a href="{% url 'vault:login' %}" style="display: inline-block; width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #00D4FF 0%, #0072FF 100%); color: #FFFFFF; border-radius: 10px; font-size: 0.95rem; font-weight: 600; text-decoration: none;">
+      Proceed to Sign In
+    </a>
+  </div>
+</div>
+{% endblock %}

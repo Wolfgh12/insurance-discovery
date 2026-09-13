@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Phone OTP | LegacyTrace{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+  <div class="auth-card" style="max-width: 440px; width: 100%; background: #0B132B; border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 16px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;">
+    
+    <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); border: 1px solid #00D4FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+      </svg>
+    </div>
+
+    <h2 style="color: #FFFFFF; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Verify Mobile Vault</h2>
+    <p style="color: #94A3B8; font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.5;">
+      Enter the 6-digit statutory security code dispatched to <br>
+      <strong style="color: #00D4FF;">{{ masked_phone }}</strong>
+    </p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div style="padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; {% if message.tags == 'error' %}background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #FCA5A5;{% else %}background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #6EE7B7;{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'vault:verify_otp' %}" id="otpForm">
+      {% csrf_token %}
+      
+      <div style="display: flex; justify-content: space-between; gap: 8px; margin-bottom: 2rem;">
+        {% for i in "123456" %}
+          <input 
+            type="text" 
+            name="digit_{{ i }}" 
+            maxlength="1" 
+            inputmode="numeric" 
+            pattern="[0-9]*" 
+            class="otp-digit"
+            style="width: 48px; height: 56px; font-size: 1.5rem; font-weight: 700; text-align: center; color: #FFFFFF; background: #1C2541; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; outline: none; transition: border-color 0.2s;"
+            autocomplete="off"
+            required
+          >
+        {% endfor %}
+      </div>
+
+      <button 
+        type="submit" 
+        style="width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #00D4FF 0%, #0072FF 100%); color: #FFFFFF; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);">
+        Activate Vault Access
+      </button>
+    </form>
+
+    <div style="margin-top: 1.75rem; font-size: 0.85rem; color: #94A3B8;">
+      Didn't receive the code? 
+      <a href="{% url 'vault:resend_otp' %}" style="color: #00D4FF; text-decoration: none; font-weight: 600; margin-left: 4px;">Resend Code</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const inputs = document.querySelectorAll(".otp-digit");
+  
+  if (inputs.length > 0) inputs[0].focus();
+
+  inputs.forEach((input, index) => {
+    input.addEventListener("input", (e) => {
+      if (e.target.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !e.target.value && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData("text").trim();
+      if (/^\d{6}$/.test(pasteData)) {
+        pasteData.split("").forEach((char, idx) => {
+          if (inputs[idx]) inputs[idx].value = char;
+        });
+        inputs[inputs.length - 1].focus();
+      }
+    });
+
+    input.addEventListener("focus", () => {
+      input.style.borderColor = "#00D4FF";
+      input.style.boxShadow = "0 0 10px rgba(0, 212, 255, 0.2)";
+    });
+
+    input.addEventListener("blur", () => {
+      input.style.borderColor = "rgba(255,255,255,0.15)";
+      input.style.boxShadow = "none";
+    });
+  });
+});
+</script>
+{% endblock %}

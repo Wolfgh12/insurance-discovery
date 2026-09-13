@@ -82,6 +82,38 @@
     margin-bottom: 1.25rem;
   }
 
+  .password-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .password-field-wrapper .auth-input {
+    padding-right: 2.8rem;
+  }
+
+  .btn-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    user-select: none;
+    transition: color 0.15s ease;
+    z-index: 2;
+  }
+
+  .btn-password-toggle:hover {
+    color: #0284C7;
+  }
+
   .form-label {
     display: block;
     font-size: 0.78rem;
@@ -103,6 +135,16 @@
     background: #FAFAFA;
     transition: all 0.2s ease;
     box-sizing: border-box;
+  }
+
+  .challenge-card-box {
+    background: linear-gradient(135deg, #0A192F 0%, #0F2B48 100%);
+    border: 1.5px solid #06B6D4;
+    border-radius: 16px;
+    padding: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
   }
 
   .auth-input:focus {
@@ -175,48 +217,141 @@
       <p class="auth-sub">Sign in to manage policies, wills, and family assets</p>
     </div>
 
-    {% if form.errors %}
-      <div class="auth-error-banner">
-        ⚠️ Invalid username or password. Please verify your credentials.
-      </div>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="auth-error-banner" style="background: {% if message.tags == 'error' %}#FEF2F2{% else %}#ECFDF5{% endif %}; border-color: {% if message.tags == 'error' %}#FCA5A5{% else %}#A7F3D0{% endif %}; color: {% if message.tags == 'error' %}#991B1B{% else %}#065F46{% endif %};">
+          {% if message.tags == 'error' %}⚠️{% else %}✓{% endif %} {{ message }}
+        </div>
+      {% endfor %}
     {% endif %}
 
-    <form method="POST" action="{% url 'login' %}">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
-
-      <div class="form-group">
-        <label class="form-label" for="id_username">Username / Ghana Card</label>
-        <input 
-          type="text" 
-          name="username" 
-          id="id_username" 
-          class="auth-input" 
-          placeholder="Enter username" 
-          required 
-          autofocus
-        >
+    {% if challenge_required %}
+      <!-- Stage 2: Admin-Managed Security Question Challenge -->
+      <div class="challenge-card-box">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span style="font-size: 1.1rem;">🛡️</span>
+          <span style="font-size: 0.72rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px;">Security Verification Gate</span>
+        </div>
+        <p style="margin: 0 0 0.75rem; font-size: 0.8rem; color: #94A3B8;">
+          Citizen identity checkpoint: Answer the statutory question configured on your vault to complete two-factor authentication.
+        </p>
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(6, 182, 212, 0.5); border-radius: 10px; padding: 0.85rem 1rem; font-weight: 800; font-size: 0.95rem; color: #FFFFFF; letter-spacing: -0.2px;">
+          {{ challenge_question|default:"Security Question Challenge" }}
+        </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="id_password">Vault Passcode / Password</label>
-        <input 
-          type="password" 
-          name="password" 
-          id="id_password" 
-          class="auth-input" 
-          placeholder="••••••••" 
-          required
-        >
+      <form method="POST" action="{% url 'vault:login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="verify_security_challenge">
+        <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
+
+        <div class="form-group">
+          <label class="form-label" for="id_security_answer">Your Security Answer <span style="color: #DC2626;">*</span></label>
+          <input 
+            type="text" 
+            name="security_answer" 
+            id="id_security_answer" 
+            class="auth-input" 
+            placeholder="Type your answer..." 
+            required 
+            autofocus 
+            autocomplete="off"
+          >
+        </div>
+
+        <button type="submit" class="btn-auth-submit">Confirm Answer & Open Vault ⚡</button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'vault:login' %}" style="font-size: 0.8rem; color: #64748B; font-weight: 700; text-decoration: none;">
+          ← Cancel & Sign In as different citizen
+        </a>
       </div>
 
-      <button type="submit" class="btn-auth-submit">Unlock My Vault ⚡</button>
-    </form>
+    {% else %}
+      <!-- Stage 1: Standard Username & Password Entry -->
+      <form method="POST" action="{% url 'vault:login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="credentials">
+        <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
 
-    <div class="auth-footer-help">
-      <span>Don't have a vault yet? </span>
-      <a href="{% url 'vault:signup' %}">Create Account</a>
-    </div>
+        <div class="form-group">
+          <label class="form-label" for="id_username">Username / Ghana Card</label>
+          <input 
+            type="text" 
+            name="username" 
+            id="id_username" 
+            class="auth-input" 
+            placeholder="Enter username" 
+            required 
+            autofocus
+          >
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="form-label" for="id_password" style="margin-bottom: 0;">Password</label>
+            <a href="{% url 'password_reset' %}" style="font-size: 0.74rem; color: #64748B; font-weight: 700; text-decoration: none;" onmouseover="this.style.color='#0284C7';" onmouseout="this.style.color='#64748B';">
+              Forgot Password?
+            </a>
+          </div>
+          <div class="password-field-wrapper">
+            <input 
+              type="password" 
+              name="password" 
+              id="id_password" 
+              class="auth-input" 
+              placeholder="••••••••" 
+              required
+            >
+            <button type="button" class="btn-password-toggle" data-target="id_password" aria-label="Toggle password visibility">
+              <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-submit">Unlock My Vault ⚡</button>
+      </form>
+
+      <div class="auth-footer-help">
+        <span>Don't have a vault yet? </span>
+        <a href="{% url 'vault:signup' %}">Create Account</a>
+      </div>
+    {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.btn-password-toggle').forEach(button => {
+      button.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId) || this.parentElement.querySelector('input');
+        if (!input) return;
+
+        const eyeOpen = this.querySelector('.eye-open');
+        const eyeClosed = this.querySelector('.eye-closed');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (eyeOpen) eyeOpen.style.display = 'none';
+          if (eyeClosed) eyeClosed.style.display = 'block';
+        } else {
+          input.type = 'password';
+          if (eyeOpen) eyeOpen.style.display = 'block';
+          if (eyeClosed) eyeClosed.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

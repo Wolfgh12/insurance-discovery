@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}LegacyTrace | Configure Security Recovery Keys{% endblock %}
+
+{% block extra_css %}
+<style>
+  .sec-setup-wrapper {
+    min-height: calc(100vh - 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    position: relative;
+  }
+
+  .sec-setup-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, rgba(2, 132, 199, 0.05) 50%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .sec-setup-card {
+    background: linear-gradient(180deg, #0A192F 0%, #081426 100%);
+    border: 1.5px solid rgba(6, 182, 212, 0.35);
+    border-radius: 26px;
+    padding: clamp(2rem, 5vw, 3rem);
+    width: 100%;
+    max-width: 580px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 40px rgba(6, 182, 212, 0.15);
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    box-sizing: border-box;
+  }
+
+  .gold-clearance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    color: #FBBF24;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.75px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.15);
+  }
+
+  .sec-setup-title {
+    font-size: clamp(1.4rem, 4vw, 1.85rem);
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+  }
+
+  .sec-setup-sub {
+    font-size: 0.88rem;
+    color: #94A3B8;
+    line-height: 1.55;
+    margin: 0 0 2rem 0;
+  }
+
+  .sec-step-block {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .sec-step-block:focus-within {
+    border-color: #06B6D4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+  }
+
+  .sec-step-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #38BDF8;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.65rem;
+  }
+
+  .sec-step-pill {
+    background: rgba(6, 182, 212, 0.2);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #E0F2FE;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+  }
+
+  .sec-select-field,
+  .sec-text-field {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: #0F172A;
+    border: 1.5px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.92rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  .sec-select-field {
+    margin-bottom: 0.65rem;
+    cursor: pointer;
+  }
+
+  .sec-select-field option {
+    background: #0A192F;
+    color: #ffffff;
+  }
+
+  .sec-select-field:focus,
+  .sec-text-field:focus {
+    border-color: #38BDF8;
+    background: #0A192F;
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
+  }
+
+  .sec-text-field::placeholder {
+    color: #64748B;
+  }
+
+  .error-callout {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1.5px solid #EF4444;
+    color: #FCA5A5;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.45;
+  }
+
+  .btn-save-keys {
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 900;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 6px 22px rgba(6, 182, 212, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .btn-save-keys:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(6, 182, 212, 0.5);
+  }
+
+  .btn-save-keys:active {
+    transform: translateY(0);
+  }
+
+  .sec-footer-guarantee {
+    text-align: center;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    font-size: 0.76rem;
+    color: #64748B;
+    line-height: 1.5;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sec-setup-wrapper">
+  <div class="sec-setup-card">
+
+    <div class="gold-clearance-badge">
+      <span>🛡️</span> Statutory Vault Identity Registration
+    </div>
+
+    <h1 class="sec-setup-title">Configure Recovery Keys</h1>
+    <p class="sec-setup-sub">
+      Your email is confirmed. Now choose <strong>{{ form.required_questions_count|default:3 }} distinct questions</strong> from the national registry pool. These form your two-factor security barrier on future logins.
+    </p>
+
+    {% if form.non_field_errors %}
+      <div class="error-callout">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div id="js-error-box" class="error-callout" style="display: none;"></div>
+
+    <form id="sec-keys-form" method="POST" action="{% url 'vault:security_questions_setup' %}">
+      {% csrf_token %}
+
+      {% for item in form.security_question_fields %}
+        <div class="sec-step-block">
+          <div class="sec-step-label">
+            <span>{{ item.index }}. Recovery Key {{ item.index }}</span>
+            <span class="sec-step-pill">Key {{ item.index }} of {{ form.required_questions_count|default:3 }}</span>
+          </div>
+          {{ item.question }}
+          <div style="margin-top: 0.65rem;">
+            {{ item.answer }}
+          </div>
+          {% if item.answer.errors %}
+            <div style="color: #F87171; font-size: 0.74rem; font-weight: 700; margin-top: 6px;">{{ item.answer.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" id="btn-submit-keys" class="btn-save-keys">
+        <span>Save Recovery Keys & Enter Vault</span> ➔
+      </button>
+    </form>
+
+    <div class="sec-footer-guarantee">
+      🔒 Answers are stored securely, normalized for case-insensitivity, and never revealed in plain text.
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('sec-keys-form');
+    const errBox = document.getElementById('js-error-box');
+    const btn = document.getElementById('btn-submit-keys');
+
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      errBox.style.display = 'none';
+
+      const questionSelects = form.querySelectorAll('select.sec-select-field');
+      const selectedValues = [];
+      let hasEmpty = false;
+
+      questionSelects.forEach(sel => {
+        const val = sel.value;
+        const container = sel.closest('.sec-step-block');
+        const ansInput = container ? container.querySelector('input.sec-text-field') : null;
+        const ansVal = ansInput ? ansInput.value.trim() : '';
+
+        if (!val || !ansVal) {
+          hasEmpty = true;
+        }
+        if (val) {
+          selectedValues.push(val);
+        }
+      });
+
+      if (hasEmpty) {
+        e.preventDefault();
+        errBox.textContent = 'Please select all required security questions and provide answers for each.';
+        errBox.style.display = 'block';
+        return;
+      }
+
+      if (new Set(selectedValues).size < selectedValues.length) {
+        e.preventDefault();
+        errBox.textContent = 'Each security question must be unique. You cannot select the same question twice.';
+        errBox.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Activating Security Keys...</span> ⚡';
+    });
+  });
+</script>
+{% endblock %}

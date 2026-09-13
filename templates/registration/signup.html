@@ -94,6 +94,12 @@
     margin-bottom: 1.15rem;
   }
 
+  .password-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
   .form-label {
     display: block;
     font-size: 0.78rem;
@@ -117,10 +123,123 @@
     box-sizing: border-box;
   }
 
+  .password-field-wrapper .auth-input {
+    padding-right: 2.8rem;
+  }
+
+  .btn-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    user-select: none;
+    transition: color 0.15s ease;
+    z-index: 2;
+  }
+
+  .btn-password-toggle:hover {
+    color: #0284C7;
+  }
+
+  #security-questions-modal .auth-input,
+  #security-questions-modal select.sec-question-select {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1.5px solid rgba(6, 182, 212, 0.4);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.88rem;
+    width: 100%;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  #security-questions-modal select.sec-question-select option {
+    background: #0A192F;
+    color: #ffffff;
+    padding: 6px;
+  }
+
+  #security-questions-modal .auth-input:focus,
+  #security-questions-modal select.sec-question-select:focus {
+    border-color: #38BDF8;
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
+  }
+
   .auth-input:focus {
     border-color: var(--secondary-sea-blue);
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  }
+
+  /* Interactive Verification Protocol Toggle Cards */
+  .verification-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+  }
+
+  @media (max-width: 500px) {
+    .verification-options-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .verification-card-label {
+    border: 1.5px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 0.85rem;
+    background: #F8FAFC;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .verification-card-label:hover {
+    background: #F0F9FF;
+    border-color: #38BDF8;
+  }
+
+  .verification-card-label.selected {
+    border-color: #0284C7;
+    background: #F0F9FF;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  }
+
+  .verification-card-label input[type="radio"] {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    accent-color: #0284C7;
+  }
+
+  .verification-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .verification-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.35;
   }
 
   .form-field-errors {
@@ -256,60 +375,135 @@
     <div class="signup-header">
       <div class="signup-badge-icon">🛡️</div>
       <h1 class="signup-title">Create Your Digital Vault</h1>
-      <p class="signup-sub">Register to secure your policies, wills, and family assets</p>
+      <p class="signup-sub">Register to secure your policies, wills, family assets and more...</p>
+      <div style="font-size: 0.74rem; font-weight: 800; color: #DC2626; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+        * All fields are strictly mandatory
+      </div>
     </div>
 
-    <form method="POST" action="{% url 'vault:signup' %}">
+    {% if form.non_field_errors %}
+      <div style="background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #991B1B; padding: 0.85rem 1rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; margin-bottom: 1.25rem;">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div style="background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #991B1B; padding: 0.85rem 1rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; margin-bottom: 1.25rem;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form id="signup-master-form" method="POST" action="{% url 'vault:signup' %}">
       {% csrf_token %}
 
       <div class="form-row-grid">
         <div class="form-group">
-          <label class="form-label">First Name</label>
+          <label class="form-label">First Name <span style="color: #DC2626;">*</span></label>
           {{ form.first_name }}
           <div class="form-field-errors">{{ form.first_name.errors }}</div>
         </div>
         <div class="form-group">
-          <label class="form-label">Last Name</label>
+          <label class="form-label">Last Name <span style="color: #DC2626;">*</span></label>
           {{ form.last_name }}
           <div class="form-field-errors">{{ form.last_name.errors }}</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Username</label>
+        <label class="form-label">Username <span style="color: #DC2626;">*</span></label>
         {{ form.username }}
         <div class="form-field-errors">{{ form.username.errors }}</div>
       </div>
 
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">
+          <label class="form-label" style="margin-bottom: 0;">Email Address <span style="color: #DC2626;">*</span></label>
+          <span style="font-size: 0.72rem; color: #0284C7; font-weight: 700;">Receipt & Billing Destination</span>
+        </div>
+        {{ form.email }}
+        <div style="font-size: 0.74rem; color: #475569; font-weight: 600; margin-top: 5px; line-height: 1.4;">
+          ℹ️ Must be an active, valid email. All official vault transaction receipts, Paystack payment confirmations, and retainer renewals will be dispatched directly here.
+        </div>
+        <div class="form-field-errors">{{ form.email.errors }}</div>
+      </div>
+
+      <!-- Verification Protocol Selector -->
+      <div class="form-group">
+        <label class="form-label">Account Verification & Activation Method <span style="color: #DC2626;">*</span></label>
+        <div class="verification-options-grid">
+          <label class="verification-card-label selected" id="label-method-questions">
+            <input type="radio" name="verification_method" value="QUESTIONS" checked>
+            <div class="verification-title">⚡ Instant Security Keys</div>
+            <div class="verification-desc">Answer {{ form.required_questions_count|default:3 }} statutory recovery questions now for immediate, unblocked vault activation.</div>
+          </label>
+
+          <label class="verification-card-label" id="label-method-email">
+            <input type="radio" name="verification_method" value="EMAIL">
+            <div class="verification-title">✉️ Email Confirmation Link</div>
+            <div class="verification-desc">Receive an activation email link first; set up security questions upon confirmation.</div>
+          </label>
+        </div>
+        <div class="form-field-errors">{{ form.verification_method.errors }}</div>
+      </div>
+
       <div class="form-row-grid">
         <div class="form-group">
-          <label class="form-label" for="id_ghana_card_number">Ghana Card ID</label>
+          <label class="form-label" for="id_ghana_card_number">Ghana Card ID <span style="color: #DC2626;">*</span></label>
           {{ form.ghana_card_number }}
           <div id="ghana-card-feedback" class="ghana-card-msg"></div>
           <div class="form-field-errors">{{ form.ghana_card_number.errors }}</div>
         </div>
         <div class="form-group">
-          <label class="form-label">Phone Number</label>
+          <label class="form-label">Phone Number <span style="color: #DC2626;">*</span></label>
           {{ form.phone_number }}
           <div class="form-field-errors">{{ form.phone_number.errors }}</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Permanent Residential Address</label>
+        <label class="form-label">Permanent Residential Address <span style="color: #DC2626;">*</span></label>
         {{ form.permanent_address }}
         <div class="form-field-errors">{{ form.permanent_address.errors }}</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Password</label>
-        {{ form.password1 }}
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">
+          <label class="form-label" style="margin-bottom: 0;">Password <span style="color: #DC2626;">*</span></label>
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 700;">Min. 8 characters</span>
+        </div>
+        <div class="password-field-wrapper">
+          {{ form.password1 }}
+          <button type="button" class="btn-password-toggle" data-target="id_password1" aria-label="Toggle password visibility">
+            <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
         <div class="form-field-errors">{{ form.password1.errors }}</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Confirm Password</label>
-        {{ form.password2 }}
+        <label class="form-label">Confirm Password <span style="color: #DC2626;">*</span></label>
+        <div class="password-field-wrapper">
+          {{ form.password2 }}
+          <button type="button" class="btn-password-toggle" data-target="id_password2" aria-label="Toggle password visibility">
+            <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
         <div class="form-field-errors">{{ form.password2.errors }}</div>
       </div>
 
@@ -321,12 +515,58 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-signup-submit">Register & Open Vault ⚡</button>
+      <button type="button" id="btn-signup-trigger" class="btn-signup-submit">Register & Open Vault ⚡</button>
+
+      <!-- Statutory Dynamic Question Security Setup Modal (Directly Embedded Inside Form) -->
+      <div id="security-questions-modal" style="display: none; position: fixed; inset: 0; background: rgba(10, 15, 29, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div style="background: linear-gradient(180deg, #0A192F 0%, #0F2B48 100%); border: 1.5px solid #06B6D4; border-radius: 22px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(6, 182, 212, 0.25); color: #ffffff; position: relative;">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <span style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; text-transform: uppercase;">
+              🔐 National Identity Recovery Keys
+            </span>
+            <button type="button" id="btn-close-sec-modal" style="background: none; border: none; font-size: 1.35rem; color: #94A3B8; cursor: pointer; line-height: 1;">✕</button>
+          </div>
+
+          <h3 style="margin: 0 0 0.35rem; font-size: 1.3rem; font-weight: 900; color: #ffffff;">Select {{ form.required_questions_count|default:3 }} Statutory Recovery Keys</h3>
+          <p style="margin: 0 0 1.25rem; font-size: 0.82rem; color: #94A3B8; line-height: 1.5;">
+            Choose {{ form.required_questions_count|default:3 }} distinct questions from the national directory and provide answers. One of these will be randomly requested to authenticate future logins.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.35rem;">
+            {% for item in form.security_question_fields %}
+              <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 5px;">
+                  {{ item.index }}. Security Question {{ item.index }} <span style="color: #F87171;">*</span>
+                </label>
+                {{ item.question }}
+                <div style="margin-top: 6px;">
+                  {{ item.answer }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div id="sec-setup-error" style="display: none; color: #FCA5A5; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.85rem; background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; padding: 8px 12px; border-radius: 8px; line-height: 1.4;"></div>
+
+          <button type="button" id="btn-sec-proceed" style="width: 100%; padding: 0.85rem; border-radius: 12px; border: none; font-size: 0.92rem; font-weight: 900; color: #ffffff; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); cursor: pointer; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);">
+            Confirm Keys & Open Vault ⚡
+          </button>
+
+        </div>
+      </div>
     </form>
 
-    <div class="signup-footer">
-      <span>Already registered a vault? </span>
-      <a href="{% url 'login' %}">Sign In Here</a>
+    <div class="signup-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div>
+        <span>Already registered a vault? </span>
+        <a href="{% url 'login' %}">Sign In Here</a>
+      </div>
+      <div>
+        <a href="{% url 'password_reset' %}" style="color: #64748B; font-weight: 700; font-size: 0.8rem; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#0284C7';" onmouseout="this.style.color='#64748B';">
+          Forgot Password?
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -335,6 +575,28 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // Password Visibility Eye Toggle Handler
+    document.querySelectorAll('.btn-password-toggle').forEach(button => {
+      button.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId) || this.parentElement.querySelector('input');
+        if (!input) return;
+
+        const eyeOpen = this.querySelector('.eye-open');
+        const eyeClosed = this.querySelector('.eye-closed');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (eyeOpen) eyeOpen.style.display = 'none';
+          if (eyeClosed) eyeClosed.style.display = 'block';
+        } else {
+          input.type = 'password';
+          if (eyeOpen) eyeOpen.style.display = 'block';
+          if (eyeClosed) eyeClosed.style.display = 'none';
+        }
+      });
+    });
+
     const cardInput = document.getElementById('id_ghana_card_number') || document.querySelector('input[name="ghana_card_number"]');
     const feedback = document.getElementById('ghana-card-feedback');
     const form = cardInput ? cardInput.closest('form') : null;
@@ -422,17 +684,144 @@
       }
     });
 
-    // Form submission barrier
-    if (form) {
-      form.addEventListener('submit', function (e) {
+    // Form submission barrier & Verification Dispatcher
+    const masterForm = document.getElementById('signup-master-form');
+    const triggerBtn = document.getElementById('btn-signup-trigger');
+
+    const secModal = document.getElementById('security-questions-modal');
+    const closeSecModalBtn = document.getElementById('btn-close-sec-modal');
+    const setupError = document.getElementById('sec-setup-error');
+    const btnSecProceed = document.getElementById('btn-sec-proceed');
+
+    // Dynamic Protocol Toggle Handler
+    const radioQuestions = document.querySelector('input[name="verification_method"][value="QUESTIONS"]');
+    const radioEmail = document.querySelector('input[name="verification_method"][value="EMAIL"]');
+    const labelQuestions = document.getElementById('label-method-questions');
+    const labelEmail = document.getElementById('label-method-email');
+
+    function updateProtocolUI() {
+      if (radioEmail && radioEmail.checked) {
+        labelEmail.classList.add('selected');
+        labelQuestions.classList.remove('selected');
+        triggerBtn.textContent = 'Register & Send Activation Link ✉️';
+      } else {
+        labelQuestions.classList.add('selected');
+        labelEmail.classList.remove('selected');
+        triggerBtn.textContent = 'Register & Open Vault ⚡';
+      }
+    }
+
+    if (radioQuestions && radioEmail) {
+      radioQuestions.addEventListener('change', updateProtocolUI);
+      radioEmail.addEventListener('change', updateProtocolUI);
+    }
+
+    if (triggerBtn && masterForm) {
+      triggerBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // 1. Browser validity check
+        if (!masterForm.checkValidity()) {
+          masterForm.reportValidity();
+          return;
+        }
+
+        // 2. Validate Ghana Card 10-digit requirement
         const digits = cardInput.value.replace(/^GHA-?/, '').replace(/\D/g, '');
         if (digits.length !== 10) {
-          e.preventDefault();
           triggerShake();
           feedback.className = 'ghana-card-msg show-error';
           feedback.textContent = '⚠️ Registration blocked: Exactly 10 numeric digits required (GHA-XXXXXXXXX-X).';
           cardInput.focus();
+          return;
         }
+
+        // 3. Password validation
+        const p1 = document.querySelector('input[name="password1"]');
+        const p2 = document.querySelector('input[name="password2"]');
+
+        if (p1 && p1.value.length < 8) {
+          alert(`Password too short (${p1.value.length} characters). Must be at least 8 characters.`);
+          p1.focus();
+          return;
+        }
+
+        if (p1 && p2 && p1.value !== p2.value) {
+          alert('Passwords do not match. Please re-enter your password.');
+          p2.focus();
+          return;
+        }
+
+        // 4. Verification Fork: Email Link vs. Immediate Security Questions
+        const chosenMethod = document.querySelector('input[name="verification_method"]:checked')?.value || 'QUESTIONS';
+
+        if (chosenMethod === 'EMAIL') {
+          const questionSelects = masterForm.querySelectorAll('select.sec-question-select');
+          questionSelects.forEach(sel => {
+            sel.value = '';
+            const container = sel.closest('div');
+            const ansInput = container ? container.querySelector('input[type="text"]') : null;
+            if (ansInput) ansInput.value = '';
+          });
+          triggerBtn.disabled = true;
+          triggerBtn.textContent = 'Dispatching Activation Email... ✉️';
+          masterForm.submit();
+        } else {
+          if (secModal) {
+            secModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            const firstSelect = secModal.querySelector('select.sec-question-select');
+            if (firstSelect) firstSelect.focus();
+          }
+        }
+      });
+    }
+
+    if (closeSecModalBtn) {
+      closeSecModalBtn.addEventListener('click', function () {
+        secModal.style.display = 'none';
+        document.body.style.overflow = '';
+      });
+    }
+
+    // Validate dynamic question selections & non-empty answers
+    if (btnSecProceed) {
+      btnSecProceed.addEventListener('click', function () {
+        const questionSelects = secModal.querySelectorAll('select.sec-question-select');
+        const selectedValues = [];
+        let hasEmpty = false;
+
+        questionSelects.forEach(sel => {
+          const val = sel.value;
+          const container = sel.parentElement;
+          const ansInput = container ? container.querySelector('input[type="text"]') : null;
+          const ansVal = ansInput ? ansInput.value.trim() : '';
+
+          if (!val || !ansVal) {
+            hasEmpty = true;
+          }
+          if (val) {
+            selectedValues.push(val);
+          }
+        });
+
+        if (hasEmpty) {
+          setupError.textContent = 'Please select all required security questions and provide answers for each.';
+          setupError.style.display = 'block';
+          return;
+        }
+
+        if (new Set(selectedValues).size < selectedValues.length) {
+          setupError.textContent = 'Each question must be unique. Please choose distinct questions.';
+          setupError.style.display = 'block';
+          return;
+        }
+
+        setupError.style.display = 'none';
+        btnSecProceed.disabled = true;
+        btnSecProceed.textContent = 'Provisioning Vault... ⚡';
+
+        masterForm.submit();
       });
     }
   });
