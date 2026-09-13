@@ -5,7 +5,7 @@ DEBUG = False
 
 # Replace 'yourusername' with your actual PythonAnywhere username
 ALLOWED_HOSTS = [
-    'yourusername.pythonanywhere.com',
+    'nanatest.pythonanywhere.com',
     '127.0.0.1',
     'localhost',
 ]
