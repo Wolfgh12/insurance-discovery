@@ -16,7 +16,9 @@ class CustomUser(AbstractUser):
         ('INSURER_ADMIN', 'Insurer Administrator'),
     )
 
-    email = models.EmailField(blank=True, null=True, unique=True)
+    # Email unique constraint dropped at database level to allow family reuse on settled/claimed estates.
+    # Uniqueness is enforced dynamically in forms/views, excluding settled accounts.
+    email = models.EmailField(blank=True, null=True, db_index=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='POLICYHOLDER')
     phone_number = models.CharField(max_length=20, blank=True, null=True, db_index=True)
     ghana_card_number = models.CharField(max_length=30, unique=True, blank=True, null=True, db_index=True)
@@ -94,10 +96,20 @@ class CustomUser(AbstractUser):
         # Auto-normalize Ghana Card format to uppercase before saving
         if self.ghana_card_number:
             self.ghana_card_number = self.ghana_card_number.strip().upper()
-        # Ensure blank emails are persisted as None to satisfy unique=True
-        if not self.email:
+        if self.email:
+            self.email = self.email.strip().lower()
+        else:
             self.email = None
         super().save(*args, **kwargs)
+
+    @property
+    def is_estate_claimed(self):
+        """
+        Returns True if this citizen's vault policies are completely claimed and settled,
+        releasing their email and phone number for reuse by living family members.
+        """
+        user_policies = self.policies.all()
+        return user_policies.exists() and not user_policies.exclude(policy_status='SETTLED').exists()
 
     @property
     def has_security_questions_configured(self):

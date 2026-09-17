@@ -167,11 +167,12 @@ class SignUpForm(UserCreationForm):
 
         if method == 'QUESTIONS':
             user.is_active = True
+            if hasattr(user, 'has_security_questions_configured'):
+                user.has_security_questions_configured = True
         else:
             user.is_active = False
 
-        if commit:
-            user.save()
+        def save_security_answers():
             if method == 'QUESTIONS':
                 for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
                     q = self.cleaned_data.get(f'question_{i}')
@@ -182,8 +183,17 @@ class SignUpForm(UserCreationForm):
                             question=q,
                             defaults={'answer': a.strip()}
                         )
-        return user
+                if hasattr(user, 'has_security_questions_configured') and not user.has_security_questions_configured:
+                    user.has_security_questions_configured = True
+                    user.save(update_fields=['has_security_questions_configured'])
 
+        self.save_m2m = save_security_answers
+
+        if commit:
+            user.save()
+            save_security_answers()
+
+        return user
 class SecurityQuestionsSetupForm(forms.Form):
     """
     Mandatory dynamic setup form displayed after an unverified citizen clicks their email activation link.
@@ -248,7 +258,7 @@ class SecurityQuestionsSetupForm(forms.Form):
 
         return cleaned_data
 
-    def save(self, user):
+def save(self, user):
         for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
             q = self.cleaned_data.get(f'question_{i}')
             a = self.cleaned_data.get(f'answer_{i}')
@@ -258,6 +268,9 @@ class SecurityQuestionsSetupForm(forms.Form):
                     question=q,
                     defaults={'answer': a.strip()}
                 )
+        if hasattr(user, 'has_security_questions_configured'):
+            user.has_security_questions_configured = True
+            user.save(update_fields=['has_security_questions_configured'])
         return user
 
 class ProfileUpdateForm(forms.ModelForm):
