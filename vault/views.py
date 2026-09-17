@@ -143,34 +143,7 @@ def home_search_view(request):
             .prefetch_related('unlock_grants', 'claims')
         )
 
-        policy_user_ids = {p.policyholder_id for p in existing_policies}
-        placeholder_policies = []
-
-        default_insurer = InsuranceCompany.objects.filter(is_verified=True).first()
-        if not default_insurer:
-            default_insurer, _ = InsuranceCompany.objects.get_or_create(
-                name="National Underwriting Network",
-                defaults={
-                    "is_verified": True,
-                    "contact_email": "claims@legacytrace.gov.gh",
-                },
-            )
-
-        # Generate registry placeholders only for confirmed active subscribers
-        for user in matched_users:
-            if user.id not in policy_user_ids:
-                placeholder_policy, _ = PolicyRecord.objects.get_or_create(
-                    policyholder=user,
-                    policy_number=f"LT-VAULT-{user.id:04d}",
-                    defaults={
-                        'insurer': default_insurer,
-                        'policy_type': 'LIFE',
-                        'is_active': True,
-                    },
-                )
-                placeholder_policies.append(placeholder_policy)
-
-        results = existing_policies + placeholder_policies
+        results = existing_policies
 
     total_insurers = InsuranceCompany.objects.filter(is_verified=True).count()
     platform_config = PlatformConfiguration.get_solo()
@@ -182,6 +155,7 @@ def home_search_view(request):
         'total_insurers': total_insurers or 6,
         'unlock_fee': platform_config.unlock_fee,
         'unlock_fee_pesewas': platform_config.unlock_fee_pesewas,
+        'platform_config': platform_config,
     }
     return render(request, 'home.html', context)
 
@@ -217,7 +191,7 @@ def verify_subscription_view(request):
             'message': 'Administrative desks cannot hold personal estate retainers. Please register or sign in with a citizen account.'
         }, status=403)
 
-    if request.session.get('active_claimant_token') or request.user.received_vault_grants.exists():
+    if request.user.username.startswith('claimant_'):
         return JsonResponse({
             'status': 'error',
             'message': 'Claimant dossier accounts cannot hold personal estate retainers. Please register a citizen account.'
@@ -353,6 +327,45 @@ def check_claimant_match_view(request):
             'status': 'error',
             'message': 'This policy is already locked and undergoing claim processing.'
         }, status=400)
+
+    # 1. Ghana Card Collision Check (Across Policyholders & Existing Claimants)
+    clean_card = claimant_ghana_card.replace('-', '').replace(' ', '').upper()
+    if (
+        CustomUser.objects.filter(
+            Q(ghana_card_number__iexact=claimant_ghana_card) | Q(ghana_card_number__iexact=clean_card)
+        ).exists()
+        or ClaimantAccessGrant.objects.filter(
+            Q(claimant_ghana_card__iexact=claimant_ghana_card) | Q(claimant_ghana_card__iexact=clean_card)
+        ).exists()
+    ):
+        return JsonResponse({
+            'status': 'collision_error',
+            'field': 'ghana_card',
+            'message': 'This Ghana Card ID is already registered in the system. Please verify your ID details.'
+        })
+
+    # 2. Phone Number Collision Check (Across Policyholders & Existing Claimants)
+    clean_phone_digits = re.sub(r'\D', '', claimant_phone)[-9:]
+    if clean_phone_digits and (
+        CustomUser.objects.filter(phone_number__endswith=clean_phone_digits).exists()
+        or ClaimantAccessGrant.objects.filter(claimant_phone__endswith=clean_phone_digits).exists()
+    ):
+        return JsonResponse({
+            'status': 'collision_error',
+            'field': 'phone',
+            'message': 'This phone number is already registered in the system. Please provide an unregistered contact number.'
+        })
+
+    # 3. Email Address Collision Check (Across Policyholders & Existing Claimants)
+    if claimant_email and (
+        CustomUser.objects.filter(email__iexact=claimant_email).exists()
+        or ClaimantAccessGrant.objects.filter(claimant_email__iexact=claimant_email).exists()
+    ):
+        return JsonResponse({
+            'status': 'collision_error',
+            'field': 'email',
+            'message': 'This email address is already registered in the system. Please use a different email address.'
+        })
 
     client_ip = get_client_ip(request) or '127.0.0.1'
     user_agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
@@ -541,45 +554,26 @@ def verify_unlock_view(request):
 
     policyholder = policy.policyholder
     access_token = secrets.token_urlsafe(24)
-    temp_password = None
-    is_new_claimant = False
 
-    # Identity Merging: Reuse current claimant session or match existing citizen identity
-    if request.user.is_authenticated and not (request.user.is_staff or request.user.is_superuser):
-        claimant_user = request.user
-    else:
-        clean_claimant_card = claimant_ghana_card.replace('-', '').replace(' ', '').upper()
-        existing_user = CustomUser.objects.filter(
-            Q(ghana_card_number__iexact=claimant_ghana_card)
-            | Q(ghana_card_number__iexact=clean_claimant_card)
-            | Q(email__iexact=claimant_email)
-        ).exclude(is_staff=True).exclude(is_superuser=True).first()
+    # Dedicated Isolated Claimant Account: Always create an independent claimant profile
+    claimant_username = f"claimant_{secrets.token_hex(3)}"
+    temp_password = f"LT-{secrets.token_hex(4).upper()}"
+    name_parts = claimant_name.split(' ', 1) if claimant_name else ['Verified', 'Claimant']
+    first_name = name_parts[0]
+    last_name = name_parts[1] if len(name_parts) > 1 else ''
 
-        if existing_user:
-            claimant_user = existing_user
-        else:
-            is_new_claimant = True
-            claimant_username = f"claimant_{secrets.token_hex(3)}"
-            temp_password = f"LT-{secrets.token_hex(4).upper()}"
-            name_parts = claimant_name.split(' ', 1) if claimant_name else ['Verified', 'Claimant']
-            first_name = name_parts[0]
-            last_name = name_parts[1] if len(name_parts) > 1 else ''
-
-            claimant_user = CustomUser.objects.create(
-                username=claimant_username,
-                email=claimant_email,
-                first_name=first_name,
-                last_name=last_name,
-                phone_number=claimant_phone,
-                ghana_card_number=claimant_ghana_card,
-                permanent_address=permanent_address,
-                user_type='POLICYHOLDER',
-            )
-            claimant_user.set_password(temp_password)
-            claimant_user.save()
-
-    claimant_username = claimant_user.username
-
+    claimant_user = CustomUser.objects.create(
+        username=claimant_username,
+        email=None,  # Stored on the grant record to avoid unique email collision
+        first_name=first_name,
+        last_name=last_name,
+        phone_number=claimant_phone,
+        ghana_card_number=None,  # Stored on the grant record to avoid unique card collision
+        permanent_address=permanent_address,
+        user_type='POLICYHOLDER',
+    )
+    claimant_user.set_password(temp_password)
+    claimant_user.save()
     audit_id = data.get('audit_id')
     if audit_id:
         ClaimSecurityAuditLog.objects.filter(id=audit_id).update(disclaimer_acknowledged=True)
@@ -627,8 +621,8 @@ def verify_unlock_view(request):
         'access_url': f"/claimant/vault/{access_token}/",
         'credentials': {
             'username': claimant_username,
-            'temporary_password': temp_password if is_new_claimant else "Linked to your existing account (use your existing password)",
-            'is_existing_account': not is_new_claimant,
+            'temporary_password': temp_password,
+            'is_existing_account': False,
             'claimant_email': claimant_email,
         },
         'unlocked_data': {
@@ -638,8 +632,8 @@ def verify_unlock_view(request):
             'policy_number': policy.policy_number,
             'policy_type': policy.get_policy_type_display(),
             'policy_status': policy.get_policy_status_display(),
-            'sum_assured': float(policy.sum_assured),
-            'total_premiums_paid': float(policy.total_premiums_paid),
+            'sum_assured': float(policy.sum_assured or 0.0),
+            'total_premiums_paid': float(policy.total_premiums_paid or 0.0),
             'policyholder_name': policyholder.get_full_name() or policyholder.username,
             'ghana_card': policyholder.ghana_card_number or 'Not registered',
             'assets_count': policyholder.assets.count(),
@@ -825,12 +819,11 @@ def claimant_vault_view(request, access_token):
 
 def signup_view(request):
     if request.user.is_authenticated:
-        # If an administrative or claimant account opens signup, terminate session so they can create a citizen vault
+        # If an administrative or dedicated claimant account opens signup, terminate session
         if (
             request.user.is_staff
             or request.user.is_superuser
-            or request.session.get('active_claimant_token')
-            or request.user.received_vault_grants.exists()
+            or request.user.username.startswith('claimant_')
         ):
             logout(request)
         else:
@@ -1031,13 +1024,18 @@ def login_view(request):
         | Q(ghana_card_number__iexact=clean_card)
     ).first()
 
+    # Helper to build a clean redirect back to login while preserving the ?next= parameter
+    login_fail_url = reverse('vault:login')
+    if next_url and next_url != '/dashboard/':
+        login_fail_url += f'?next={next_url}'
+
     # Guard against inactive citizen vaults
     if matched_user and not matched_user.is_active:
         messages.error(
             request,
             "This account is pending email activation. Please check your inbox or spam folder for your confirmation link."
         )
-        return render(request, 'registration/login.html', {'next': next_url})
+        return redirect(login_fail_url)
 
     target_username = matched_user.username if matched_user else username_or_card
     user = authenticate(request, username=target_username, password=password)
@@ -1109,7 +1107,264 @@ def login_view(request):
         return redirect(next_url)
 
     messages.error(request, "Invalid username or password. Please verify your credentials.")
-    return render(request, 'registration/login.html', {'next': next_url})
+    return redirect(login_fail_url)
+
+
+def forgot_password_view(request):
+    """
+    Recovers citizen account via complete security questions challenge:
+    1. Citizen inputs Username, Email, or Ghana Card ID.
+    2. Prompts citizen to answer ALL configured security recovery keys simultaneously.
+    3. If all answers match, grants direct access to set a new password.
+    4. On the 3rd failed attempt, automatically dispatches an encrypted reset link to their email.
+    """
+    if request.user.is_authenticated:
+        return redirect('vault:dashboard')
+
+    if request.method == 'GET':
+        if request.GET.get('reset'):
+            request.session.pop('pwd_reset_challenge', None)
+            return redirect('vault:forgot_password')
+
+        challenge_data = request.session.get('pwd_reset_challenge')
+        if challenge_data and challenge_data.get('user_id'):
+            return render(request, 'registration/forgot_password.html', {
+                'challenge_active': True,
+                'questions': challenge_data.get('questions', []),
+                'identifier': challenge_data.get('identifier', ''),
+                'attempts': challenge_data.get('attempts', 0),
+            })
+        return render(request, 'registration/forgot_password.html', {'challenge_active': False})
+
+    action = request.POST.get('action')
+
+    # Stage 1: Citizen Identity Lookup
+    if action == 'lookup_citizen':
+        identifier = request.POST.get('identifier', '').strip()
+        clean_card = identifier.replace('-', '').replace(' ', '').upper()
+
+        user = CustomUser.objects.filter(
+            Q(username__iexact=identifier)
+            | Q(email__iexact=identifier)
+            | Q(ghana_card_number__iexact=identifier)
+            | Q(ghana_card_number__iexact=clean_card)
+        ).first()
+
+        if not user or not user.is_active:
+            messages.error(request, "No registered citizen account found matching that identifier.")
+            return render(request, 'registration/forgot_password.html', {'identifier': identifier, 'challenge_active': False})
+
+        if user.is_superuser or user.is_staff or getattr(user, 'user_type', None) in ['STAFF', 'INSURER_ADMIN']:
+            messages.error(request, "Administrative accounts cannot use citizen self-recovery. Please contact registry operations.")
+            return redirect('vault:admin_login')
+
+        # Retrieve all active security questions
+        answers_qs = list(user.security_answers.select_related('question').filter(question__is_active=True))
+        questions = []
+        if answers_qs:
+            for item in answers_qs:
+                questions.append({
+                    'key': str(item.question_id),
+                    'prompt': item.question.question_text,
+                })
+        else:
+            # Check legacy single-field backups
+            if user.security_birth_city:
+                questions.append({'key': 'birth_city', 'prompt': 'Where were you born?'})
+            if user.security_mother_maiden_name:
+                questions.append({'key': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+            if user.security_high_school_crush:
+                questions.append({'key': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+
+        # Fallback if no recovery questions were configured: dispatch email immediately
+        if not questions:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_url = request.build_absolute_uri(
+                reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+            email_subject = "LegacyTrace Vault | Password Reset Link"
+            email_message = (
+                f"Hello {user.first_name or user.username},\n\n"
+                f"A password reset request was initiated for your LegacyTrace vault.\n\n"
+                f"Click the secure link below to set your new password:\n"
+                f"{reset_url}\n\n"
+                f"This link expires in 24 hours. If you did not request this, please ignore this email.\n\n"
+                f"LegacyTrace National Registry Desk"
+            )
+            try:
+                send_mail(
+                    subject=email_subject,
+                    message=email_message,
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+            except Exception:
+                pass
+            return render(request, 'registration/forgot_password.html', {
+                'email_sent': True,
+                'user_email': user.email,
+            })
+
+        # Save session challenge
+        request.session['pwd_reset_challenge'] = {
+            'user_id': user.id,
+            'identifier': identifier,
+            'attempts': 0,
+            'questions': questions,
+        }
+        return render(request, 'registration/forgot_password.html', {
+            'challenge_active': True,
+            'questions': questions,
+            'identifier': identifier,
+            'attempts': 0,
+        })
+
+    # Stage 2: Verify All Security Questions Concurrently
+    elif action == 'verify_all_security_answers':
+        challenge_data = request.session.get('pwd_reset_challenge')
+        if not challenge_data:
+            messages.error(request, "Session expired. Please enter your account identifier to begin.")
+            return redirect('vault:forgot_password')
+
+        user = get_object_or_404(CustomUser, id=challenge_data.get('user_id'))
+        questions = challenge_data.get('questions', [])
+        attempts = challenge_data.get('attempts', 0)
+
+        # Check every security answer
+        all_passed = True
+        for q in questions:
+            user_input = request.POST.get(f"answer_{q['key']}", '').strip()
+            if not user.verify_security_answer(q['key'], user_input):
+                all_passed = False
+                break
+
+        if all_passed:
+            request.session.pop('pwd_reset_challenge', None)
+            request.session['can_reset_password_user_id'] = user.id
+            messages.success(request, "Security questions confirmed! Please configure your new password.")
+            return redirect('vault:reset_password_direct')
+        else:
+            attempts += 1
+            challenge_data['attempts'] = attempts
+            request.session['pwd_reset_challenge'] = challenge_data
+            request.session.modified = True
+
+            # 3rd False Attempt Trigger: Lockout and dispatch automated reset link to email
+            if attempts >= 3:
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                reset_url = request.build_absolute_uri(
+                    reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
+                )
+                email_subject = "LegacyTrace Vault | Password Reset Link (Attempts Exceeded)"
+                email_message = (
+                    f"Hello {user.first_name or user.username},\n\n"
+                    f"Three consecutive incorrect security question attempts (3/3) were recorded for your vault.\n\n"
+                    f"To regain secure access, please click the link below to set a new password:\n"
+                    f"{reset_url}\n\n"
+                    f"This link is valid for 24 hours. If you did not initiate this, please report immediately to registry operations.\n\n"
+                    f"LegacyTrace National Registry Desk"
+                )
+                try:
+                    send_mail(
+                        subject=email_subject,
+                        message=email_message,
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                except Exception:
+                    pass
+
+                request.session.pop('pwd_reset_challenge', None)
+                return render(request, 'registration/forgot_password.html', {
+                    'email_sent': True,
+                    'user_email': user.email,
+                    'max_attempts_exceeded': True,
+                })
+            else:
+                remaining = 3 - attempts
+                messages.error(
+                    request,
+                    f"One or more security answers are incorrect. Attempt {attempts} of 3 ({remaining} attempt{'s' if remaining > 1 else ''} remaining)."
+                )
+                return render(request, 'registration/forgot_password.html', {
+                    'challenge_active': True,
+                    'questions': questions,
+                    'identifier': challenge_data.get('identifier'),
+                    'attempts': attempts,
+                })
+
+    return redirect('vault:forgot_password')
+
+
+def reset_password_direct_view(request):
+    """
+    Direct password reset screen unlocked immediately after passing all security questions.
+    """
+    user_id = request.session.get('can_reset_password_user_id')
+    if not user_id:
+        messages.error(request, "Unauthorized password reset session. Please verify your identity first.")
+        return redirect('vault:login')
+
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+
+        if len(new_password) < 6:
+            messages.error(request, "Password must be at least 6 characters long.")
+        elif new_password != confirm_password:
+            messages.error(request, "Passwords do not match. Please re-enter.")
+        else:
+            user.set_password(new_password)
+            user.save()
+            request.session.pop('can_reset_password_user_id', None)
+            messages.success(request, "Password updated successfully! Please sign in with your new password.")
+            return redirect('vault:login')
+
+    return render(request, 'registration/reset_password.html', {'user_obj': user, 'is_direct': True})
+
+
+def reset_password_confirm_view(request, uidb64, token):
+    """
+    Password reset screen reached via the automated fallback email link after 3 failed attempts.
+    """
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+
+    if user is None or not default_token_generator.check_token(user, token):
+        messages.error(request, "The password reset link is invalid or has expired. Please request a new one.")
+        return redirect('vault:login')
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+
+        if len(new_password) < 6:
+            messages.error(request, "Password must be at least 6 characters long.")
+        elif new_password != confirm_password:
+            messages.error(request, "Passwords do not match. Please re-enter.")
+        else:
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Password updated successfully! Please sign in with your new password.")
+            return redirect('vault:login')
+
+    return render(request, 'registration/reset_password.html', {
+        'user_obj': user,
+        'uidb64': uidb64,
+        'token': token,
+        'is_direct': False,
+    })
+
+
 @csrf_exempt
 @login_required
 def verify_registration_fee_view(request):
@@ -1167,8 +1422,8 @@ def dashboard_view(request):
         messages.warning(request, "Operations staff cannot hold personal estate vaults in this session. Please register or log in with a citizen account.")
         return redirect('vault:staff_admin_dashboard')
 
-    # Guard: Redirect claimants attempting direct access to policyholder administration
-    if request.session.get('active_claimant_token') or user.received_vault_grants.exists():
+    # Guard: Dedicated claimant accounts belong exclusively in the claimant portal
+    if user.username.startswith('claimant_'):
         return redirect('vault:claimant_dashboard')
 
     # Gate: Mandatory security questions must be configured before entering vault
@@ -1266,8 +1521,38 @@ def dashboard_view(request):
                 contact.save()
                 messages.success(request, 'Emergency contact added.')
                 return redirect('vault:dashboard')
+            else:
+                for errors in contact_form.errors.values():
+                    for err in errors:
+                        messages.error(request, err)
+                return redirect('vault:dashboard')
 
-        elif action == 'add_policy':
+        elif action == 'edit_emergency_contact':
+            contact_id = request.POST.get('contact_id')
+            contact = get_object_or_404(EmergencyContact, id=contact_id, user=user)
+            edit_form = EmergencyContactForm(request.POST, instance=contact)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, f'Emergency contact "{contact.full_name}" updated successfully.')
+            else:
+                for errors in edit_form.errors.values():
+                    for err in errors:
+                        messages.error(request, err)
+            return redirect('vault:dashboard')
+
+        elif action == 'delete_emergency_contact':
+            contact_id = request.POST.get('contact_id')
+            contact = get_object_or_404(EmergencyContact, id=contact_id, user=user)
+            contact_name = contact.full_name
+            contact.delete()
+            messages.success(request, f'Emergency contact "{contact_name}" removed from your vault.')
+            return redirect('vault:dashboard')
+
+        elif action in ['add_policy', 'edit_policy']:
+            if not platform_config.module_policies_enabled:
+                messages.warning(request, "The Insurance Policies module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             has_subscription = hasattr(user, 'subscription') and user.subscription and user.subscription.is_valid
             if not has_subscription:
                 messages.error(
@@ -1283,8 +1568,37 @@ def dashboard_view(request):
                 policy.save()
                 messages.success(request, 'Insurance policy linked to your vault.')
                 return redirect('vault:dashboard')
+            else:
+                for errors in policy_form.errors.values():
+                    for err in errors:
+                        messages.error(request, err)
+                return redirect('vault:dashboard')
 
+        elif action == 'edit_policy':
+            policy_id = request.POST.get('policy_id')
+            policy = get_object_or_404(PolicyRecord, id=policy_id, policyholder=user)
+            edit_policy_form = PolicyRecordForm(request.POST, instance=policy)
+            if edit_policy_form.is_valid():
+                edit_policy_form.save()
+                messages.success(request, f'Policy "{policy.policy_number}" updated successfully.')
+            else:
+                for errors in edit_policy_form.errors.values():
+                    for err in errors:
+                        messages.error(request, err)
+            return redirect('vault:dashboard')
+
+        elif action == 'delete_policy':
+            policy_id = request.POST.get('policy_id')
+            policy = get_object_or_404(PolicyRecord, id=policy_id, policyholder=user)
+            num = policy.policy_number
+            policy.delete()
+            messages.success(request, f'Policy "{num}" removed from your vault.')
+            return redirect('vault:dashboard')
         elif action == 'add_asset':
+            if not platform_config.module_assets_enabled:
+                messages.warning(request, "Property & Assets module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             asset_form = AssetRecordForm(request.POST, request.FILES)
             if asset_form.is_valid():
                 asset = asset_form.save(commit=False)
@@ -1294,6 +1608,10 @@ def dashboard_view(request):
                 return redirect('vault:dashboard')
 
         elif action == 'add_document':
+            if not platform_config.module_wills_enabled:
+                messages.warning(request, "Digital Wills & Deeds module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             doc_form = EstateDocumentForm(request.POST, request.FILES)
             if doc_form.is_valid():
                 doc = doc_form.save(commit=False)
@@ -1303,6 +1621,9 @@ def dashboard_view(request):
                 return redirect('vault:dashboard')
 
         elif action == 'add_bank_account':
+            if not platform_config.module_banks_enabled:
+                messages.warning(request, "Bank Accounts module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
             bank_name = request.POST.get('bank_name', '').strip()
             branch_name = request.POST.get('branch_name', '').strip()
             account_number = request.POST.get('account_number', '').strip()
@@ -1337,6 +1658,10 @@ def dashboard_view(request):
             return redirect('vault:dashboard')
 
         elif action == 'add_investment':
+            if not platform_config.module_investments_enabled:
+                messages.warning(request, "Investments & T-Bills module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             institution_or_broker = request.POST.get('institution_or_broker', '').strip()
             investment_type = request.POST.get('investment_type', 'TREASURY_BILL').strip()
             portfolio_reference = request.POST.get('portfolio_reference', '').strip()
@@ -1403,6 +1728,10 @@ def dashboard_view(request):
             return redirect('vault:dashboard')
 
         elif action == 'add_memory':
+            if not platform_config.module_memories_enabled:
+                messages.warning(request, "Memory Lane & Keepsakes module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             mem_form = CitizenMemoryForm(request.POST, request.FILES)
             if mem_form.is_valid():
                 memory = mem_form.save(commit=False)
@@ -1423,6 +1752,10 @@ def dashboard_view(request):
             return redirect('vault:dashboard')
 
         elif action == 'suggest_milestone':
+            if not platform_config.module_memories_enabled:
+                messages.warning(request, "Milestone suggestions are currently unavailable.")
+                return redirect('vault:dashboard')
+
             sug_form = MilestoneSuggestionForm(request.POST)
             if sug_form.is_valid():
                 milestone = sug_form.save(commit=False)
@@ -1440,6 +1773,10 @@ def dashboard_view(request):
             return redirect('vault:dashboard')
 
         elif action == 'add_family_member':
+            if not platform_config.module_family_tree_enabled:
+                messages.warning(request, "Family Tree module is currently in Coming Soon mode.")
+                return redirect('vault:dashboard')
+
             fam_form = FamilyMemberForm(request.POST, request.FILES, user=user)
             if fam_form.is_valid():
                 relative = fam_form.save(commit=False)
@@ -1543,9 +1880,8 @@ def lead_admin_dashboard_view(request):
     if request.method == 'POST' and request.POST.get('action') == 'update_platform_config':
         new_fee = request.POST.get('unlock_fee', '').strip()
         annual_fee = request.POST.get('annual_subscription_fee', '').strip()
-        quarterly_fee = request.POST.get('quarterly_subscription_fee', '').strip()
+        reg_fee = (request.POST.get('registration_fee') or request.POST.get('quarterly_subscription_fee') or '').strip()
         annual_plan_code = request.POST.get('paystack_annual_plan_code', '').strip()
-        quarterly_plan_code = request.POST.get('paystack_quarterly_plan_code', '').strip()
         req_questions = request.POST.get('required_security_questions', '').strip()
 
         updated_fields = []
@@ -1566,11 +1902,19 @@ def lead_admin_dashboard_view(request):
         }
 
         try:
+            # Update Claimant Unlock Fee
             if new_fee:
                 parsed_fee = float(new_fee)
                 if parsed_fee > 0:
                     platform_config.unlock_fee = parsed_fee
                     updated_fields.append('unlock fee')
+
+            # Update Statutory Citizen Registration Fee
+            if reg_fee:
+                parsed_reg = float(reg_fee)
+                if parsed_reg > 0:
+                    platform_config.registration_fee = parsed_reg
+                    updated_fields.append('statutory registration fee')
 
             # Update Annual Plan Code & Amount
             if annual_plan_code:
@@ -1600,34 +1944,6 @@ def lead_admin_dashboard_view(request):
                         except Exception as err:
                             paystack_sync_notes.append(f"Paystack Annual sync offline ({str(err)})")
 
-            # Update Quarterly Plan Code & Amount
-            if quarterly_plan_code:
-                platform_config.paystack_quarterly_plan_code = quarterly_plan_code
-                updated_fields.append('quarterly plan code')
-
-            if quarterly_fee:
-                parsed_quarterly = float(quarterly_fee)
-                if parsed_quarterly > 0:
-                    platform_config.quarterly_subscription_fee = parsed_quarterly
-                    updated_fields.append('quarterly retainer fee')
-
-                    # Push live amount to Paystack API
-                    if platform_config.paystack_quarterly_plan_code:
-                        try:
-                            put_resp = requests.put(
-                                f"https://api.paystack.co/plan/{platform_config.paystack_quarterly_plan_code}",
-                                headers=headers,
-                                json={"amount": int(parsed_quarterly * 100)},
-                                timeout=8
-                            )
-                            put_data = put_resp.json()
-                            if put_data.get('status'):
-                                paystack_sync_notes.append("Paystack Quarterly plan updated")
-                            else:
-                                paystack_sync_notes.append(f"Paystack Quarterly: {put_data.get('message', 'Update failed')}")
-                        except Exception as err:
-                            paystack_sync_notes.append(f"Paystack Quarterly sync offline ({str(err)})")
-
             if updated_fields:
                 platform_config.save()
                 success_msg = f"Dashboard updated: {', '.join(updated_fields)}."
@@ -1637,11 +1953,11 @@ def lead_admin_dashboard_view(request):
             else:
                 messages.error(request, "No valid pricing or configuration changes were submitted.")
         except (ValueError, TypeError):
-            messages.error(request, "Invalid numeric value submitted for subscription fees.")
+            messages.error(request, "Invalid numeric value submitted for statutory fees.")
 
         request.session.modified = True
 
-    # One-click direct sync from Paystack API
+    # One-click direct sync from Paystack API (Annual Plan only)
     elif request.method == 'POST' and request.POST.get('action') == 'sync_paystack_plans':
         headers = {
             "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
@@ -1650,7 +1966,6 @@ def lead_admin_dashboard_view(request):
         synced_plans = []
         errors = []
 
-        # Sync Annual Plan from Paystack API
         if platform_config.paystack_annual_plan_code:
             try:
                 resp = requests.get(
@@ -1667,24 +1982,6 @@ def lead_admin_dashboard_view(request):
                     errors.append(f"Annual Plan ({platform_config.paystack_annual_plan_code}): {res_data.get('message', 'Failed')}")
             except Exception as e:
                 errors.append(f"Annual Plan network error: {str(e)}")
-
-        # Sync Quarterly Plan from Paystack API
-        if platform_config.paystack_quarterly_plan_code:
-            try:
-                resp = requests.get(
-                    f"https://api.paystack.co/plan/{platform_config.paystack_quarterly_plan_code}",
-                    headers=headers,
-                    timeout=8
-                )
-                res_data = resp.json()
-                if res_data.get('status') and 'data' in res_data:
-                    plan_data = res_data['data']
-                    platform_config.quarterly_subscription_fee = float(plan_data.get('amount', 0)) / 100.0
-                    synced_plans.append(f"Quarterly: GHS {platform_config.quarterly_subscription_fee:.2f}")
-                else:
-                    errors.append(f"Quarterly Plan ({platform_config.paystack_quarterly_plan_code}): {res_data.get('message', 'Failed')}")
-            except Exception as e:
-                errors.append(f"Quarterly Plan network error: {str(e)}")
 
         if synced_plans:
             platform_config.save()

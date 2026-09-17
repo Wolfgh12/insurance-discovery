@@ -636,10 +636,10 @@
             <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 5px;">Current display: 12-month billing</div>
           </div>
 
-          <!-- Control 3: Quarterly Retainer Fee -->
+          <!-- Control 3: Statutory Registration Fee -->
           <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.9rem;">
             <label style="display: block; font-size: 0.72rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 6px;">
-              Quarterly Subscription Fee
+              Statutory Registration Fee
             </label>
             <div style="position: relative; display: flex; align-items: center;">
               <span style="position: absolute; left: 10px; color: #64748B; font-weight: 800; font-size: 0.82rem;">GHS</span>
@@ -647,40 +647,21 @@
                 type="number" 
                 step="0.01" 
                 min="1.00" 
-                name="quarterly_subscription_fee" 
-                value="{{ platform_config.quarterly_subscription_fee|floatformat:2 }}" 
+                name="registration_fee" 
+                value="{{ platform_config.registration_fee|floatformat:2 }}" 
                 required
                 style="padding: 0.55rem 0.85rem 0.55rem 2.5rem; width: 100%; border-radius: 8px; border: 1.5px solid #06B6D4; background: #ffffff; color: #0F172A; font-weight: 800; font-size: 0.9rem; outline: none;"
               >
             </div>
-            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 5px;">Current display: 3-month billing</div>
-          </div>
-
-          <!-- Control 4: Required Security Questions -->
-          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.9rem;">
-            <label style="display: block; font-size: 0.72rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 6px;">
-              Required Security Keys
-            </label>
-            <div style="position: relative; display: flex; align-items: center;">
-              <span style="position: absolute; left: 10px; color: #64748B; font-weight: 800; font-size: 0.82rem;">🔐</span>
-              <input 
-                type="number" 
-                min="1" 
-                max="20"
-                name="required_security_questions" 
-                value="{{ platform_config.required_security_questions|default:3 }}" 
-                required
-                style="padding: 0.55rem 0.85rem 0.55rem 2.5rem; width: 100%; border-radius: 8px; border: 1.5px solid #06B6D4; background: #ffffff; color: #0F172A; font-weight: 800; font-size: 0.9rem; outline: none;"
-              >
-            </div>
-            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 5px;">Statutory recovery keys per vault</div>
+            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 5px;">One-time citizen vault verification fee</div>
           </div>
 
         </div>
 
-        <!-- Plan Codes Row (Immutable & Masked) -->
+        <!-- Gateway Integration Row (Annual Plan Code & Direct Registration/Unlock Gateway) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
           
+          <!-- Paystack Annual Retainer Plan Code -->
           <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.9rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <label style="font-size: 0.72rem; font-weight: 800; color: #F59E0B; text-transform: uppercase;">
@@ -701,24 +682,20 @@
             <div style="font-size: 0.7rem; color: #64748B; margin-top: 5px;">Static gateway identifier (Protected from modification)</div>
           </div>
 
+          <!-- Direct Settlement Gateway Status (Registration & Unlock) -->
           <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.9rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="font-size: 0.72rem; font-weight: 800; color: #F59E0B; text-transform: uppercase;">
-                🔒 Paystack Quarterly Plan Code
+              <label style="font-size: 0.72rem; font-weight: 800; color: #10B981; text-transform: uppercase;">
+                ⚡ Statutory Settlement Gateway
               </label>
-              <span style="font-size: 0.65rem; font-weight: 800; color: #94A3B8; background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 4px;">
-                LOCKED
+              <span style="font-size: 0.65rem; font-weight: 800; color: #34D399; background: rgba(16, 185, 129, 0.12); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                DIRECT API
               </span>
             </div>
-            <input 
-              type="password" 
-              name="paystack_quarterly_plan_code" 
-              value="{{ platform_config.paystack_quarterly_plan_code }}" 
-              readonly
-              tabindex="-1"
-              style="padding: 0.55rem 0.85rem; width: 100%; border-radius: 8px; border: 1.5px solid rgba(245, 158, 11, 0.35); background: #0B1728; color: #94A3B8; font-weight: 800; font-size: 0.95rem; font-family: monospace; letter-spacing: 3px; outline: none; cursor: not-allowed; user-select: none;"
-            >
-            <div style="font-size: 0.7rem; color: #64748B; margin-top: 5px;">Static gateway identifier (Protected from modification)</div>
+            <div style="padding: 0.55rem 0.85rem; width: 100%; border-radius: 8px; border: 1.5px solid rgba(16, 185, 129, 0.3); background: #0B1728; color: #34D399; font-weight: 800; font-size: 0.82rem; font-family: monospace; box-sizing: border-box;">
+              ONE-TIME CHECKOUT (REG &amp; UNLOCK)
+            </div>
+            <div style="font-size: 0.7rem; color: #64748B; margin-top: 5px;">Standard one-time transaction gateway for statutory fees</div>
           </div>
 
         </div>
@@ -965,14 +942,14 @@
                 "phone": "{{ holder.phone_number|default:'No phone on file'|escapejs }}",
                 "email": "{{ holder.email|default:'No email registered'|escapejs }}",
                 "address": "{{ holder.permanent_address|default:''|escapejs }}",
-                "policies": [
+"policies": [
                   {% for p in holder.policies.all %}
                     {
                       "id": "{{ p.id }}",
                       "number": "{{ p.policy_number|escapejs }}",
                       "insurer": "{{ p.insurer.name|escapejs }}",
                       "type": "{{ p.get_policy_type_display|escapejs }}",
-                      "sum": "GHS {{ p.sum_assured|floatformat:2|escapejs }}",
+                      "sum": "GHS {{ p.sum_assured|default:'0.00'|floatformat:2|escapejs }}",
                       "status_code": "{{ p.policy_status|escapejs }}",
                       "status": "{{ p.get_policy_status_display|escapejs }}"
                     }{% if not forloop.last %},{% endif %}
@@ -1146,7 +1123,10 @@
                 </td>
                 <td>
                   <div style="font-weight: 700; color: #0284C7; font-size: 0.8rem;">{{ grant.policy.policy_number }}</div>
-                  <div style="font-size: 0.74rem; color: #475569; margin-bottom: 4px;">{{ grant.policy.insurer.name }}</div>
+                  <div style="font-size: 0.74rem; color: #475569; margin-bottom: 2px;">{{ grant.policy.insurer.name }}</div>
+                  <div style="font-size: 0.72rem; font-weight: 800; color: #059669; margin-bottom: 4px;">
+                    Cover: GHS {{ grant.policy.sum_assured|default:"0.00"|floatformat:2 }}
+                  </div>
                   <form method="POST" action="{% url 'vault:update_policy_status' grant.policy.id %}" style="display: flex; gap: 4px; align-items: center; margin: 0;">
                     {% csrf_token %}
                     <select name="policy_status" style="font-size: 0.7rem; font-weight: 700; padding: 2px 4px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC;">
@@ -2058,7 +2038,9 @@
             <div style="font-size: 0.74rem; color: #64748B;">${p.insurer} • ${p.type}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <div style="color: #059669; font-weight: 900; font-size: 0.88rem;">${p.sum}</div>
+            <div style="color: #059669; font-weight: 900; font-size: 0.84rem; background: #DCFCE7; border: 1px solid #BBF7D0; padding: 3px 8px; border-radius: 6px;">
+              Cover: ${p.sum}
+            </div>
             <form method="POST" action="/portal/policies/${p.id}/update-status/" style="display: inline-flex; align-items: center; gap: 4px; margin: 0;">
               <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
               <select name="policy_status" style="font-size: 0.72rem; font-weight: 700; padding: 3px 6px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;">

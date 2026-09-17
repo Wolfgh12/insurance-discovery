@@ -849,30 +849,102 @@
   </div>
 
   <div class="vault-stat-grid">
-    <div class="stat-chip">
-      <div class="stat-chip-count">{{ policies.count }}</div>
-      <div class="stat-chip-label">Policies Linked</div>
-    </div>
+    <!-- Policies Chip -->
+    {% if platform_config.module_policies_enabled %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ policies.count }}</div>
+        <div class="stat-chip-label">Policies Linked</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Policies</div>
+      </div>
+    {% endif %}
+
+    <!-- Emergency Contacts (Core - Always Live) -->
     <div class="stat-chip">
       <div class="stat-chip-count">{{ emergency_contacts.count }}</div>
       <div class="stat-chip-label">Emergency Contacts</div>
     </div>
-    <div class="stat-chip" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35);">
-      <div class="stat-chip-count" style="color: #38BDF8;">{{ memories.count }}</div>
-      <div class="stat-chip-label" style="color: #E0F2FE;">Keepsakes & Firsts</div>
-    </div>
-    <div class="stat-chip" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35);">
-      <div class="stat-chip-count" style="color: #34D399;">{{ family_members.count }}</div>
-      <div class="stat-chip-label" style="color: #ECFDF5;">Family Lineage</div>
-    </div>
-    <div class="stat-chip is-soon">
-      <div class="stat-chip-badge-soon">SOON</div>
-      <div class="stat-chip-label">Bank Accounts</div>
-    </div>
-    <div class="stat-chip is-soon">
-      <div class="stat-chip-badge-soon">SOON</div>
-      <div class="stat-chip-label">Investments</div>
-    </div>
+
+    <!-- Memories Chip -->
+    {% if platform_config.module_memories_enabled %}
+      <div class="stat-chip" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35);">
+        <div class="stat-chip-count" style="color: #38BDF8;">{{ memories.count }}</div>
+        <div class="stat-chip-label" style="color: #E0F2FE;">Keepsakes & Firsts</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Keepsakes</div>
+      </div>
+    {% endif %}
+
+    <!-- Family Lineage Chip -->
+    {% if platform_config.module_family_tree_enabled %}
+      <div class="stat-chip" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35);">
+        <div class="stat-chip-count" style="color: #34D399;">{{ family_members.count }}</div>
+        <div class="stat-chip-label" style="color: #ECFDF5;">Family Lineage</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Family Tree</div>
+      </div>
+    {% endif %}
+
+    <!-- Bank Accounts Chip -->
+    {% if platform_config.module_banks_enabled %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ bank_accounts.count }}</div>
+        <div class="stat-chip-label">Bank Accounts</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Bank Accounts</div>
+      </div>
+    {% endif %}
+
+    <!-- Investments Chip -->
+    {% if platform_config.module_investments_enabled %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ investments.count }}</div>
+        <div class="stat-chip-label">Investments</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Investments</div>
+      </div>
+    {% endif %}
+
+    <!-- Assets Chip -->
+    {% if platform_config.module_assets_enabled %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ assets.count }}</div>
+        <div class="stat-chip-label">Property & Assets</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Property & Assets</div>
+      </div>
+    {% endif %}
+
+    <!-- Wills Chip -->
+    {% if platform_config.module_wills_enabled %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ documents.count }}</div>
+        <div class="stat-chip-label">Wills & Deeds</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">SOON</div>
+        <div class="stat-chip-label">Wills & Deeds</div>
+      </div>
+    {% endif %}
   </div>
 </div>
 
@@ -898,30 +970,96 @@
       <span>🚨 Emergency Contact</span>
       <span>➔</span>
     </button>
-    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-policies')">
-      <span>📑 Insurance Policies</span>
-      <span>➔</span>
-    </button>
-    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-memories')">
-      <span>💎 Memory Lane & Keepsakes</span>
-      <span>➔</span>
-    </button>
-    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-family')">
-      <span>🌳 Family Tree & Lineage</span>
-      <span>➔</span>
-    </button>
-    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Commercial bank account discovery launching soon">
-      <span>🏦 Bank Accounts</span>
-      <span class="badge-coming-soon">Coming Soon</span>
-    </button>
-    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="T-Bills and investment holdings launching soon">
-      <span>📈 Investments & T-Bills</span>
-      <span class="badge-coming-soon">Coming Soon</span>
-    </button>
-    <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital will depository launching soon">
-      <span>📜 Wills & Deeds</span>
-      <span class="badge-coming-soon">Coming Soon</span>
-    </button>
+    <!-- Policies Button -->
+    {% if platform_config.module_policies_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-policies')">
+        <span>📑 Insurance Policies</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Insurance policy management launching soon">
+        <span>📑 Insurance Policies</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Memories Button -->
+    {% if platform_config.module_memories_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-memories')">
+        <span>💎 Memory Lane & Keepsakes</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital time capsule launching soon">
+        <span>💎 Keepsakes</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Family Tree Button -->
+    {% if platform_config.module_family_tree_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-family')">
+        <span>🌳 Family Tree & Lineage</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Family tree mapping launching soon">
+        <span>🌳 Family Tree</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Bank Accounts Button -->
+    {% if platform_config.module_banks_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-banks')">
+        <span>🏦 Bank Accounts</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Commercial bank account discovery launching soon">
+        <span>🏦 Bank Accounts</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Investments Button -->
+    {% if platform_config.module_investments_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-investments')">
+        <span>📈 Investments & T-Bills</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="T-Bills and investment holdings launching soon">
+        <span>📈 Investments</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Property & Assets Button -->
+    {% if platform_config.module_assets_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-assets')">
+        <span>🏛️ Property & Assets</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Real estate and land asset depository launching soon">
+        <span>🏛️ Property & Assets</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Wills & Deeds Button -->
+    {% if platform_config.module_wills_enabled %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-wills')">
+        <span>📜 Wills & Deeds</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital will depository launching soon">
+        <span>📜 Wills & Deeds</span>
+        <span class="badge-coming-soon">Coming Soon</span>
+      </button>
+    {% endif %}
     <button type="button" class="sidebar-nav-btn search-highlight {% if has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-search')">
       <span>🔍 Search Relative Policy</span>
       <span>➔</span>
@@ -1045,9 +1183,29 @@
                 <div class="record-item page-item-contact">
                   <div>
                     <div class="record-main-title">{{ contact.full_name }}</div>
-                    <div class="record-sub-meta">{{ contact.relationship }} • {{ contact.phone_number }}</div>
+                    <div class="record-sub-meta">
+                      {{ contact.relationship }} • {{ contact.phone_number }}{% if contact.email %} • {{ contact.email }}{% endif %}
+                    </div>
                   </div>
-                  <span class="pill-badge pill-success">Next of Kin</span>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="pill-badge pill-success">Next of Kin</span>
+                    <button 
+                      type="button" 
+                      onclick="openEditContactModal('{{ contact.id }}', '{{ contact.full_name|escapejs }}', '{{ contact.relationship|escapejs }}', '{{ contact.phone_number|escapejs }}', '{{ contact.email|default:''|escapejs }}')"
+                      style="background: #E0F2FE; border: 1px solid #BAE6FD; color: #0284C7; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; cursor: pointer;"
+                      title="Edit contact details"
+                    >
+                      ✎ Edit
+                    </button>
+                    <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove {{ contact.full_name|escapejs }} from your emergency contacts?');" style="margin: 0;">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="delete_emergency_contact">
+                      <input type="hidden" name="contact_id" value="{{ contact.id }}">
+                      <button type="submit" style="background: #FEE2E2; border: 1px solid #FECACA; color: #DC2626; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; cursor: pointer;" title="Delete contact">
+                        ✕
+                      </button>
+                    </form>
+                  </div>
                 </div>
               {% endfor %}
 
@@ -1114,6 +1272,10 @@
                 <label class="form-label">Policy Type</label>
                 {{ policy_form.policy_type }}
               </div>
+              <div class="form-group">
+                <label class="form-label">Sum Assured Cover Amount (GHS) *</label>
+                {{ policy_form.sum_assured }}
+              </div>
               <button type="submit" class="btn-submit-action">Link Policy to Vault</button>
             </form>
           </div>
@@ -1141,7 +1303,25 @@
                       <div class="record-main-title">{{ policy.policy_number }}</div>
                       <div class="record-sub-meta">{{ policy.insurer.name }} • {{ policy.get_policy_type_display }}</div>
                     </div>
-                    <span class="pill-badge pill-primary">Active</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span class="pill-badge pill-primary">{{ policy.get_policy_status_display|default:"Active" }}</span>
+                      <button 
+                        type="button" 
+                        onclick="openEditPolicyModal('{{ policy.id }}', '{{ policy.insurer.id }}', '{{ policy.policy_number|escapejs }}', '{{ policy.policy_type|escapejs }}', '{{ policy.sum_assured }}')"
+                        style="background: #E0F2FE; border: 1px solid #BAE6FD; color: #0284C7; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; cursor: pointer;"
+                        title="Edit policy details"
+                      >
+                        ✎ Edit
+                      </button>
+                      <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Remove policy {{ policy.policy_number|escapejs }} from your vault?');" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_policy">
+                        <input type="hidden" name="policy_id" value="{{ policy.id }}">
+                        <button type="submit" style="background: #FEE2E2; border: 1px solid #FECACA; color: #DC2626; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; cursor: pointer;" title="Delete policy">
+                          ✕
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 {% endfor %}
 
@@ -1769,7 +1949,76 @@
       </div>
     </div>
 
-<!-- TAB 5: Wills & Estate Depository -->
+<!-- TAB: Property, Real Estate & Physical Assets -->
+    <div id="tab-assets" class="tab-pane">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>🏛️</span> Register Property / Asset</div>
+          </div>
+          <form method="POST" action="{% url 'vault:dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_asset">
+
+            <div class="form-group">
+              <label class="form-label">Asset Category</label>
+              {{ asset_form.asset_type }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asset Title / Description *</label>
+              {{ asset_form.title }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Value (GHS)</label>
+              {{ asset_form.estimated_value }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location / Reg Plate / Identifier *</label>
+              {{ asset_form.location_or_identifier }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Document Proof (Title Deed, Indenture, Logbook)</label>
+              {{ asset_form.document_proof }}
+            </div>
+            <button type="submit" class="btn-submit-action">Secure Asset Record</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-line">
+            <div class="card-title-text"><span>📜</span> Secured Asset Depository</div>
+          </div>
+          {% if assets %}
+            {% for asset in assets %}
+              <div class="record-item">
+                <div>
+                  <div class="record-main-title">{{ asset.title }}</div>
+                  <div class="record-sub-meta">
+                    {{ asset.get_asset_type_display }} • {{ asset.location_or_identifier }}
+                    {% if asset.estimated_value %} • GHS {{ asset.estimated_value|floatformat:2 }}{% endif %}
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  {% if asset.document_proof %}
+                    <a href="{{ asset.document_proof.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">Doc ↗</a>
+                  {% endif %}
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Delete this asset record?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_asset">
+                    <input type="hidden" name="asset_id" value="{{ asset.id }}">
+                    <button type="submit" style="background: transparent; border: none; color: #EF4444; font-size: 0.85rem; font-weight: 800; cursor: pointer;" title="Delete Asset">✕</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-placeholder">No property or asset records secured yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: Wills & Estate Depository -->
     <div id="tab-wills" class="tab-pane">
       <div class="dashboard-grid">
         <div class="dash-card">
@@ -1811,9 +2060,17 @@
                   <div class="record-main-title">{{ doc.title }}</div>
                   <div class="record-sub-meta">{{ doc.get_document_type_display }} • Deposited {{ doc.uploaded_at|date:"M d, Y" }}</div>
                 </div>
-                {% if doc.document_file %}
-                  <a href="{{ doc.document_file.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">View File ↗</a>
-                {% endif %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  {% if doc.document_file %}
+                    <a href="{{ doc.document_file.url }}" target="_blank" style="color: var(--secondary-sea-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none;">View File ↗</a>
+                  {% endif %}
+                  <form method="POST" action="{% url 'vault:dashboard' %}" onsubmit="return confirm('Delete this legal document from your vault?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_document">
+                    <input type="hidden" name="doc_id" value="{{ doc.id }}">
+                    <button type="submit" style="background: transparent; border: none; color: #EF4444; font-size: 0.85rem; font-weight: 800; cursor: pointer;" title="Delete Document">✕</button>
+                  </form>
+                </div>
               </div>
             {% endfor %}
           {% else %}
@@ -2173,11 +2430,143 @@
 
   </div>
 </div>
+
+<!-- MODAL: Edit Emergency Contact -->
+<div id="modal-edit-contact" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; padding: 1.75rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); position: relative;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+        <span>✎</span> Edit Emergency Contact
+      </h3>
+      <button type="button" onclick="closeEditContactModal()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <form method="POST" action="{% url 'vault:dashboard' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="edit_emergency_contact">
+      <input type="hidden" name="contact_id" id="edit-contact-id">
+
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input type="text" name="full_name" id="edit-contact-name" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Relationship (e.g. Spouse, Sibling) *</label>
+        <input type="text" name="relationship" id="edit-contact-relationship" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input type="text" name="phone_number" id="edit-contact-phone" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address (Optional)</label>
+        <input type="email" name="email" id="edit-contact-email" class="form-input">
+      </div>
+
+      <button type="submit" class="btn-submit-action">Update Emergency Contact</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Edit Insurance Policy -->
+<div id="modal-edit-policy" style="display: none; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
+  <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; padding: 1.75rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); position: relative;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+        <span>✎</span> Edit Insurance Policy
+      </h3>
+      <button type="button" onclick="closeEditPolicyModal()" style="background: none; border: none; font-size: 1.35rem; color: #64748B; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <form method="POST" action="{% url 'vault:dashboard' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="edit_policy">
+      <input type="hidden" name="policy_id" id="edit-policy-id">
+
+      <div class="form-group">
+        <label class="form-label">Underwriting Insurer *</label>
+        <select name="insurer" id="edit-policy-insurer" class="form-input" required>
+          {% for insurer in policy_form.fields.insurer.queryset %}
+            <option value="{{ insurer.id }}">{{ insurer.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Policy Number *</label>
+        <input type="text" name="policy_number" id="edit-policy-number" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Policy Type *</label>
+        <select name="policy_type" id="edit-policy-type" class="form-input" required>
+          {% for val, label in policy_form.fields.policy_type.choices %}
+            <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sum Assured Cover Amount (GHS) *</label>
+        <input type="number" step="0.01" name="sum_assured" id="edit-policy-sum-assured" class="form-input" placeholder="e.g. 50000.00" required>
+      </div>
+
+      <button type="submit" class="btn-submit-action">Update Policy Record</button>
+    </form>
+  </div>
+</div>
 {% endif %}
 {% endblock %}
 {% block extra_js %}
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
+  // Edit Emergency Contact Modal Controls
+  function openEditContactModal(id, name, relationship, phone, email) {
+    document.getElementById('edit-contact-id').value = id;
+    document.getElementById('edit-contact-name').value = name;
+    document.getElementById('edit-contact-relationship').value = relationship;
+    document.getElementById('edit-contact-phone').value = phone;
+    document.getElementById('edit-contact-email').value = email;
+    const modal = document.getElementById('modal-edit-contact');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeEditContactModal() {
+    const modal = document.getElementById('modal-edit-contact');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Edit Insurance Policy Modal Controls
+  function openEditPolicyModal(id, insurerId, policyNumber, policyType, sumAssured) {
+    document.getElementById('edit-policy-id').value = id;
+    document.getElementById('edit-policy-insurer').value = insurerId;
+    document.getElementById('edit-policy-number').value = policyNumber;
+    document.getElementById('edit-policy-type').value = policyType;
+    document.getElementById('edit-policy-sum-assured').value = sumAssured || '0.00';
+    const modal = document.getElementById('modal-edit-policy');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeEditPolicyModal() {
+    const modal = document.getElementById('modal-edit-policy');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
   // Keepsakes & Lineage Modal Controls
   function openMemoryModal() {
     const el = document.getElementById('modal-add-memory');

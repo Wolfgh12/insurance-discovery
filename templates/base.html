@@ -806,7 +806,7 @@
                 </button>
               {% endif %}
             </li>
-          {% elif not request.session.active_claimant_token and not request.user.received_vault_grants.exists %}
+          {% elif user.username|slice:":9" != 'claimant_' %}
             <li>
               <a href="{% url 'vault:admin_login' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
                 🛡️ Admin
@@ -819,7 +819,7 @@
           <li><a href="/#faq" class="nav-link-item" style="white-space: nowrap;">FAQ</a></li>
 
           {% if not user.is_staff and not user.is_superuser %}
-            {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            {% if user.username|slice:":9" == 'claimant_' %}
               <li>
                 <a 
                   href="{% url 'vault:claimant_dashboard' %}" 
@@ -848,10 +848,10 @@
 
       <!-- Action Cluster (Desktop) -->
       <div class="nav-auth-cluster">
-        {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
-          <!-- Claimant View -->
+        {% if user.username|slice:":9" == 'claimant_' %}
+          <!-- Dedicated Claimant View -->
           <span class="user-chip" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.12); white-space: nowrap;">
-            🔐 {{ request.user.username|default:"Claimant" }}
+            🔐 {{ request.user.username }}
           </span>
           <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0; padding: 0; display: inline-flex;">
             {% csrf_token %}
@@ -936,7 +936,7 @@
             <span class="footer-brand-name">LegacyTrace Vault</span>
           </a>
           <p class="footer-brand-desc">
-            Ghana's sovereign digital legacy archive and verified underwritten policy repository. Protecting lifetime assets, policies, and certified wills for future generations.
+           Your digital legacy archive and verified underwritten policy repository. Protecting lifetime assets, policies, and certified wills for future generations.
           </p>
           <div class="footer-security-pill">
             <span class="security-dot"></span>
@@ -948,7 +948,7 @@
         <div>
           <div class="footer-heading">Vault Navigation</div>
           <ul class="footer-links">
-            <li><a href="/#registry-search" class="footer-link">Search National Registry</a></li>
+            <li><a href="/#registry-search" class="footer-link">Search Registry</a></li>
             <li><a href="/#vault-features" class="footer-link">Vault Modules & Security</a></li>
             <li><a href="{% url 'vault:pricing' %}" class="footer-link">Protection Plans & Pricing</a></li>
             <li><a href="/#how-it-works" class="footer-link">Claims Verification Flow</a></li>
@@ -974,7 +974,7 @@
           </ul>
         </div>
 
-        <!-- Column 4: National Integration & Partners -->
+        <!-- Column 4: Integration & Partners -->
         <div>
           <div class="footer-heading">Underwriting & Trust</div>
           <ul class="footer-links">
@@ -1004,10 +1004,10 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="{% static 'js/app.js' %}"></script>
+  <script src="{% static 'js/app.js' %}?v=4.0"></script>
   
   <!-- Global Route Transition & Loader Controller -->
-  <script>
+  <script> 
     (function () {
       const loader = document.getElementById('vault-page-loader');
       const subText = document.getElementById('vault-loader-sub');
@@ -1094,7 +1094,7 @@
             if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
               e.preventDefault();
               isSubmitting = true;
-              showLoader('Searching National Registry & Verifying...', '🔍');
+              showLoader('Searching Registry & Verifying...', '🔍');
               setTimeout(function () {
                 if (form.requestSubmit) form.requestSubmit(btn);
                 else form.submit();
@@ -1173,10 +1173,7 @@
 
         const linkText = (link.innerText || '').trim().toLowerCase();
         
-        // Intercept link clicks with a graceful delay so loader is visible
-        e.preventDefault();
-        const destinationUrl = link.href;
-
+        // Show loader without blocking or delaying native browser navigation
         if (linkText.includes('sign in') || linkText.includes('log in') || href.includes('login')) {
           showLoader('Opening vault sign-in access...', '🔐');
         } else if (linkText.includes('open') || linkText.includes('vault') || linkText.includes('dashboard')) {
@@ -1189,13 +1186,9 @@
           showLoader('Securing session & routing...', '🛡️');
         }
 
-        setTimeout(function () {
-          window.location.href = destinationUrl;
-        }, 340);
-
       }, true);
     })();
-  </script>
+  </script> 
 
   <!-- Session Mode Conflict & Privilege Intercept Modal -->
   <div id="session-conflict-modal" style="display: none; position: fixed; inset: 0; z-index: 9999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
@@ -1349,9 +1342,9 @@
 
         <!-- Active User Status Chip -->
         <div style="margin-bottom: 1.25rem;">
-          {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+          {% if user.username|slice:":9" == 'claimant_' %}
             <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;">
-              🔐 Claimant: {{ request.user.username|default:"Active Session" }}
+              🔐 Claimant: {{ request.user.username }}
             </div>
           {% elif user.is_authenticated %}
             {% if request.session.active_admin_role == 'LEAD' %}
@@ -1444,7 +1437,7 @@
                 </button>
               {% endif %}
             </li>
-          {% elif not user.is_authenticated and not request.session.active_claimant_token and not request.user.received_vault_grants.exists %}
+          {% elif not user.is_authenticated and user.username|slice:":9" != 'claimant_' %}
             <li>
               <a href="{% url 'vault:admin_login' %}" class="mobile-nav-link" style="color: #F87171; font-weight: 800;">
                 🛡️ Admin
@@ -1471,7 +1464,7 @@
 
           <!-- Claimant Private Dashboard -->
           {% if not user.is_staff and not user.is_superuser %}
-            {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
+            {% if user.username|slice:":9" == 'claimant_' %}
               <li>
                 <a 
                   href="{% url 'vault:claimant_dashboard' %}" 
@@ -1498,7 +1491,7 @@
 
       <!-- Action Buttons Cluster (Bottom) -->
       <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem;">
-        {% if user.is_authenticated and not request.session.active_admin_role and not request.session.active_claimant_token %}
+        {% if user.is_authenticated and not request.session.active_admin_role and user.username|slice:":9" != 'claimant_' %}
           <a 
             href="{% url 'vault:dashboard' %}" 
             class="btn-nav-cta" 
@@ -1715,6 +1708,35 @@
             });
           });
         }
+      });
+    });
+  </script>
+
+  <!-- Universal Auto-Dismiss Notifications (8 Seconds) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Targets standard alert boxes, messages, and role="alert" containers
+      const alerts = document.querySelectorAll(
+        '.alert, [class*="alert"], .messages li, .messages > div, [role="alert"], .notification'
+      );
+
+      alerts.forEach(function (alertBox) {
+        setTimeout(function () {
+          // Smooth fade-out and slide-up collapse
+          alertBox.style.transition = 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), margin 0.5s ease, padding 0.5s ease';
+          alertBox.style.overflow = 'hidden';
+          alertBox.style.opacity = '0';
+          alertBox.style.maxHeight = '0px';
+          alertBox.style.paddingTop = '0px';
+          alertBox.style.paddingBottom = '0px';
+          alertBox.style.marginTop = '0px';
+          alertBox.style.marginBottom = '0px';
+
+          // Remove cleanly from DOM once animation finishes
+          setTimeout(function () {
+            alertBox.remove();
+          }, 550);
+        }, 8000); // 8-second delay
       });
     });
   </script>

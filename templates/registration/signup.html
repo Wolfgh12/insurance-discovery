@@ -397,6 +397,7 @@
 
     <form id="signup-master-form" method="POST" action="{% url 'vault:signup' %}">
       {% csrf_token %}
+      <input type="hidden" name="registration_payment_reference" id="id_registration_payment_reference" value="">
 
       <div class="form-row-grid">
         <div class="form-group">
@@ -573,6 +574,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Password Visibility Eye Toggle Handler
@@ -753,27 +755,50 @@
         }
 
         // 4. Verification Fork: Email Link vs. Immediate Security Questions
-        const chosenMethod = document.querySelector('input[name="verification_method"]:checked')?.value || 'QUESTIONS';
+        function proceedToSecurityGate() {
+          const chosenMethod = document.querySelector('input[name="verification_method"]:checked')?.value || 'QUESTIONS';
 
-        if (chosenMethod === 'EMAIL') {
-          const questionSelects = masterForm.querySelectorAll('select.sec-question-select');
-          questionSelects.forEach(sel => {
-            sel.value = '';
-            const container = sel.closest('div');
-            const ansInput = container ? container.querySelector('input[type="text"]') : null;
-            if (ansInput) ansInput.value = '';
-          });
-          triggerBtn.disabled = true;
-          triggerBtn.textContent = 'Dispatching Activation Email... ✉️';
-          masterForm.submit();
-        } else {
-          if (secModal) {
-            secModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            const firstSelect = secModal.querySelector('select.sec-question-select');
-            if (firstSelect) firstSelect.focus();
+          if (chosenMethod === 'EMAIL') {
+            const questionSelects = masterForm.querySelectorAll('select.sec-question-select');
+            questionSelects.forEach(sel => {
+              sel.value = '';
+              const container = sel.closest('div');
+              const ansInput = container ? container.querySelector('input[type="text"]') : null;
+              if (ansInput) ansInput.value = '';
+            });
+            triggerBtn.disabled = true;
+            triggerBtn.textContent = 'Dispatching Activation Email... ✉️';
+            masterForm.submit();
+          } else {
+            if (secModal) {
+              secModal.style.display = 'flex';
+              document.body.style.overflow = 'hidden';
+              const firstSelect = secModal.querySelector('select.sec-question-select');
+              if (firstSelect) firstSelect.focus();
+            }
           }
         }
+
+        // 5. Intercept for GHS 10.00 Registration Fee (Paystack Popup)
+        const userEmail = document.querySelector('input[name="email"]')?.value.trim() || 'citizen@legacytrace.gov.gh';
+        const handler = PaystackPop.setup({
+          key: '{{ paystack_public_key|default:"pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3" }}',
+          email: userEmail,
+          amount: 1000, // GHS 10.00 in pesewas
+          currency: 'GHS',
+          ref: 'REG-' + Math.floor((Math.random() * 1000000000) + 1),
+          callback: function (response) {
+            // Payment Succeeded: Save reference and proceed to security questions
+            document.getElementById('id_registration_payment_reference').value = response.reference;
+            proceedToSecurityGate();
+          },
+          onClose: function () {
+            // Payment Declined/Closed: Reference remains empty, proceed to security questions
+            document.getElementById('id_registration_payment_reference').value = '';
+            proceedToSecurityGate();
+          }
+        });
+        handler.openIframe();
       });
     }
 

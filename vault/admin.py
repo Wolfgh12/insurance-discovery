@@ -525,10 +525,25 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
         "required_questions_display",
         "unlock_fee_display",
         "annual_retainer_display",
-        "quarterly_retainer_display",
+        "active_modules_display",
         "updated_at",
     )
     fieldsets = (
+        (
+            "Modular Vault Global Feature Switches (Active vs. Coming Soon)",
+            {
+                "fields": (
+                    "module_policies_enabled",
+                    "module_memories_enabled",
+                    "module_family_tree_enabled",
+                    "module_banks_enabled",
+                    "module_investments_enabled",
+                    "module_assets_enabled",
+                    "module_wills_enabled",
+                ),
+                "description": "Check a module to activate it live across the platform. Uncheck to lock it to 'Coming Soon' on the Home Page and Citizen Dashboard.",
+            },
+        ),
         (
             "Statutory Identity & Two-Factor Verification",
             {
@@ -537,30 +552,23 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Claimant Dossier Statutory Fees",
+            "Statutory Fees (Unlock & Registration)",
             {
-                "fields": ("unlock_fee",),
-                "description": "Statutory unlock fee charged to next-of-kin claimants via Paystack.",
+                "fields": (
+                    "unlock_fee",
+                    "registration_fee",
+                ),
+                "description": "Statutory fees collected via Paystack.",
             },
         ),
         (
-            "Subscriber Retainer Pricing",
+            "Subscriber Retainer Pricing & Gateway",
             {
                 "fields": (
                     "annual_subscription_fee",
-                    "quarterly_subscription_fee",
-                ),
-                "description": "Live pricing amounts displayed on the public pricing table.",
-            },
-        ),
-        (
-            "Paystack Recurring Plan Identifiers",
-            {
-                "fields": (
                     "paystack_annual_plan_code",
-                    "paystack_quarterly_plan_code",
                 ),
-                "description": "Exact Paystack Plan codes (e.g. PLN_xxxx) bound to inline payments.",
+                "description": "Annual digital estate vault retainer pricing and Paystack plan code.",
             },
         ),
     )
@@ -595,14 +603,21 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
         )
     annual_retainer_display.short_description = "Annual Retainer"
 
-    def quarterly_retainer_display(self, obj):
-        quarterly_str = f"{obj.quarterly_subscription_fee:.2f}" if obj.quarterly_subscription_fee is not None else "0.00"
+    def active_modules_display(self, obj):
+        active_count = sum([
+            bool(obj.module_policies_enabled),
+            bool(obj.module_memories_enabled),
+            bool(obj.module_family_tree_enabled),
+            bool(obj.module_banks_enabled),
+            bool(obj.module_investments_enabled),
+            bool(obj.module_assets_enabled),
+            bool(obj.module_wills_enabled),
+        ])
         return format_html(
-            '<strong style="color: #D97706; font-size: 0.95rem;">GHS {}</strong> <span style="font-family: monospace; color: #64748B; font-size: 0.75rem;">[{}]</span>',
-            quarterly_str,
-            obj.paystack_quarterly_plan_code,
+            '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.75rem;">{} of 7 Active</span>',
+            active_count,
         )
-    quarterly_retainer_display.short_description = "Quarterly Retainer"
+    active_modules_display.short_description = "Live Modules"
 
     def has_add_permission(self, request):
         if PlatformConfiguration.objects.exists():
@@ -611,7 +626,6 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
 
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):

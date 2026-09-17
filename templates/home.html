@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}LegacyTrace | National Insurance & Estate Discovery Vault{% endblock %}
+{% block title %}LegacyTrace | Insurance & Estate Discovery Vault{% endblock %}
 {% block extra_css %}
 <style>
   /* ----------------------------------------------------
@@ -1020,13 +1020,13 @@
           <img src="{% static 'images/LegacyTrace_shield_logo_design_.jpeg' %}" alt="LegacyTrace App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-pill" style="margin-bottom: 0;">
-          LegacyTrace • Sovereign Vault
+          LegacyTrace • Encrypted Vault
         </div>
       </div>
 
       <h1 class="hero-headline">Securing Generational Wealth & <span>Family Policies</span></h1>
       <p class="hero-subhead">
-        Protect what matters most. Empower policyholders to centralize active policies, bank accounts, investment portfolios, registered land assets, and certified digital wills in one sovereign vault.
+        Protect what matters most. Empower policyholders to centralize active policies, bank accounts, investment portfolios, generational family trees, precious life keepsakes, registered assets, and certified digital wills in one standard vault.
       </p>
 
       <div class="hero-actions">
@@ -1097,7 +1097,7 @@
                 </span>
               </div>
               <div style="font-size: 0.75rem; color: #94A3B8; margin-top: 2px;">
-                Administrative desks manage national records. To hold personal family policies, open a separate citizen vault.
+                Administrative desks records. To hold personal family policies, open a separate citizen vault.
               </div>
             </div>
           </div>
@@ -1130,7 +1130,7 @@
               {% endif %}
             </div>
             <div style="font-size: 0.75rem; color: #94A3B8;">
-              National registry search is active inside your secure dashboard.
+              The registry search is active inside your secure dashboard.
             </div>
           </div>
           {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
@@ -1156,7 +1156,7 @@
           </div>
           <div>
             <div class="visual-tag-text">Peace of Mind for Loved Ones</div>
-            <div class="visual-tag-sub">Guaranteed claim routing & estate clarity</div>
+            <div class="visual-tag-sub">Guaranteed estate and claim routing clarity</div>
           </div>
         </div>
       </div>
@@ -1200,7 +1200,7 @@
                 Policy Closed — Benefit Already Disbursed
               </h3>
               <p style="font-size: 0.88rem; color: #64748B; line-height: 1.6; margin: 0 auto 1.5rem; max-width: 520px;">
-                Our sovereign registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This vault entry is permanently closed and no further claim filings can be accepted.
+                Our registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This vault entry is permanently closed and no further claim filings can be accepted.
               </p>
               
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
@@ -1298,10 +1298,10 @@
 <div class="about-legacytrace-box">
   <div class="about-grid">
     <div>
-      <span class="about-pill">🇬🇭 Sovereign Digital Infrastructure</span>
+      <span class="about-pill">🇬🇭 Powerful Digital Infrastructure</span>
       <h2 class="about-headline">What is <span>LegacyTrace</span>?</h2>
       <p class="about-lead">
-        <strong>LegacyTrace</strong> is a centralized legacy registry and encrypted estate system. It allows policyholders to proactively catalog active policies, commercial bank accounts, investment securities, land titles, and certified digital wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
+        <strong>LegacyTrace</strong> is a centralized legacy registry and encrypted estate information system. It allows policyholders to proactively catalog active policies, bank accounts, investment securities, land titles, family lineage trees, precious keepsakes, and certified digital wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
       </p>
       {% if not user.is_authenticated and not request.session.active_claimant_token %}
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -1318,6 +1318,22 @@
         <div>
           <div class="about-feature-title">Family Clarity & Policy Discovery</div>
           <div class="about-feature-desc">Enables surviving relatives to verify whether a deceased family member held an active underwritten policy using only their Ghana Card ID, preventing lost wealth.</div>
+        </div>
+      </div>
+
+      <div class="about-feature-item">
+        <div class="about-feature-icon">💎</div>
+        <div>
+          <div class="about-feature-title">Family Keepsakes & Life Milestones</div>
+          <div class="about-feature-desc">A digital time capsule safely archiving childhood memories, heirloom photographs, and ancestral recipes so your personal heritage endures across generations.</div>
+        </div>
+      </div>
+
+      <div class="about-feature-item">
+        <div class="about-feature-icon">🌳</div>
+        <div>
+          <div class="about-feature-title">Family Tree & Generational Lineage</div>
+          <div class="about-feature-desc">Maps elders, siblings, spouses, and children in an unbroken visual lineage, providing statutory kinship clarity during estate distributions and claim settlements.</div>
         </div>
       </div>
 
@@ -1353,27 +1369,28 @@
   
   <!-- Centered Section Header -->
   <div style="text-align: center; max-width: 680px; margin: 0 auto 3rem; display: flex; flex-direction: column; align-items: center;">
-    <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Engineered To Specification</span>
-    <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Complete Legacy & Policy Management</h2>
+    <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Built For Every Family</span>
+    <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Everything You Can Protect in One Place</h2>
     <p class="section-description" style="text-align: center; margin: 0 auto; max-width: 600px;">
-      Every module gives policyholders total self-service control while securing estate transfer to loved ones.
+      Keep your records organized yourself, so your loved ones will never struggle to find what belongs to them.
     </p>
   </div>
 
-  <div class="requirements-grid">
+  <!-- Primary Grid: Modules 1 through 6 -->
+  <div class="requirements-grid" style="margin-bottom: 1.25rem;">
     <!-- Module 1 -->
     <div class="req-card">
       <div>
         <div class="req-icon-box">👤</div>
-        <h3 class="req-title">Self-Service Profile Vault</h3>
+        <h3 class="req-title">Your Personal Details</h3>
         <p class="req-body">
-          Policyholders can independently update their personal database records including full legal names, verified telephone numbers, and permanent residential addresses.
+          Easily keep your official name, contact phone numbers, home address, and Ghana Card details up to date anytime.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Update permanent residential address</li>
-        <li>Primary & secondary phone synchronization</li>
-        <li>Ghana Card ID verification and locking</li>
+        <li>Your current residential address</li>
+        <li>Main phone number and backup lines</li>
+        <li>Verified Ghana Card identification</li>
       </ul>
     </div>
 
@@ -1381,15 +1398,15 @@
     <div class="req-card">
       <div>
         <div class="req-icon-box">🚨</div>
-        <h3 class="req-title">Emergency Contact Hub</h3>
+        <h3 class="req-title">Next-of-Kin & Family Contacts</h3>
         <p class="req-body">
-          Designate verified individuals to be contacted immediately in case of an emergency or claim initiation.
+          Name the trusted family members who should be contacted immediately during an emergency or to receive your benefits.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Direct emergency contact linkage</li>
-        <li>Next-of-kin relationship verification</li>
-        <li>Automated alert triggers upon event filing</li>
+        <li>Direct phone numbers of close family</li>
+        <li>Clear relationships (spouse, child, sibling)</li>
+        <li>Quick reach-out when family needs help</li>
       </ul>
     </div>
 
@@ -1397,15 +1414,15 @@
     <div class="req-card">
       <div>
         <div class="req-icon-box">📑</div>
-        <h3 class="req-title">Multi-Policy Holding</h3>
+        <h3 class="req-title">All Your Insurance Policies</h3>
         <p class="req-body">
-          Hold and manage multiple insurance policies simultaneously across life, health, motor, and property sectors in one account.
+          Keep all your life, health, vehicle, and property insurance policy numbers together in one simple list.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Cross-insurer policy registration</li>
-        <li>Multiple individual policy tracking</li>
-        <li>Real-time status and renewal alerts</li>
+        <li>Policies from different insurance firms</li>
+        <li>Policy numbers and cover details</li>
+        <li>Clear reminders so your cover stays active</li>
       </ul>
     </div>
 
@@ -1413,15 +1430,15 @@
     <div class="req-card">
       <div>
         <div class="req-icon-box">💎</div>
-        <h3 class="req-title">Memory Lane & Keepsakes</h3>
+        <h3 class="req-title">Family Memories & Stories</h3>
         <p class="req-body">
-          Preserve your stories, cherished milestone answers, and high school nicknames so children and grandchildren inherit who you truly were.
+          Save your favorite life stories, photographs, and family traditions so your children and grandchildren know your story.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Curated life milestone prompts</li>
-        <li>Heirloom photograph depository</li>
-        <li>Time-capsule permanence for family history</li>
+        <li>Important life events and childhood stories</li>
+        <li>Precious family pictures safely kept</li>
+        <li>A lasting personal gift for future generations</li>
       </ul>
     </div>
 
@@ -1429,15 +1446,15 @@
     <div class="req-card">
       <div>
         <div class="req-icon-box">🌳</div>
-        <h3 class="req-title">Family Tree & Lineage Registry</h3>
+        <h3 class="req-title">Your Family Tree</h3>
         <p class="req-body">
-          Map your grand elders, parents, spouse, brothers, sisters, and children to maintain unbroken lineage and simplify claim verification.
+          Write down your parents, grandparents, spouse, brothers, sisters, and children so your true family line is clear.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Multi-generational kinship mapping</li>
-        <li>Hometown and ancestral origin records</li>
-        <li>Instant proof of kinship for legitimate claims</li>
+        <li>Generations mapped in simple order</li>
+        <li>Hometown and family roots recorded</li>
+        <li>Clear proof of who your real relatives are</li>
       </ul>
     </div>
 
@@ -1445,53 +1462,72 @@
     <div class="req-card">
       <div>
         <div class="req-icon-box">🏛️</div>
-        <h3 class="req-title">Multi-Insurer Network</h3>
+        <h3 class="req-title">Insurance Company Network</h3>
         <p class="req-body">
-          Connect all licensed Ghanaian insurance companies so relatives can identify exactly which underwriter holds a deceased loved one's policy.
+          Connected with licensed insurers in Ghana so your family knows exactly which company to visit to claim benefits.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Insurer verification & identification</li>
-        <li>Direct claim routing to underwriting desks</li>
-        <li>Elimination of lost or unclaimed policies</li>
+        <li>Knows exactly which insurer holds your policy</li>
+        <li>Direct claims office numbers and emails</li>
+        <li>No money or policy ever gets forgotten</li>
       </ul>
     </div>
+  </div>
 
-    <!-- Module 7: Bank Accounts & Liquidity Registry -->
-    <div class="req-card">
+  <!-- Centered Bottom Row: Module 7 and Module 8 -->
+  <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 3.5rem;">
+    <!-- Module 7: Bank Accounts & Savings -->
+    <div class="req-card" style="flex: 1 1 280px; max-width: 356px; width: 100%; box-sizing: border-box;">
       <div>
         <div class="req-icon-box">🏦</div>
-        <h3 class="req-title">Bank Accounts & Liquidity Vault</h3>
+        <h3 class="req-title">Bank Accounts & Savings</h3>
         <p class="req-body">
-          Catalog commercial bank savings, current accounts, foreign currency holdings, and fixed deposits across all licensed financial institutions.
+          Note down the banks where you hold savings, current accounts, or fixed deposits so money is never abandoned.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Bank name, branch, and account number logging</li>
-        <li>Fixed deposit and savings account tracking</li>
-        <li>Post-probate executor claiming pathway</li>
+        <li>Bank names, branch locations, and account numbers</li>
+        <li>Savings and fixed deposit accounts listed</li>
+        <li>Clear guidance for family to claim funds</li>
       </ul>
     </div>
 
-    <!-- Module 8: Investment & Securities Ledger -->
-    <div class="req-card">
+    <!-- Module 8: Investments & Treasury Bills -->
+    <div class="req-card" style="flex: 1 1 280px; max-width: 356px; width: 100%; box-sizing: border-box;">
       <div>
         <div class="req-icon-box">📈</div>
-        <h3 class="req-title">Investment & Securities Depository</h3>
+        <h3 class="req-title">Investments & Treasury Bills</h3>
         <p class="req-body">
-          Track high-yield investment holdings including Government of Ghana Treasury Bills, mutual funds, listed equities, and Tier-3 pensions.
+          Keep track of Government Treasury Bills, mutual funds, company shares, and private pensions in one record.
         </p>
       </div>
       <ul class="req-bullets">
-        <li>Treasury bill (91/182/364-day) holding records</li>
-        <li>Fund manager & brokerage firm asset linkage</li>
-        <li>Private equity and voluntary pension rosters</li>
+        <li>Treasury Bills and when they mature</li>
+        <li>Investment firms and brokers managing your funds</li>
+        <li>Company shares and voluntary pension savings</li>
       </ul>
     </div>
   </div>
 </div>
 
 <!-- Modular Vault Folder Deck (Complements Complete Legacy Management) -->
+<style>
+  .modular-deck-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 860px) {
+    .modular-deck-grid {
+      grid-template-columns: 1fr;
+    }
+    .deck-flank-box {
+      display: none !important;
+    }
+  }
+</style>
+
 <div class="vault-demo-container" style="background: #ffffff; border: 2px solid var(--accent-light-cyan); border-radius: 24px; padding: 1.75rem; box-shadow: 0 14px 35px rgba(2, 132, 199, 0.08); margin-bottom: 3.5rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-ice-blue); padding-bottom: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div style="display: flex; align-items: center; gap: 12px;">
@@ -1500,96 +1536,177 @@
       </div>
       <div>
         <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary-deep-navy); letter-spacing: -0.3px;">
-          Your Modular Sovereign Vault
+          Your Modular Vault
         </div>
         <div style="font-size: 0.85rem; color: var(--secondary-sea-blue); font-weight: 600;">
-          6 core folders keeping family policies, heritage, and estate continuity in one place
+          7 core folders keeping family policies, heritage, property, and estate continuity in one place
         </div>
       </div>
     </div>
     <span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; font-weight: 800; font-size: 0.78rem; padding: 6px 14px; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px;">
       <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
-      Sovereign 256-Bit Vault
+       256-Bit Vault
     </span>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
-    <!-- Folder 1: Insurance Policies (Active) -->
-    <div style="background: #F0F9FF; border: 1.5px solid #0284C7; border-radius: 16px; padding: 1.25rem; text-align: left; position: relative;">
+  <div class="modular-deck-grid">
+    <!-- ROW 1 / Col 1: Folder 01 - Insurance Policies -->
+    <div style="background: {% if platform_config.module_policies_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left; position: relative;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">📑</span>
-        <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          ● Active Module
-        </span>
+        {% if platform_config.module_policies_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #0284C7; letter-spacing: 0.6px;">Folder 01</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_policies_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 01</div>
       <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Insurance Policies</div>
-      <div style="font-size: 0.8rem; color: #475569; line-height: 1.45;">National discovery, active insurer synchronization, and expedited claims dispatch.</div>
+      <div style="font-size: 0.8rem; color: #475569; line-height: 1.45;">Discovery, active insurer synchronization, and expedited claims dispatch.</div>
     </div>
 
-    <!-- Folder 2: Memory Lane & Keepsakes (Coming Soon) -->
-    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 16px; padding: 1.25rem; text-align: left; opacity: 0.88;">
+    <!-- ROW 1 / Col 2: Folder 02 - Memories & Keepsakes -->
+    <div style="background: {% if platform_config.module_memories_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">💎</span>
-        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          Coming Soon
-        </span>
+        {% if platform_config.module_memories_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748B; letter-spacing: 0.6px;">Folder 02</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Memory Lane & Keepsakes</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_memories_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 02</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Memory Lane &amp; Keepsakes</div>
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Digital time capsule preserving childhood stories, ancestral recipes, and heirloom photos.</div>
     </div>
 
-    <!-- Folder 3: Family Tree & Lineage (Coming Soon) -->
-    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 16px; padding: 1.25rem; text-align: left; opacity: 0.88;">
+    <!-- ROW 1 / Col 3: Folder 03 - Family Tree -->
+    <div style="background: {% if platform_config.module_family_tree_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">🌳</span>
-        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          Coming Soon
-        </span>
+        {% if platform_config.module_family_tree_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748B; letter-spacing: 0.6px;">Folder 03</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Family Tree & Lineage</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_family_tree_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 03</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Family Tree &amp; Lineage</div>
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Connected generational tree mapping elders, siblings, and children for verified estate continuity.</div>
     </div>
 
-    <!-- Folder 4: Bank Accounts (Coming Soon) -->
-    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 16px; padding: 1.25rem; text-align: left; opacity: 0.88;">
+    <!-- ROW 2 / Col 1: Folder 04 - Bank Accounts -->
+    <div style="background: {% if platform_config.module_banks_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">🏦</span>
-        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          Coming Soon
-        </span>
+        {% if platform_config.module_banks_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748B; letter-spacing: 0.6px;">Folder 04</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_banks_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 04</div>
       <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Bank Accounts</div>
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Commercial bank depository cataloging savings, fixed deposits, and accounts.</div>
     </div>
 
-    <!-- Folder 5: Investments & T-Bills (Coming Soon) -->
-    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 16px; padding: 1.25rem; text-align: left; opacity: 0.88;">
+    <!-- ROW 2 / Col 2: Folder 05 - Investments & T-Bills -->
+    <div style="background: {% if platform_config.module_investments_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">📈</span>
-        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          Coming Soon
-        </span>
+        {% if platform_config.module_investments_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748B; letter-spacing: 0.6px;">Folder 05</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Investments & T-Bills</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_investments_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 05</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Investments &amp; T-Bills</div>
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Securities ledger tracking GoG Treasury Bills, mutual funds, listed shares, and pensions.</div>
     </div>
 
-    <!-- Folder 6: Wills & Deeds (Coming Soon) -->
-    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 16px; padding: 1.25rem; text-align: left; opacity: 0.88;">
+    <!-- ROW 2 / Col 3: Folder 06 - Wills & Deeds -->
+    <div style="background: {% if platform_config.module_wills_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">📜</span>
-        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-          Coming Soon
-        </span>
+        {% if platform_config.module_wills_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
       </div>
-      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748B; letter-spacing: 0.6px;">Folder 06</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Wills & Deeds</div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_wills_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 06</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Wills &amp; Deeds</div>
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Encrypted digital depository for Last Wills, testaments, and post-probate directives.</div>
+    </div>
+
+    <!-- ROW 3 / Col 1: Left Decorative Accent Box -->
+    <div class="deck-flank-box" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(2, 132, 199, 0.09) 100%); border: 1.5px solid rgba(6, 182, 212, 0.35); border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.04);">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; margin-bottom: 0.5rem;">
+        🔒
+      </div>
+      <div style="font-size: 0.7rem; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; color: #0284C7; margin-bottom: 2px;">
+        AES-256 Storage
+      </div>
+      <div style="font-size: 0.78rem; color: #64748B; line-height: 1.35;">
+        Multi-tier cryptographic encryption guarding estate documents at rest.
+      </div>
+    </div>
+
+    <!-- ROW 3 / Col 2: Folder 07 Centered - Properties & Assets -->
+    <div style="background: {% if platform_config.module_assets_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-size: 1.75rem;">🏛️</span>
+        {% if platform_config.module_assets_enabled %}
+          <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            ● Active Module
+          </span>
+        {% else %}
+          <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            Coming Soon
+          </span>
+        {% endif %}
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_assets_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 07</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Properties &amp; Assets</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Registered land titles, indentures, residential property, and vehicle logbooks.</div>
+    </div>
+
+    <!-- ROW 3 / Col 3: Right Decorative Accent Box -->
+    <div class="deck-flank-box" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.09) 100%); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.04);">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; margin-bottom: 0.5rem;">
+        🇬🇭
+      </div>
+      <div style="font-size: 0.7rem; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; color: #059669; margin-bottom: 2px;">
+        Act 843 Compliant
+      </div>
+      <div style="font-size: 0.78rem; color: #64748B; line-height: 1.35;">
+        Statutory Data Protection Act privacy &amp; verified next-of-kin protocols.
+      </div>
     </div>
   </div>
 </div>
@@ -1809,7 +1926,7 @@
     <span class="section-tagline">⚡ End-to-End Workflow</span>
     <h2 class="section-headline">How Claims & Verification Operate</h2>
     <p class="section-description">
-      A sovereign transition protocol connecting bereaved families directly with underwriting departments without intermediaries.
+      A powerful transition protocol connecting bereaved families directly with underwriting departments without intermediaries.
     </p>
   </div>
 
@@ -1820,8 +1937,8 @@
         <span class="lifecycle-num">STEP 01</span>
         <span class="lifecycle-icon">🔍</span>
       </div>
-      <h4 class="lifecycle-title">National Registry Search</h4>
-      <p class="lifecycle-body">Family searches the registry using national identification. The platform instantly confirms active policy presence.</p>
+      <h4 class="lifecycle-title">Registry Search</h4>
+      <p class="lifecycle-body">Search the registry using your relative's Ghana Card ID to instantly confirm whether an active vault exists.</p>
       <div class="lifecycle-connector" aria-hidden="true">→</div>
     </div>
 
@@ -1831,8 +1948,8 @@
         <span class="lifecycle-num">STEP 02</span>
         <span class="lifecycle-icon">🛡️</span>
       </div>
-      <h4 class="lifecycle-title">Identity & Relation Audit</h4>
-      <p class="lifecycle-body">The searching claimant verifies identity and uploads statutory declarations to prove legitimate relation.</p>
+      <h4 class="lifecycle-title">Kinship Intake & Fee</h4>
+      <p class="lifecycle-body">Enter your claimant contact details and settle the standard one-time unlock fee securely via Paystack.</p>
       <div class="lifecycle-connector" aria-hidden="true">→</div>
     </div>
 
@@ -1840,10 +1957,10 @@
     <div class="lifecycle-card">
       <div class="lifecycle-badge-row">
         <span class="lifecycle-num">STEP 03</span>
-        <span class="lifecycle-icon">🏛️</span>
+        <span class="lifecycle-icon">🔐</span>
       </div>
-      <h4 class="lifecycle-title">Insurer Desk Unlock</h4>
-      <p class="lifecycle-body">Staff verifies credentials, releasing the specific underwriting insurer name and policy claim guidelines.</p>
+      <h4 class="lifecycle-title">Instant Vault Provisioning</h4>
+      <p class="lifecycle-body">Dedicated claimant credentials are automatically generated, granting immediate access to your private estate dashboard.</p>
       <div class="lifecycle-connector" aria-hidden="true">→</div>
     </div>
 
@@ -1853,8 +1970,8 @@
         <span class="lifecycle-num">STEP 04</span>
         <span class="lifecycle-icon">⚡</span>
       </div>
-      <h4 class="lifecycle-title">Direct Claim Dispatch</h4>
-      <p class="lifecycle-body">A digital claim bundle routes immediately into the insurer's department for expedited payout resolution.</p>
+      <h4 class="lifecycle-title">Full Discovery & Claims</h4>
+      <p class="lifecycle-body">Review active underwritten policies, bank accounts, investments, and certified wills to file direct claims with underwriters.</p>
     </div>
   </div>
 </section>
@@ -1864,7 +1981,7 @@
   <div class="spotlight-col">
     <h3>👥 Group Policy & Corporate Governance</h3>
     <p>
-      In the case of group or corporate insurance schemes, the <strong>Policy Admin</strong> is explicitly registered and granted dedicated administration capabilitie.
+      In the case of group or corporate insurance schemes, the <strong>Policy Admin</strong> is explicitly registered and granted dedicated administration capabilities.
     </p>
     <ul class="req-bullets" style="color: var(--accent-light-cyan);">
       <li>Clear designation of the primary Group Policy Admin</li>
@@ -1875,7 +1992,7 @@
   <div class="spotlight-col">
     <h3>🔍 Relational Discovery Workflow</h3>
     <p>
-      When a relative initiates a search, the system matches national records, confirms active policy status, and presents a verified claiming pathway without compromising sensitive personal assets during preliminary queries.
+      When a relative initiates a search, the system matches the records, confirms active policy status, and presents a verified claiming pathway without compromising sensitive personal assets during preliminary queries.
     </p>
     <ul class="req-bullets" style="color: var(--accent-light-cyan);">
       <li>Zero sensitive leakage during public searches</li>
@@ -2046,6 +2163,12 @@
       <p style="margin: 0; font-size: 0.78rem; color: #94A3B8;">
         Enter your legal claimant details below to generate your audited claim docket.
       </p>
+    </div>
+
+    <!-- Inline Duplicate Data Warning Banner -->
+    <div id="intake-collision-alert" style="display: none; background: rgba(239, 68, 68, 0.2); border: 1.5px solid #EF4444; color: #FCA5A5; padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; margin-bottom: 1.15rem; align-items: center; gap: 10px; line-height: 1.45;">
+      <span style="font-size: 1.2rem; flex-shrink: 0;">⚠️</span>
+      <span id="intake-collision-msg"></span>
     </div>
 
     <!-- Intake Form -->
@@ -2711,7 +2834,7 @@
 
       setTimeout(() => {
         speakFemaleVoice(
-          'A verified policy record has been located in the national registry. Under statutory estate protection laws, access requires a three-angle facial calibration. Please confirm to proceed.',
+          'A verified policy record has been located in the registry. Under statutory estate protection laws, access requires a three-angle facial calibration. Please confirm to proceed.',
           function () {
             clearTimeout(voiceFallbackTimer);
             unlockConsentButtons();
@@ -2824,6 +2947,10 @@
       intakeForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
+        const collisionAlert = document.getElementById('intake-collision-alert');
+        const collisionMsg = document.getElementById('intake-collision-msg');
+        if (collisionAlert) collisionAlert.style.display = 'none';
+
         if (currentStage < 3) {
           alert('Please complete all 3 biometric facial angles before proceeding.');
           return;
@@ -2845,9 +2972,6 @@
         };
 
         pendingClaimantData = claimantData;
-        intakeModal.style.display = 'none';
-        stopCamera();
-
         intakeSubmitBtn.disabled = true;
         intakeSubmitBtn.innerHTML = 'Verifying Credentials... ⏳';
 
@@ -2860,6 +2984,23 @@
         .then(data => {
           intakeSubmitBtn.disabled = false;
           intakeSubmitBtn.innerHTML = `Proceed to Payment (GHS ${DYNAMIC_UNLOCK_FEE_GHS}) ➔`;
+
+          // Intercept Duplicate Phone, Email, or Ghana Card Collisions
+          if (data.status === 'collision_error') {
+            if (collisionAlert && collisionMsg) {
+              collisionMsg.textContent = data.message;
+              collisionAlert.style.display = 'flex';
+              intakeModal.scrollTop = 0;
+            } else {
+              alert(data.message);
+            }
+            speakFemaleVoice(data.message);
+            return;
+          }
+
+          // Close modal once submission passes duplicate verification
+          intakeModal.style.display = 'none';
+          stopCamera();
 
           if (data.status === 'success' && data.is_matched) {
             // Strict Authorization: Paystack triggers ONLY on verified match
@@ -3022,8 +3163,8 @@
       const phrases = [
         "Connecting bereaved families directly to licensed underwriting claim desks.",
         "Safeguarding family land indentures, certified wills, and tangible assets.",
-        "Verifying national records seamlessly through authenticated Ghana Card IDs.",
-        "Guaranteeing sovereign lifetime security and swift legacy transfers."
+        "Verifying records seamlessly through authenticated Ghana Card IDs.",
+        "Guaranteeing lifetime security and swift legacy transfers."
       ];
 
       let phraseIndex = 0;

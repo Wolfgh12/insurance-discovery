@@ -375,6 +375,75 @@
     border: 1px solid #FDE68A;
     display: inline-block;
   }
+
+  /* Interactive Receipt Trigger Badge */
+  .receipt-trigger-badge {
+    background: rgba(2, 132, 199, 0.08);
+    border: 1.5px dashed #0284C7;
+    color: #0284C7;
+    font-family: monospace;
+    font-weight: 800;
+    font-size: 0.76rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+  }
+
+  .receipt-trigger-badge:hover {
+    background: #0284C7;
+    color: #ffffff;
+    border-style: solid;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  }
+
+  /* Printable Paystack Receipt Slip */
+  .receipt-slip-container {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    max-width: 540px;
+    width: 100%;
+    padding: 2rem 2.25rem;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #paystack-receipt-modal,
+    #paystack-receipt-modal * {
+      visibility: visible !important;
+    }
+    #paystack-receipt-modal {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: block !important;
+    }
+    .receipt-slip-container {
+      box-shadow: none !important;
+      border: 1.5px solid #0F172A !important;
+      max-width: 100% !important;
+      border-radius: 0 !important;
+      padding: 1.5rem !important;
+      page-break-inside: avoid;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -440,6 +509,16 @@
         <span class="nav-tile-badge">{{ recent_audits|length }}</span>
       </div>
       <div class="nav-tile-label">Verification Logs</div>
+    </button>
+
+    <button type="button" class="nav-tile-btn" onclick="switchDashboardTab('tab-inquiries', this)">
+      <div class="nav-tile-top">
+        <span class="nav-tile-icon">✉️</span>
+        <span class="nav-tile-badge" style="{% if new_inquiries_count %}background: #FEE2E2; color: #DC2626; border-color: #FCA5A5;{% endif %}">
+          {% if new_inquiries_count %}{{ new_inquiries_count }} New{% else %}{{ inquiries|length }}{% endif %}
+        </span>
+      </div>
+      <div class="nav-tile-label">Support Inquiries</div>
     </button>
   </div>
 
@@ -827,15 +906,31 @@
             {% for grant in claimants %}
               <tr class="page-item-staff-claimant-grant">
                 <td>
-                  <span style="font-family: monospace; font-weight: 700; color: #0284C7; font-size: 0.78rem;">
-                    {{ grant.payment_reference }}
-                  </span>
+                  <button 
+                    type="button" 
+                    class="receipt-trigger-badge no-loader btn-open-receipt"
+                    data-ref="{{ grant.payment_reference }}"
+                    data-claimant="{{ grant.claimant_name|default:grant.claimant_user.get_full_name|default:grant.claimant_user.username }}"
+                    data-card="{{ grant.claimant_ghana_card|default:'Not Provided' }}"
+                    data-phone="{{ grant.claimant_phone|default:'N/A' }}"
+                    data-email="{{ grant.claimant_email }}"
+                    data-kinship="{{ grant.relationship_to_deceased }}"
+                    data-policyholder="{{ grant.policyholder.get_full_name|default:grant.policyholder.username }}"
+                    data-holder-card="{{ grant.policyholder.ghana_card_number|default:'Not Registered' }}"
+                    data-policy="{{ grant.policy.policy_number }}"
+                    data-insurer="{{ grant.policy.insurer.name }}"
+                    data-amount="{% if platform_config.unlock_fee %}{{ platform_config.unlock_fee|floatformat:2 }}{% else %}50.00{% endif %}"
+                    data-date="{{ grant.unlocked_at|date:'l, d F Y' }}"
+                    data-time="{{ grant.unlocked_at|date:'h:i:s A' }} GMT"
+                    title="View & Print Official Paystack Transaction Receipt"
+                  >
+                    🧾 {{ grant.payment_reference }}
+                  </button>
                 </td>
                 <td>
                   <div style="font-weight: 800; color: #0F172A;">{{ grant.claimant_name }}</div>
                   <div style="font-size: 0.74rem; color: #64748B;">User: @{{ grant.claimant_user.username }}</div>
                 </td>
-                <td>
                   <span style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #334155; font-size: 0.74rem; font-weight: 700; padding: 2px 7px; border-radius: 6px;">
                     {{ grant.relationship_to_deceased }}
                   </span>
@@ -1016,6 +1111,130 @@
     </div>
   </div>
 
+  <!-- PANE 6: INBOUND SUPPORT INQUIRIES -->
+  <div id="tab-inquiries" class="tab-pane">
+    <div class="panel-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Inbound Support Desk & Citizen Inquiries</h2>
+          <div style="font-size: 0.8rem; color: #64748B;">Messages submitted through the public Contact Us portal requiring operational review.</div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 700; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 4px 10px; border-radius: 6px;">
+          Unread Inquiries: <strong style="color: #DC2626;">{{ new_inquiries_count }}</strong> / {{ inquiries|length }} Total
+        </div>
+      </div>
+
+      <!-- Real-Time Search & Status Filter -->
+      <div style="display: flex; gap: 10px; margin-bottom: 1.15rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 220px; position: relative;">
+          <input 
+            type="text" 
+            id="filter-staff-inquiries-search" 
+            placeholder="Search by name, email, phone, category, or message..." 
+            style="width: 100%; padding: 0.55rem 0.85rem 0.55rem 2.2rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; outline: none; font-family: inherit; background: #ffffff;"
+          >
+          <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #94A3B8;">🔍</span>
+        </div>
+        <select 
+          id="filter-staff-inquiries-status" 
+          style="padding: 0.55rem 0.85rem; border-radius: 9px; border: 1.5px solid #CBD5E1; font-size: 0.84rem; font-weight: 700; color: #334155; background: #ffffff; outline: none; cursor: pointer;"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="NEW">● New / Unread</option>
+          <option value="IN_REVIEW">⏳ In Review</option>
+          <option value="RESOLVED">✓ Resolved</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Status</th>
+              <th>Citizen / Inquirer</th>
+              <th>Contact Channels</th>
+              <th>Category</th>
+              <th>Message Content</th>
+              <th>Desk Action</th>
+            </tr>
+          </thead>
+          <tbody id="staff-inquiries-body">
+            {% for inq in inquiries %}
+              <tr class="page-item-staff-inquiry">
+                <td style="font-family: monospace; font-size: 0.78rem; color: #64748B; white-space: nowrap;">
+                  {{ inq.created_at|date:"Y-m-d H:i" }}
+                </td>
+                <td>
+                  {% if inq.status == 'NEW' %}
+                    <span class="badge-status badge-danger">● NEW</span>
+                  {% elif inq.status == 'IN_REVIEW' %}
+                    <span class="badge-status badge-warning">⏳ IN REVIEW</span>
+                  {% else %}
+                    <span class="badge-status badge-success">✓ RESOLVED</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong style="color: #0F172A;">{{ inq.full_name }}</strong>
+                </td>
+                <td>
+                  <div style="font-size: 0.8rem; font-weight: 600;">
+                    <a href="mailto:{{ inq.email }}" style="color: #0284C7; text-decoration: none;">{{ inq.email }}</a>
+                  </div>
+                  <div style="font-size: 0.74rem; color: #64748B;">
+                    {% if inq.phone %}<a href="tel:{{ inq.phone }}" style="color: #475569; text-decoration: none;">{{ inq.phone }}</a>{% else %}No phone{% endif %}
+                  </div>
+                </td>
+                <td>
+                  <span style="background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">
+                    {{ inq.get_category_display }}
+                  </span>
+                </td>
+                <td style="max-width: 320px; font-size: 0.82rem; color: #334155; line-height: 1.45;">
+                  {{ inq.message }}
+                </td>
+                <td>
+                  <form method="POST" action="{% url 'vault:update_inquiry_status' inq.id %}" style="display: flex; gap: 4px; align-items: center; margin: 0;">
+                    {% csrf_token %}
+                    <select name="status" style="font-size: 0.7rem; font-weight: 700; padding: 3px 5px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC;">
+                      <option value="NEW" {% if inq.status == 'NEW' %}selected{% endif %}>New</option>
+                      <option value="IN_REVIEW" {% if inq.status == 'IN_REVIEW' %}selected{% endif %}>Review</option>
+                      <option value="RESOLVED" {% if inq.status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+                    </select>
+                    <button type="submit" class="btn-action-sm" style="padding: 3px 7px; font-size: 0.7rem; background: #0284C7; color: #ffffff; border: none; font-weight: 800;">
+                      Save
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" style="text-align: center; color: #94A3B8; padding: 2rem;">No support inquiries received yet.</td>
+              </tr>
+            {% endfor %}
+
+            <!-- Dynamic Search Feedback Row -->
+            <tr id="staff-inquiries-no-match" style="display: none;">
+              <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
+                <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
+                <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Support Inquiries</div>
+                <div id="staff-inquiries-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No inquiries match your query.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="staff-inquiries-pagination" class="pagination-bar" style="display: none;">
+        <span class="page-counter-pill page-counter">Page 1 of 1</span>
+        <div class="pagination-btn-group">
+          <button type="button" class="btn-page btn-prev">‹ Previous</button>
+          <button type="button" class="btn-page btn-next">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Claim Action & Decision Modal -->
@@ -1179,6 +1398,92 @@
       <div><strong>IP Address:</strong> <span id="modal-ip">--</span></div>
       <div><strong>Timestamp:</strong> <span id="modal-time">--</span></div>
     </div>
+  </div>
+</div>
+
+<!-- Official Paystack Transaction Receipt Modal (Printable) -->
+<div id="paystack-receipt-modal" class="inspect-modal-backdrop no-loader">
+  <div class="receipt-slip-container">
+    
+    <!-- Action Controls (Hidden on Print) -->
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #CBD5E1;">
+      <button type="button" onclick="window.print()" class="btn-action-sm" style="background: #0284C7; color: #ffffff; border-color: #0284C7; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.82rem;">
+        🖨️ Print Receipt
+      </button>
+      <button type="button" id="btn-close-receipt" style="background: none; border: none; font-size: 1.35rem; cursor: pointer; color: #64748B; padding: 2px 6px; line-height: 1;">
+        ✕
+      </button>
+    </div>
+
+    <!-- Receipt Header -->
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; overflow: hidden; border: 1px solid #0284C7;">
+          <img src="{% static 'images/LegacyTrace_shield_logo_design_.jpeg' %}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <span style="font-weight: 900; font-size: 1.2rem; color: #0F172A; letter-spacing: -0.3px;">LegacyTrace Vault</span>
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.6px; background: #DCFCE7; border: 1px solid #BBF7D0; padding: 3px 10px; border-radius: 50px; display: inline-block;">
+        ✓ Official Transaction Receipt
+      </div>
+    </div>
+
+    <!-- Total Paid Display -->
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; text-align: center; margin-bottom: 1.25rem;">
+      <div style="font-size: 0.72rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Amount Paid (GHS)</div>
+      <div style="font-size: 1.85rem; font-weight: 900; color: #0F172A; margin: 0.15rem 0;" id="rcpt-amount">GHS 0.00</div>
+      <div style="font-size: 0.72rem; color: #0284C7; font-weight: 700;">Processed via Paystack Payments Ghana Ltd</div>
+    </div>
+
+    <!-- Transaction Telemetry Ledger -->
+    <div style="font-size: 0.8rem; color: #334155; display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.25rem; font-family: monospace;">
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Payment Ref:</span>
+        <strong id="rcpt-ref" style="color: #0284C7;">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Transaction Day & Date:</span>
+        <strong id="rcpt-date">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Transaction Time:</span>
+        <strong id="rcpt-time">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Payment Purpose:</span>
+        <strong>Statutory Next-of-Kin Vault Unlock</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Verified Relative:</span>
+        <strong id="rcpt-claimant">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Claimant Ghana Card:</span>
+        <strong id="rcpt-card">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Stated Kinship:</span>
+        <strong id="rcpt-kinship">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Target Policyholder:</span>
+        <strong id="rcpt-policyholder">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding-bottom: 4px;">
+        <span style="color: #64748B;">Policy Number:</span>
+        <strong id="rcpt-policy">--</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: #64748B;">Underwriting Partner:</span>
+        <strong id="rcpt-insurer">--</strong>
+      </div>
+    </div>
+
+    <!-- Statutory Footnote & Watermark -->
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.68rem; color: #64748B; line-height: 1.45; text-align: center;">
+      This receipt certifies that the statutory one-time estate dossier unlock fee was settled and validated through the Paystack gateway under Ghana Act 843 compliance.
+    </div>
+
   </div>
 </div>
 {% endblock %}
@@ -1474,7 +1779,7 @@
       pageSize: 7
     });
 
-    setupFilterablePagination({
+setupFilterablePagination({
       itemSelector: '.page-item-staff-telemetry',
       controlsId: 'staff-telemetry-pagination',
       searchInputId: 'filter-staff-telemetry-search',
@@ -1486,6 +1791,23 @@
         const text = row.textContent;
         if (status === 'MATCH') return text.includes('SSOT Match');
         if (status === 'DISCREPANCY') return text.includes('Discrepancy');
+        return true;
+      }
+    });
+
+    setupFilterablePagination({
+      itemSelector: '.page-item-staff-inquiry',
+      controlsId: 'staff-inquiries-pagination',
+      searchInputId: 'filter-staff-inquiries-search',
+      statusSelectId: 'filter-staff-inquiries-status',
+      emptyElementId: 'staff-inquiries-no-match',
+      emptyDetailId: 'staff-inquiries-no-match-detail',
+      pageSize: 7,
+      statusPredicate: (row, status) => {
+        const text = row.textContent;
+        if (status === 'NEW') return text.includes('NEW');
+        if (status === 'IN_REVIEW') return text.includes('IN REVIEW');
+        if (status === 'RESOLVED') return text.includes('RESOLVED');
         return true;
       }
     });
@@ -1590,6 +1912,49 @@
       phModal.addEventListener('click', function (e) {
         if (e.target === phModal) {
           phModal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+
+    // Paystack Transaction Receipt Modal Controller
+    const receiptModal = document.getElementById('paystack-receipt-modal');
+    const closeReceiptBtn = document.getElementById('btn-close-receipt');
+
+    document.querySelectorAll('.btn-open-receipt').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        document.getElementById('rcpt-ref').textContent = this.getAttribute('data-ref');
+        document.getElementById('rcpt-amount').textContent = `GHS ${this.getAttribute('data-amount')}`;
+        document.getElementById('rcpt-date').textContent = this.getAttribute('data-date');
+        document.getElementById('rcpt-time').textContent = this.getAttribute('data-time');
+        document.getElementById('rcpt-claimant').textContent = this.getAttribute('data-claimant');
+        document.getElementById('rcpt-card').textContent = this.getAttribute('data-card');
+        document.getElementById('rcpt-kinship').textContent = this.getAttribute('data-kinship');
+        document.getElementById('rcpt-policyholder').textContent = this.getAttribute('data-policyholder');
+        document.getElementById('rcpt-policy').textContent = this.getAttribute('data-policy');
+        document.getElementById('rcpt-insurer').textContent = this.getAttribute('data-insurer');
+
+        if (receiptModal) {
+          receiptModal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+
+    if (closeReceiptBtn) {
+      closeReceiptBtn.addEventListener('click', () => {
+        if (receiptModal) receiptModal.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+
+    if (receiptModal) {
+      receiptModal.addEventListener('click', function (e) {
+        if (e.target === receiptModal) {
+          receiptModal.classList.remove('active');
           document.body.style.overflow = '';
         }
       });

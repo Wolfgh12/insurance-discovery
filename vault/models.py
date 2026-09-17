@@ -757,34 +757,61 @@ class PlatformConfiguration(models.Model):
         max_digits=10,
         decimal_places=2,
         default=10.00,
-        help_text="One-time citizen vault registration fee charged via Paystack (GHS)"
+        help_text="One-time statutory citizen vault registration fee charged via Paystack (GHS)"
     )
     annual_subscription_fee = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=1200.00,
+        default=120.00,
         help_text="Annual digital estate vault retainer fee (GHS)"
-    )
-    quarterly_subscription_fee = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=450.00,
-        help_text="Quarterly digital estate vault retainer fee (GHS)"
     )
     paystack_annual_plan_code = models.CharField(
         max_length=100,
         default="PLN_14xz26jx9j3gakp",
         help_text="Paystack Plan Code for Annual Retainer"
     )
-    paystack_quarterly_plan_code = models.CharField(
-        max_length=100,
-        default="PLN_1gba1fu8sg69ik0",
-        help_text="Paystack Plan Code for Quarterly Retainer"
-    )
     required_security_questions = models.PositiveIntegerField(
         default=3,
         help_text="Number of security questions a citizen must select and answer during registration or setup (e.g. 3, 5, or 10)."
     )
+
+    # Modular Vault Feature Switches (Checked = Active | Unchecked = Coming Soon)
+    module_policies_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Enable Insurance Policies Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_memories_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Memory Lane & Keepsakes Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_family_tree_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Family Tree & Lineage Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_banks_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Bank Accounts Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_investments_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Investments & T-Bills Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_assets_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Property, Land & Assets Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+    module_wills_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Enable Digital Wills & Deeds Module",
+        help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
+    )
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -803,28 +830,38 @@ class PlatformConfiguration(models.Model):
     def annual_fee_pesewas(self):
         return int(self.annual_subscription_fee * 100)
 
+    # Backward-compatibility alias to prevent runtime errors before template/views update
+    @property
+    def quarterly_subscription_fee(self):
+        return self.registration_fee
+
     @property
     def quarterly_fee_pesewas(self):
-        return int(self.quarterly_subscription_fee * 100)
+        return self.registration_fee_pesewas
 
     @classmethod
     def get_solo(cls):
-        config, _ = cls.objects.get_or_create(
-            id=1,
-            defaults={
-                'unlock_fee': 50.00,
-                'registration_fee': 10.00,
-                'annual_subscription_fee': 1200.00,
-                'quarterly_subscription_fee': 450.00,
-                'paystack_annual_plan_code': 'PLN_14xz26jx9j3gakp',
-                'paystack_quarterly_plan_code': 'PLN_1gba1fu8sg69ik0',
-                'required_security_questions': 3,
-            }
-        )
+        config = cls.objects.first()
+        if not config:
+            config = cls.objects.create(
+                id=1,
+                unlock_fee=50.00,
+                registration_fee=10.00,
+                annual_subscription_fee=120.00,
+                paystack_annual_plan_code='PLN_14xz26jx9j3gakp',
+                required_security_questions=3,
+                module_policies_enabled=True,
+                module_memories_enabled=False,
+                module_family_tree_enabled=False,
+                module_banks_enabled=False,
+                module_investments_enabled=False,
+                module_assets_enabled=False,
+                module_wills_enabled=False,
+            )
         return config
 
     def __str__(self):
-        return f"Global Configuration (Unlock: GHS {self.unlock_fee}, Required Security Questions: {self.required_security_questions})"
+        return f"Global Configuration (Unlock: GHS {self.unlock_fee}, Registration: GHS {self.registration_fee})"
 
 
 # 13. Policyholder Subscription & Paystack Recurring Retainer

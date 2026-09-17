@@ -285,15 +285,51 @@ class EmergencyContactForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Email Address (Optional)'}),
         }
 
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number', '').strip()
+        digits = re.sub(r'\D', '', phone)
+
+        if not digits:
+            raise forms.ValidationError('A valid phone number is required.')
+
+        if len(digits) < 9 or len(digits) > 13:
+            raise forms.ValidationError('Please enter a valid phone number (e.g. 0244123456 or +233244123456).')
+
+        clean_digits = digits[-9:]
+
+        # Global Option B check: across all next-of-kin contacts and citizen accounts
+        contacts_exist = EmergencyContact.objects.filter(phone_number__endswith=clean_digits)
+        if self.instance and self.instance.pk:
+            contacts_exist = contacts_exist.exclude(pk=self.instance.pk)
+
+        if contacts_exist.exists() or CustomUser.objects.filter(phone_number__endswith=clean_digits).exists():
+            raise forms.ValidationError('This phone number is already registered in the system. Please use a different contact number.')
+
+        return phone
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.strip().lower()
+            contacts_exist = EmergencyContact.objects.filter(email__iexact=email)
+            if self.instance and self.instance.pk:
+                contacts_exist = contacts_exist.exclude(pk=self.instance.pk)
+
+            if contacts_exist.exists() or CustomUser.objects.filter(email__iexact=email).exists():
+                raise forms.ValidationError('This email address is already registered in the system. Please provide a different email address.')
+            return email
+        return email
+
 
 class PolicyRecordForm(forms.ModelForm):
     class Meta:
         model = PolicyRecord
-        fields = ['insurer', 'policy_number', 'policy_type', 'is_active']
+        fields = ['insurer', 'policy_number', 'policy_type', 'sum_assured', 'is_active']
         widgets = {
             'insurer': forms.Select(attrs={'class': 'form-input'}),
             'policy_number': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Policy / Certificate ID'}),
             'policy_type': forms.Select(attrs={'class': 'form-input'}),
+            'sum_assured': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 50000.00', 'step': '0.01'}),
         }
 
 

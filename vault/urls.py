@@ -13,6 +13,11 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     
+    # Citizen Password Recovery & Security Questions Verification
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('reset-password/direct/', views.reset_password_direct_view, name='reset_password_direct'),
+    path('reset-password/<str:uidb64>/<str:token>/', views.reset_password_confirm_view, name='reset_password_confirm'),
+
     # Account Activation & Mandatory Security Question Recovery Gate
     path('activate/<str:uidb64>/<str:token>/', views.activate_account_view, name='activate_account'),
     path('security-questions/', views.security_questions_setup_view, name='security_questions_setup'),

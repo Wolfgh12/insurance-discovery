@@ -1053,6 +1053,13 @@
         </div>
 
         <div class="meta-tile">
+          <div class="meta-tile-label">Sum Assured Cover</div>
+          <div class="meta-tile-val" style="color: var(--emerald-green);">
+            GHS {{ policy.sum_assured|default:"0.00"|floatformat:2 }}
+          </div>
+        </div>
+
+        <div class="meta-tile">
           <div class="meta-tile-label">Current Policy Status</div>
           <div class="meta-tile-val" style="color: var(--emerald-green);">
             {{ policy.get_policy_status_display }}
@@ -1105,7 +1112,7 @@
                 title="View & Print Official Paystack Transaction Receipt"
               >
                 🧾 {{ grant_record.payment_reference|default:"LT-RECEIPT" }}
-              </button>
+              </button> 
             </div>
           </div>
         </div>
