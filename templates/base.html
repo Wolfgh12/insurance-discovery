@@ -1741,6 +1741,114 @@
     });
   </script>
 
+  {% if user.is_authenticated %}
+  <!-- Automated Inactivity Warning Modal (10 Min Window / 30s Grace) -->
+  <div id="session-timeout-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 1.5px solid #F59E0B; border-radius: 24px; padding: 2.25rem 2rem; max-width: 420px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.25);">
+      <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.15); border: 2px solid #F59E0B; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem;">
+        ⏳
+      </div>
+      <div style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+        Vault Inactivity Warning
+      </div>
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px;">
+        Session Expiring Soon
+      </h3>
+      <p style="margin: 0 0 1.5rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
+        To protect confidential estate assets and policy records, your active vault session will lock automatically in:
+      </p>
+      <div style="font-size: 2.2rem; font-weight: 900; color: #38BDF8; font-variant-numeric: tabular-nums; margin-bottom: 1.75rem;">
+        <span id="timeout-countdown-sec">30</span>s
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button 
+          type="button" 
+          id="btn-keep-session-active" 
+          style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; padding: 0.85rem; border-radius: 12px; font-size: 0.92rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35); font-family: inherit;"
+        >
+          Keep Working ⚡
+        </button>
+        <form id="auto-inactivity-logout-form" method="POST" action="{% url 'vault:logout' %}?reason=inactivity" style="margin: 0; width: 100%;">
+          {% csrf_token %}
+          <button 
+            type="submit" 
+            style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; padding: 0.75rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;"
+          >
+            Log Out Now 🔒
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inactivity Watcher & Hardware Lock Handler -->
+  <script>
+    (function () {
+      const TOTAL_IDLE_LIMIT = 10 * 60 * 1000;    // 10 minutes
+      const WARNING_THRESHOLD = 9.5 * 60 * 1000;  // 9 minutes 30 seconds
+      let lastActiveTimestamp = Date.now();
+
+      const modal = document.getElementById('session-timeout-modal');
+      const countdownSec = document.getElementById('timeout-countdown-sec');
+      const stayActiveBtn = document.getElementById('btn-keep-session-active');
+      const logoutForm = document.getElementById('auto-inactivity-logout-form');
+
+      function resetIdleTimer() {
+        lastActiveTimestamp = Date.now();
+        if (modal && modal.style.display === 'flex') {
+          modal.style.display = 'none';
+        }
+      }
+
+      if (stayActiveBtn) {
+        stayActiveBtn.addEventListener('click', function () {
+          resetIdleTimer();
+          // Keep backend session alive on server
+          fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).catch(() => {});
+        });
+      }
+
+      // Track physical user input
+      ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((event) => {
+        window.addEventListener(event, () => {
+          if (!modal || modal.style.display !== 'flex') {
+            lastActiveTimestamp = Date.now();
+          }
+        }, { passive: true });
+      });
+
+      // Handle phone lock / tab resume via Page Visibility API
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+          const elapsed = Date.now() - lastActiveTimestamp;
+          if (elapsed >= TOTAL_IDLE_LIMIT) {
+            if (logoutForm) logoutForm.submit();
+          } else if (elapsed >= WARNING_THRESHOLD) {
+            if (modal) modal.style.display = 'flex';
+          }
+        }
+      });
+
+      // Continuous 1-second evaluator
+      setInterval(function () {
+        const elapsed = Date.now() - lastActiveTimestamp;
+
+        if (elapsed >= TOTAL_IDLE_LIMIT) {
+          if (logoutForm) logoutForm.submit();
+        } else if (elapsed >= WARNING_THRESHOLD) {
+          if (modal) modal.style.display = 'flex';
+          const remaining = Math.max(0, Math.ceil((TOTAL_IDLE_LIMIT - elapsed) / 1000));
+          if (countdownSec) countdownSec.textContent = remaining;
+        } else {
+          if (modal && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+          }
+        }
+      }, 1000);
+    })();
+  </script>
+  {% endif %}
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>

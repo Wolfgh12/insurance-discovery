@@ -1,9 +1,9 @@
-from .settings.base import *
 import os
+from .settings.base import *
 
 DEBUG = False
 
-# Replace 'yourusername' with your actual PythonAnywhere username
+# Host domain routing
 ALLOWED_HOSTS = [
     'nanatest.pythonanywhere.com',
     '127.0.0.1',
@@ -23,6 +23,11 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
+# Strict Inactivity & Vault Session Security
+SESSION_COOKIE_AGE = 600  # 10 minutes of inactivity
+SESSION_SAVE_EVERY_REQUEST = True  # Active requests reset the server clock
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Paystack Payment Gateway API Credentials
 PAYSTACK_PUBLIC_KEY = os.environ.get(

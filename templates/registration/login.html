@@ -217,6 +217,13 @@
       <p class="auth-sub">Sign in to manage policies, wills, and family assets</p>
     </div>
 
+    {% if request.GET.reason == 'inactivity' %}
+      <div class="auth-error-banner" style="background: #FEF3C7; border-color: #F59E0B; color: #92400E; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.1rem;">🔒</span>
+        <span><strong>Vault Secured:</strong> Session closed automatically due to 10 minutes of inactivity.</span>
+      </div>
+    {% endif %}
+
     {% if messages %}
       {% for message in messages %}
         <div class="auth-error-banner" style="background: {% if message.tags == 'error' %}#FEF2F2{% else %}#ECFDF5{% endif %}; border-color: {% if message.tags == 'error' %}#FCA5A5{% else %}#A7F3D0{% endif %}; color: {% if message.tags == 'error' %}#991B1B{% else %}#065F46{% endif %};">
