@@ -36,19 +36,18 @@
   .pricing-title {
     font-size: 2.25rem;
     font-weight: 900;
-    color: #F8FAFC;
+    color: #0A192F;
     margin: 0 0 0.75rem;
     letter-spacing: -0.5px;
   }
 
   .pricing-subtitle {
     font-size: 0.95rem;
-    color: #94A3B8;
+    color: #475569;
     max-width: 540px;
     margin: 0 auto;
     line-height: 1.5;
   }
-
   /* Interactive Pill Switch */
   .billing-toggle-wrapper {
     display: flex;
@@ -244,7 +243,7 @@
 <section class="pricing-section">
 
   <div class="pricing-header">
-    <span class="pricing-tag">Sovereign Protection Retainer</span>
+    <span class="pricing-tag"> Protection Retainer</span>
     <h1 class="pricing-title">Secure Your Family's Digital Legacy</h1>
     <p class="pricing-subtitle">
       Continuous policy synchronization, statutory underwriter tracking, and verified estate dispatch.
@@ -468,9 +467,16 @@
       userEmail = 'citizen@legacytrace.gov.gh';
     }
 
+    // Dynamic Cookie-based CSRF extraction (Immune to edge/proxy template cache desync)
+    function getCsrfToken() {
+      const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+      return match ? match[1] : "{{ csrf_token }}";
+    }
+
     let pKey = '{{ paystack_public_key|default:"" }}'.trim();
-    if (!pKey || pKey.includes('...') || pKey.length < 25) {
-      pKey = 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3';
+    if (!pKey) {
+      alert("Payment gateway configuration error: Missing Public Key.");
+      return;
     }
 
     const handler = PaystackPop.setup({
@@ -486,7 +492,8 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCsrfToken()
           },
           body: JSON.stringify({
             reference: response.reference,

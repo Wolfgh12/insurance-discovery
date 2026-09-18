@@ -1,6 +1,8 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0A192F">
 <meta name="mobile-web-app-capable" content="yes">
@@ -394,9 +396,6 @@
       letter-spacing: 0.2px;
     }
 
-    /* ----------------------------------------------------
-       Responsive Adjustments
-    ---------------------------------------------------- */
     @media (max-width: 992px) {
       .footer-grid {
         grid-template-columns: 1fr 1fr;
@@ -407,7 +406,6 @@
       }
     }
 
-   /* Hamburger Menu Trigger */
     .btn-hamburger {
       display: none;
       background: rgba(255, 255, 255, 0.08);
@@ -431,7 +429,6 @@
       color: #ffffff;
     }
 
-    /* Off-Canvas Glassmorphic Drawer Backdrop */
     .mobile-drawer-backdrop {
       display: none;
       position: fixed;
@@ -449,7 +446,6 @@
       opacity: 1;
     }
 
-    /* Slide-out Drawer Panel */
     .mobile-drawer {
       position: fixed;
       top: 0;
@@ -565,23 +561,22 @@
     }
 
     /* ----------------------------------------------------
-       Glassmorphic Transition Page Loader (Mobile Optimised)
+       Minimal Big-Logo Loader (Zero Inscriptions & Centered)
     ---------------------------------------------------- */
     .vault-loader-overlay {
       position: fixed;
       inset: 0;
-      z-index: 999999;
-      background: rgba(10, 25, 47, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      z-index: 9999999;
+      background: #0A192F;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.25rem;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.18s ease, visibility 0.18s ease;
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s ease;
     }
 
     .vault-loader-overlay.active {
@@ -591,19 +586,16 @@
     }
 
     .vault-loader-card {
-      background: rgba(15, 33, 60, 0.95);
-      border: 1.5px solid rgba(6, 182, 212, 0.35);
-      border-radius: 24px;
-      padding: 2rem 2.25rem;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(6, 182, 212, 0.2);
-      max-width: 320px;
-      width: 100%;
-      transform: scale(0.92);
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      justify-content: center;
+      transform: scale(0.9);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .vault-loader-overlay.active .vault-loader-card {
@@ -612,9 +604,8 @@
 
     .vault-loader-spinner-box {
       position: relative;
-      width: 72px;
-      height: 72px;
-      margin-bottom: 1.2rem;
+      width: clamp(110px, 24vw, 150px);
+      height: clamp(110px, 24vw, 150px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -622,37 +613,33 @@
 
     .vault-loader-ring {
       position: absolute;
-      inset: 0;
+      inset: -10px;
       border-radius: 50%;
-      border: 3px solid rgba(6, 182, 212, 0.12);
+      border: 3px solid rgba(6, 182, 212, 0.15);
       border-top-color: #06B6D4;
-      border-right-color: #0284C7;
-      animation: vaultSpinnerRotate 0.85s cubic-bezier(0.4, 0.1, 0.4, 1) infinite;
+      border-right-color: #38BDF8;
+      animation: vaultSpinnerRotate 1.1s cubic-bezier(0.4, 0.1, 0.4, 1) infinite;
     }
 
     .vault-loader-icon {
-      font-size: 2rem;
+      width: 100%;
+      height: 100%;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 2px solid rgba(212, 175, 55, 0.85);
+      background: #0A192F;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 25px rgba(6, 182, 212, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: vaultIconGlow 1.8s ease-in-out infinite;
+      animation: vaultIconGlow 2.2s ease-in-out infinite;
     }
 
-    .vault-loader-title {
-      color: #ffffff;
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      margin-bottom: 0.35rem;
-    }
-
-    .vault-loader-sub {
-      color: var(--accent-light-cyan, #A5F3FC);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      opacity: 0.95;
-      min-height: 1.2em;
+    .vault-loader-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     @keyframes vaultSpinnerRotate {
@@ -671,7 +658,6 @@
       }
     }
 
-    /* Floating Back-to-Top Button */
     .btn-back-to-top {
       position: fixed;
       bottom: 24px;
@@ -715,15 +701,15 @@
 </head>
 <body>
 
-  <!-- Global Glassmorphic Vault Transition Loader -->
-  <div id="vault-page-loader" class="vault-loader-overlay" aria-hidden="true" role="status" aria-label="Loading vault">
+  <!-- Global Minimal Big-Logo Vault Loader (Initial Load & Nav Transition) -->
+  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading vault">
     <div class="vault-loader-card">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
-        <div class="vault-loader-icon" id="vault-loader-icon">🛡️</div>
+        <div class="vault-loader-icon" id="vault-loader-icon">
+          <img src="{% static 'images/LegacyTrace_shield_logo_design_.jpeg' %}" alt="LegacyTrace Shield Logo">
+        </div>
       </div>
-      <div class="vault-loader-title" id="vault-loader-title">LegacyTrace Vault</div>
-      <div class="vault-loader-sub" id="vault-loader-sub">Securing session & routing...</div>
     </div>
   </div>
 
@@ -740,6 +726,7 @@
           LegacyTrace <span class="brand-badge">Vault</span>
         </div>
       </a>
+      
       <!-- Desktop Section Links -->
       <nav>
         <ul class="nav-menu-links">
@@ -748,7 +735,7 @@
           <!-- Role-Aware Active Workspace Indicator -->
           {% if user.is_authenticated and request.session.active_admin_role == 'LEAD' %}
             <li>
-              <a href="{% url 'vault:lead_admin_dashboard' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+              <a href="{% url 'vault:lead_admin_dashboard' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: gap: 5px;">
                 👑 Lead Dashboard
               </a>
             </li>
@@ -954,7 +941,7 @@
             <li><a href="/#how-it-works" class="footer-link">Claims Verification Flow</a></li>
             <li><a href="/#faq" class="footer-link">Frequently Asked Questions</a></li>
             <li><a href="{% url 'vault:dashboard' %}" class="footer-link">Subscriber Dashboard</a></li>
-<li>
+            <li>
               <a href="{% url 'vault:claimant_dashboard' %}" class="footer-link" style="color: #38BDF8;">
                 🔐 Claimant Private Dashboard
               </a>
@@ -1006,140 +993,108 @@
   <!-- Core Scripts -->
   <script src="{% static 'js/app.js' %}?v=4.0"></script>
   
-  <!-- Global Route Transition & Loader Controller -->
+  <!-- Nav & Action Route Transition Loader (2-Second Execution Window) -->
   <script> 
     (function () {
       const loader = document.getElementById('vault-page-loader');
       const subText = document.getElementById('vault-loader-sub');
-      const iconEl = document.getElementById('vault-loader-icon');
       if (!loader) return;
 
-      let safetyTimeout;
-      let isSubmitting = false;
+      const LOADER_DURATION = 2000; // Exactly 2 seconds
+      let navHoldTimer = null;
+      let isNavigating = false;
 
-      function showLoader(message, icon) {
+      function showNavLoader(message) {
         if (subText && message) subText.textContent = message;
-        if (iconEl && icon) iconEl.textContent = icon;
-        
         loader.classList.add('active');
         loader.setAttribute('aria-hidden', 'false');
-
-        clearTimeout(safetyTimeout);
-        safetyTimeout = setTimeout(hideLoader, 8000);
       }
 
-      function hideLoader() {
+      function hideNavLoader() {
         loader.classList.remove('active');
         loader.setAttribute('aria-hidden', 'true');
-        clearTimeout(safetyTimeout);
-        isSubmitting = false;
+        if (navHoldTimer) clearTimeout(navHoldTimer);
+        isNavigating = false;
       }
 
-      hideLoader();
-      window.showVaultLoader = showLoader;
-      window.hideVaultLoader = hideLoader;
-
-      window.addEventListener('pageshow', function () {
-        hideLoader();
+      // Initial Page Load: 2-second hold
+      window.addEventListener('load', function () {
+        setTimeout(hideNavLoader, LOADER_DURATION);
       });
 
-      // Handle Interactive Elements (Links, Buttons, Forms)
+      window.addEventListener('pageshow', function () {
+        setTimeout(hideNavLoader, 400);
+      });
+
+      window.showVaultLoader = showNavLoader;
+      window.hideVaultLoader = hideNavLoader;
+
+      // Comprehensive action target selector
+      const ACTION_SELECTOR = [
+        '.nav-menu-links a', '.nav-menu-links button',
+        '.nav-auth-cluster a', '.nav-auth-cluster button',
+        '.mobile-nav-list a', '.mobile-nav-list button',
+        '.brand-group', '.mobile-drawer a', '.mobile-drawer button',
+        'a[href*="login"]', 'a[href*="logout"]', 'a[href*="signup"]',
+        'a[href*="pricing"]', 'a[href*="dashboard"]', 'a[href*="claimant"]',
+        '.btn-nav-portal', '.btn-nav-cta',
+        'a[href*="#registry-search"]', '.btn-registry-search',
+        'button[type="submit"]', 'input[type="submit"]'
+      ].join(', ');
+
       document.addEventListener('click', function (e) {
-        // Ignore any clicks inside the confirmation modal or elements with no-loader
-        if (e.target.closest('#universal-confirm-modal') || e.target.closest('.no-loader')) {
+        if (isNavigating) {
+          e.preventDefault();
           return;
         }
 
-        // 1. Check for Buttons or Submit Inputs (Verify, Register, Unlock, Logout)
-        const btn = e.target.closest('button, input[type="submit"]');
-        if (btn) {
-          const form = btn.closest('form');
+        const target = e.target.closest(ACTION_SELECTOR);
+        if (!target) return;
 
-          // Prevent loader from firing if form or button requires confirmation first
-          if (
-            btn.classList.contains('no-loader') || 
-            btn.getAttribute('type') === 'button' ||
-            (form && form.dataset.hasConfirm === "true") ||
-            btn.dataset.hasConfirm === "true"
-          ) {
-            return;
-          }
+        // Ignore confirmation modals, drawer close triggers, and hamburger toggles
+        if (
+          target.closest('#universal-confirm-modal') ||
+          target.closest('#session-conflict-modal') ||
+          target.closest('#session-timeout-modal') ||
+          target.classList.contains('no-loader') ||
+          target.classList.contains('btn-hamburger') ||
+          target.classList.contains('mobile-drawer-close')
+        ) {
+          return;
+        }
 
-          const btnText = (btn.innerText || btn.value || '').trim().toLowerCase();
-          const action = (form ? form.getAttribute('action') || '' : '').toLowerCase();
+        // 1. Navigation & Search Form Buttons
+        const parentForm = target.closest('form');
+        if (target.matches('button[type="submit"], input[type="submit"]') || (parentForm && target.tagName === 'BUTTON')) {
+          if (parentForm && !parentForm.classList.contains('no-loader')) {
+            e.preventDefault();
+            e.stopPropagation();
+            isNavigating = true;
 
-          if (form && form.checkValidity && !form.checkValidity()) {
-            form.reportValidity();
-            return;
-          }
+            const text = (target.innerText || target.value || '').toLowerCase();
+            const action = (parentForm.getAttribute('action') || '').toLowerCase();
+            const formId = (parentForm.id || '').toLowerCase();
 
-          if (isSubmitting) return;
-
-          // Register & Open Vault Submit
-          if (btnText.includes('register') || btn.classList.contains('btn-signup-submit')) {
-            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
-              e.preventDefault();
-              isSubmitting = true;
-              showLoader('Creating & encrypting digital vault...', '🛡️');
-              setTimeout(function () {
-                if (form.requestSubmit) form.requestSubmit(btn);
-                else form.submit();
-              }, 360);
+            if (text.includes('search') || formId.includes('search') || action.includes('search') || action.includes('registry')) {
+              showNavLoader('Querying National Policy Registry...');
+            } else if (text.includes('log out') || action.includes('logout')) {
+              showNavLoader('Terminating session & locking vault...');
+            } else if (text.includes('log in') || text.includes('sign in') || action.includes('login')) {
+              showNavLoader('Authenticating credentials...');
+            } else {
+              showNavLoader('Processing secure request...');
             }
-            return;
-          }
 
-          // Verify / Registry Search Action
-          if (btnText.includes('verify') || btnText.includes('search') || btn.classList.contains('btn-verify-search')) {
-            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
-              e.preventDefault();
-              isSubmitting = true;
-              showLoader('Searching Registry & Verifying...', '🔍');
-              setTimeout(function () {
-                if (form.requestSubmit) form.requestSubmit(btn);
-                else form.submit();
-              }, 360);
-            }
-            return;
-          }
-
-          // Logout Action
-          if (btnText.includes('log out') || action.includes('logout')) {
-            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
-              e.preventDefault();
-              isSubmitting = true;
-              showLoader('Terminating session & locking vault...', '🔒');
-              setTimeout(function () {
-                if (form.requestSubmit) form.requestSubmit(btn);
-                else form.submit();
-              }, 420);
-              return;
-            }
-          }
-
-          // Unlock / Login Submit
-          if (btnText.includes('unlock') || btnText.includes('sign in')) {
-            if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
-              e.preventDefault();
-              isSubmitting = true;
-              showLoader('Decrypting vault credentials...', '🔐');
-              setTimeout(function () {
-                if (form.requestSubmit) form.requestSubmit(btn);
-                else form.submit();
-              }, 360);
-            }
-            return;
-          }
-
-          // Generic Form Fallback
-          if (form && !form.classList.contains('no-loader') && form.getAttribute('target') !== '_blank') {
-            showLoader('Processing request & securing...', '⚡');
+            navHoldTimer = setTimeout(function () {
+              if (parentForm.requestSubmit) parentForm.requestSubmit(target);
+              else parentForm.submit();
+            }, LOADER_DURATION);
             return;
           }
         }
 
-        // 2. Check for Navigation Links (Sign Up, Open Vault, Sign In Here, Create Account, Back to Home)
-        const link = e.target.closest('a');
+        // 2. Navigation Anchor Links
+        const link = target.closest('a');
         if (!link) return;
 
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -1147,48 +1102,85 @@
         const href = link.getAttribute('href');
         if (!href) return;
 
+        // Smooth scroll for anchor targets
+        if (href.startsWith('#')) {
+          const hashTarget = document.querySelector(href);
+          if (hashTarget) {
+            e.preventDefault();
+            showNavLoader('Locating Registry Section...');
+            setTimeout(function () {
+              hideNavLoader();
+              hashTarget.scrollIntoView({ behavior: 'smooth' });
+            }, 800);
+            return;
+          }
+          return;
+        }
+
         if (
-          href.startsWith('#') ||
           href.startsWith('javascript:') ||
           href.startsWith('mailto:') ||
           href.startsWith('tel:') ||
           link.getAttribute('target') === '_blank' ||
-          link.hasAttribute('download') ||
-          link.classList.contains('no-loader')
+          link.hasAttribute('download')
         ) {
           return;
         }
 
-        try {
-          const targetUrl = new URL(link.href, window.location.href);
-          const currentUrl = new URL(window.location.href);
-          if (
-            targetUrl.pathname === currentUrl.pathname &&
-            targetUrl.search === currentUrl.search &&
-            targetUrl.hash
-          ) {
-            return;
-          }
-        } catch (err) {}
+        e.preventDefault();
+        e.stopPropagation();
+        isNavigating = true;
 
         const linkText = (link.innerText || '').trim().toLowerCase();
-        
-        // Show loader without blocking or delaying native browser navigation
-        if (linkText.includes('sign in') || linkText.includes('log in') || href.includes('login')) {
-          showLoader('Opening vault sign-in access...', '🔐');
-        } else if (linkText.includes('open') || linkText.includes('vault') || linkText.includes('dashboard')) {
-          showLoader('Accessing Encrypted Vault...', '🔐');
-        } else if (linkText.includes('sign up') || linkText.includes('create account') || linkText.includes('register') || href.includes('signup')) {
-          showLoader('Preparing Vault Registration...', '🛡️');
-        } else if (linkText.includes('back to home') || linkText.includes('home') || href === '/') {
-          showLoader('Returning to Registry Home...', '🛡️');
+        if (linkText.includes('search') || href.includes('registry')) {
+          showNavLoader('Accessing National Registry Search...');
+        } else if (linkText.includes('sign in') || linkText.includes('log in') || href.includes('login')) {
+          showNavLoader('Opening encrypted sign-in access...');
+        } else if (linkText.includes('register') || linkText.includes('sign up') || href.includes('signup') || href.includes('pricing')) {
+          showNavLoader('Preparing Citizen Vault Enrollment...');
+        } else if (linkText.includes('open vault') || linkText.includes('dashboard') || href.includes('dashboard') || href.includes('claimant')) {
+          showNavLoader('Accessing Sovereign Digital Vault...');
+        } else if (href === '/' || linkText.includes('home')) {
+          showNavLoader('Returning to National Registry Home...');
         } else {
-          showLoader('Securing session & routing...', '🛡️');
+          showNavLoader('Establishing secure channel...');
         }
 
+        navHoldTimer = setTimeout(function () {
+          window.location.href = link.href;
+        }, LOADER_DURATION);
+
+      }, true);
+
+      // 3. Form Submit Interceptor (Registry Search enter keypresses & general forms)
+      document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (isNavigating || form.classList.contains('no-loader') || form.closest('#universal-confirm-modal')) {
+          return;
+        }
+
+        e.preventDefault();
+        isNavigating = true;
+
+        const formAction = (form.getAttribute('action') || '').toLowerCase();
+        const formId = (form.id || '').toLowerCase();
+
+        if (formId.includes('search') || formAction.includes('search') || formAction.includes('registry') || form.querySelector('input[type="search"], input[name*="search"], input[name*="gha"], input[name*="query"], input[name*="id_number"]')) {
+          showNavLoader('Querying Sovereign Policy Registry...');
+        } else if (formAction.includes('logout') || formId.includes('logout')) {
+          showNavLoader('Securing credentials & terminating session...');
+        } else if (formAction.includes('login') || formId.includes('login')) {
+          showNavLoader('Authenticating credentials...');
+        } else {
+          showNavLoader('Transmitting secure payload...');
+        }
+
+        navHoldTimer = setTimeout(function () {
+          HTMLFormElement.prototype.submit.call(form);
+        }, LOADER_DURATION);
       }, true);
     })();
-  </script> 
+  </script>
 
   <!-- Session Mode Conflict & Privilege Intercept Modal -->
   <div id="session-conflict-modal" style="display: none; position: fixed; inset: 0; z-index: 9999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
@@ -1287,7 +1279,6 @@
       }
     });
 
-    // Back to Top Scroll Controller
     document.addEventListener('DOMContentLoaded', function () {
       const backToTopBtn = document.getElementById('btn-back-to-top');
       if (!backToTopBtn) return;
@@ -1576,7 +1567,6 @@
   </div>
 
   <script>
-    // Universal Clean Confirmation Interceptor
     let pendingConfirmAction = null;
 
     function openConfirmModal({ title = "Confirm Action", message = "Are you sure you want to proceed?", confirmText = "Delete", isDestructive = true, onConfirm }) {
@@ -1659,7 +1649,6 @@
         });
       }
 
-      // Automatically bind to any form or button using confirm()
       document.querySelectorAll('form, button, a').forEach(el => {
         const onsubmitAttr = el.getAttribute('onsubmit');
         const onclickAttr = el.getAttribute('onclick');
@@ -1715,14 +1704,12 @@
   <!-- Universal Auto-Dismiss Notifications (8 Seconds) -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Targets standard alert boxes, messages, and role="alert" containers
       const alerts = document.querySelectorAll(
         '.alert, [class*="alert"], .messages li, .messages > div, [role="alert"], .notification'
       );
 
       alerts.forEach(function (alertBox) {
         setTimeout(function () {
-          // Smooth fade-out and slide-up collapse
           alertBox.style.transition = 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), margin 0.5s ease, padding 0.5s ease';
           alertBox.style.overflow = 'hidden';
           alertBox.style.opacity = '0';
@@ -1732,11 +1719,10 @@
           alertBox.style.marginTop = '0px';
           alertBox.style.marginBottom = '0px';
 
-          // Remove cleanly from DOM once animation finishes
           setTimeout(function () {
             alertBox.remove();
           }, 550);
-        }, 8000); // 8-second delay
+        }, 8000);
       });
     });
   </script>
@@ -1781,11 +1767,10 @@
     </div>
   </div>
 
-  <!-- Inactivity Watcher & Hardware Lock Handler -->
   <script>
     (function () {
-      const TOTAL_IDLE_LIMIT = 10 * 60 * 1000;    // 10 minutes
-      const WARNING_THRESHOLD = 9.5 * 60 * 1000;  // 9 minutes 30 seconds
+      const TOTAL_IDLE_LIMIT = 10 * 60 * 1000;
+      const WARNING_THRESHOLD = 9.5 * 60 * 1000;
       let lastActiveTimestamp = Date.now();
 
       const modal = document.getElementById('session-timeout-modal');
@@ -1803,12 +1788,10 @@
       if (stayActiveBtn) {
         stayActiveBtn.addEventListener('click', function () {
           resetIdleTimer();
-          // Keep backend session alive on server
           fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).catch(() => {});
         });
       }
 
-      // Track physical user input
       ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((event) => {
         window.addEventListener(event, () => {
           if (!modal || modal.style.display !== 'flex') {
@@ -1817,7 +1800,6 @@
         }, { passive: true });
       });
 
-      // Handle phone lock / tab resume via Page Visibility API
       document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'visible') {
           const elapsed = Date.now() - lastActiveTimestamp;
@@ -1829,7 +1811,6 @@
         }
       });
 
-      // Continuous 1-second evaluator
       setInterval(function () {
         const elapsed = Date.now() - lastActiveTimestamp;
 
@@ -1845,6 +1826,104 @@
           }
         }
       }, 1000);
+    })();
+  </script>
+  {% endif %}
+
+  {% if platform_config.security_anti_inspect_enabled %}
+  <!-- ====================================================
+       Sovereign Anti-Tamper, Anti-Inspect & DevTools Shield
+  ==================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Silent Terminal Blindfold: Neutralize all console inspection telemetry
+      const noop = function () {};
+      const methods = [
+        'log', 'debug', 'info', 'warn', 'error', 'table', 
+        'trace', 'dir', 'dirxml', 'group', 'groupCollapsed', 
+        'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count'
+      ];
+      for (let i = 0; i < methods.length; i++) {
+        try {
+          window.console[methods[i]] = noop;
+        } catch (e) {}
+      }
+
+      // 2. Total Context Menu Lockdown: Suppress Right-Click "Inspect Element"
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }, { capture: true });
+
+      // 3. Keystroke Interceptor: Suppress F12, DevTools shortcuts, View-Source, and Save-Page
+      window.addEventListener('keydown', function (e) {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const metaOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+        const keyCode = e.keyCode || e.which;
+        const key = (e.key || '').toUpperCase();
+
+        // Block F12
+        if (keyCode === 123 || key === 'F12') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+
+        // Block Ctrl+Shift+I / J / C / K / E (Inspect, Console, Inspector)
+        if (metaOrCtrl && e.shiftKey && (
+          keyCode === 73 || key === 'I' || 
+          keyCode === 74 || key === 'J' || 
+          keyCode === 67 || key === 'C' || 
+          keyCode === 75 || key === 'K' ||
+          keyCode === 69 || key === 'E'
+        )) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+
+        // Block Ctrl+U / Cmd+Alt+U (View Page Source)
+        if ((metaOrCtrl && (keyCode === 85 || key === 'U')) || (isMac && e.altKey && metaOrCtrl && (keyCode === 85 || key === 'U'))) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+
+        // Block Ctrl+S / Cmd+S (Save Page to Disk)
+        if (metaOrCtrl && (keyCode === 83 || key === 'S')) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, { capture: true });
+
+      // 4. Active Debugger Tripwire: Instantly locks execution if DevTools is attached
+      function deployTripwire() {
+        try {
+          const trip = function () {
+            (function () {
+              return false;
+            })['constructor']('debugger')();
+          };
+          trip();
+        } catch (err) {}
+      }
+
+      setInterval(deployTripwire, 300);
+
+      // 5. Window Dimension Delta Tripwire (Detects detached/docked DevTools opening)
+      const threshold = 160;
+      window.addEventListener('resize', function () {
+        if (
+          (window.outerWidth - window.innerWidth > threshold) ||
+          (window.outerHeight - window.innerHeight > threshold)
+        ) {
+          deployTripwire();
+        }
+      }, { passive: true });
     })();
   </script>
   {% endif %}

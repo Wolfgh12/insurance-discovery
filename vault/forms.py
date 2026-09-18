@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 from .models import (
     AssetRecord,
     CitizenMemory,
@@ -121,8 +122,13 @@ class SignUpForm(UserCreationForm):
         email = self.cleaned_data.get('email')
         if email:
             email = email.strip().lower()
-            if CustomUser.objects.filter(email__iexact=email).exists():
-                raise forms.ValidationError('An account with this email address already exists.')
+            claimed_policyholder_q = (
+                Q(policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+                | Q(policies__unlock_grants__is_active=True)
+                | Q(policies__claims__isnull=False)
+            )
+            if CustomUser.objects.filter(email__iexact=email).exclude(claimed_policyholder_q).exists():
+                raise forms.ValidationError('An active account with this email address already exists.')
             return email
         raise forms.ValidationError('A valid email address is required for vault billing and Paystack receipts.')
 
@@ -135,6 +141,15 @@ class SignUpForm(UserCreationForm):
 
         if len(cleaned_digits) < 9 or len(cleaned_digits) > 13:
             raise forms.ValidationError('Please enter a valid mobile number (e.g. 0244123456 or +233244123456).')
+
+        clean_suffix = cleaned_digits[-9:]
+        claimed_policyholder_q = (
+            Q(policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+            | Q(policies__unlock_grants__is_active=True)
+            | Q(policies__claims__isnull=False)
+        )
+        if CustomUser.objects.filter(phone_number__endswith=clean_suffix).exclude(claimed_policyholder_q).exists():
+            raise forms.ValidationError('This phone number is already registered to an active vault. Please provide a different number.')
 
         return phone
 
@@ -167,8 +182,6 @@ class SignUpForm(UserCreationForm):
 
         if method == 'QUESTIONS':
             user.is_active = True
-            if hasattr(user, 'has_security_questions_configured'):
-                user.has_security_questions_configured = True
         else:
             user.is_active = False
 
@@ -178,14 +191,12 @@ class SignUpForm(UserCreationForm):
                     q = self.cleaned_data.get(f'question_{i}')
                     a = self.cleaned_data.get(f'answer_{i}')
                     if q and a:
-                        UserSecurityAnswer.objects.update_or_create(
+                        ans_record, _ = UserSecurityAnswer.objects.get_or_create(
                             user=user,
-                            question=q,
-                            defaults={'answer': a.strip()}
+                            question=q
                         )
-                if hasattr(user, 'has_security_questions_configured') and not user.has_security_questions_configured:
-                    user.has_security_questions_configured = True
-                    user.save(update_fields=['has_security_questions_configured'])
+                        ans_record.set_answer(a)
+                        ans_record.save()
 
         self.save_m2m = save_security_answers
 
@@ -258,19 +269,17 @@ class SecurityQuestionsSetupForm(forms.Form):
 
         return cleaned_data
 
-def save(self, user):
+    def save(self, user):
         for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
             q = self.cleaned_data.get(f'question_{i}')
             a = self.cleaned_data.get(f'answer_{i}')
             if q and a:
-                UserSecurityAnswer.objects.update_or_create(
+                ans_record, _ = UserSecurityAnswer.objects.get_or_create(
                     user=user,
-                    question=q,
-                    defaults={'answer': a.strip()}
+                    question=q
                 )
-        if hasattr(user, 'has_security_questions_configured'):
-            user.has_security_questions_configured = True
-            user.save(update_fields=['has_security_questions_configured'])
+                ans_record.set_answer(a)
+                ans_record.save()
         return user
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -310,13 +319,25 @@ class EmergencyContactForm(forms.ModelForm):
 
         clean_digits = digits[-9:]
 
-        # Global Option B check: across all next-of-kin contacts and citizen accounts
-        contacts_exist = EmergencyContact.objects.filter(phone_number__endswith=clean_digits)
+        claimed_policyholder_q = (
+            Q(policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+            | Q(policies__unlock_grants__is_active=True)
+            | Q(policies__claims__isnull=False)
+        )
+        claimed_contact_q = (
+            Q(user__policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+            | Q(user__policies__unlock_grants__is_active=True)
+            | Q(user__policies__claims__isnull=False)
+        )
+
+        contacts_exist = EmergencyContact.objects.filter(phone_number__endswith=clean_digits).exclude(claimed_contact_q)
         if self.instance and self.instance.pk:
             contacts_exist = contacts_exist.exclude(pk=self.instance.pk)
 
-        if contacts_exist.exists() or CustomUser.objects.filter(phone_number__endswith=clean_digits).exists():
-            raise forms.ValidationError('This phone number is already registered in the system. Please use a different contact number.')
+        users_exist = CustomUser.objects.filter(phone_number__endswith=clean_digits).exclude(claimed_policyholder_q)
+
+        if contacts_exist.exists() or users_exist.exists():
+            raise forms.ValidationError('This phone number is already registered to an active vault. Please use a different contact number.')
 
         return phone
 
@@ -324,15 +345,28 @@ class EmergencyContactForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         if email:
             email = email.strip().lower()
-            contacts_exist = EmergencyContact.objects.filter(email__iexact=email)
+
+            claimed_policyholder_q = (
+                Q(policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+                | Q(policies__unlock_grants__is_active=True)
+                | Q(policies__claims__isnull=False)
+            )
+            claimed_contact_q = (
+                Q(user__policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
+                | Q(user__policies__unlock_grants__is_active=True)
+                | Q(user__policies__claims__isnull=False)
+            )
+
+            contacts_exist = EmergencyContact.objects.filter(email__iexact=email).exclude(claimed_contact_q)
             if self.instance and self.instance.pk:
                 contacts_exist = contacts_exist.exclude(pk=self.instance.pk)
 
-            if contacts_exist.exists() or CustomUser.objects.filter(email__iexact=email).exists():
-                raise forms.ValidationError('This email address is already registered in the system. Please provide a different email address.')
+            users_exist = CustomUser.objects.filter(email__iexact=email).exclude(claimed_policyholder_q)
+
+            if contacts_exist.exists() or users_exist.exists():
+                raise forms.ValidationError('This email address is already registered to an active vault. Please provide a different email address.')
             return email
         return email
-
 
 class PolicyRecordForm(forms.ModelForm):
     class Meta:

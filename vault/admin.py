@@ -522,13 +522,22 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
 class PlatformConfigurationAdmin(admin.ModelAdmin):
     list_display = (
         "config_summary",
+        "anti_inspect_badge",
         "required_questions_display",
         "unlock_fee_display",
         "annual_retainer_display",
         "active_modules_display",
         "updated_at",
     )
+    list_display_links = ("config_summary",)
     fieldsets = (
+        (
+            "🛡️ Developer Security & Anti-Inspection Shield",
+            {
+                "fields": ("security_anti_inspect_enabled",),
+                "description": "Toggle client-side protection across all public, login, and registration pages. Uncheck this box when you need to inspect elements, test layout changes, or read console output during development.",
+            },
+        ),
         (
             "Modular Vault Global Feature Switches (Active vs. Coming Soon)",
             {
@@ -572,6 +581,18 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def anti_inspect_badge(self, obj):
+        if getattr(obj, "security_anti_inspect_enabled", True):
+            return format_html(
+                '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+                "🔒 SHIELD ACTIVE"
+            )
+        return format_html(
+            '<span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+            "🛠️ DEV INSPECT ALLOWED"
+        )
+    anti_inspect_badge.short_description = "Anti-Inspect Status"
 
     def config_summary(self, obj):
         return "Global Platform Monetization Settings"
@@ -796,14 +817,17 @@ class ContactInquiryAdmin(admin.ModelAdmin):
     def status_badge(self, obj):
         if obj.status == "NEW":
             return format_html(
-                '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">● NEW / UNREAD</span>'
+                '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+                "● NEW / UNREAD"
             )
         elif obj.status == "IN_REVIEW":
             return format_html(
-                '<span style="background: #FEF3C7; color: #D97706; border: 1px solid #F59E0B; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">⏳ IN REVIEW</span>'
+                '<span style="background: #FEF3C7; color: #D97706; border: 1px solid #F59E0B; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+                "⏳ IN REVIEW"
             )
         return format_html(
-            '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #10B981; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">✓ RESOLVED</span>'
+            '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #10B981; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+            "✓ RESOLVED"
         )
     status_badge.short_description = "Desk Status"
 

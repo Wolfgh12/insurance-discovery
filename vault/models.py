@@ -3,6 +3,7 @@ import secrets
 from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password, check_password
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
@@ -79,12 +80,14 @@ class CustomUser(AbstractUser):
         return code
 
     def verify_phone_otp(self, candidate_code, max_valid_minutes=10):
-        """Validates the candidate OTP against the stored code and expiration window."""
+        """Validates the candidate OTP using constant-time comparison to prevent timing attacks."""
         if not self.phone_otp or not self.otp_created_at:
             return False
         if timezone.now() > self.otp_created_at + timedelta(minutes=max_valid_minutes):
             return False
-        if str(candidate_code).strip() == self.phone_otp.strip():
+        candidate_clean = str(candidate_code).strip()
+        stored_clean = self.phone_otp.strip()
+        if secrets.compare_digest(candidate_clean, stored_clean):
             self.phone_otp = None
             self.otp_created_at = None
             self.is_active = True
@@ -114,6 +117,8 @@ class CustomUser(AbstractUser):
     @property
     def has_security_questions_configured(self):
         """Returns True if the user has answered the required number of security questions."""
+        if not self.pk:
+            return False
         config = PlatformConfiguration.get_solo()
         required_count = config.required_security_questions if config else 3
         if self.security_answers.count() >= required_count:
@@ -125,17 +130,30 @@ class CustomUser(AbstractUser):
         )
 
     def verify_security_answer(self, question_identifier, raw_answer):
-        """Case-insensitive verification supporting dynamic questions and legacy fallback."""
+        """Constant-time, hash-protected verification supporting dynamic questions and legacy fallback."""
         if not raw_answer:
             return False
         cleaned = raw_answer.strip().lower()
 
-        # 1. Match against dynamic UserSecurityAnswer records (by ID or prompt string)
+        def verify_and_upgrade(stored_val, record=None):
+            if not stored_val:
+                return False
+            # Check if stored answer is a PBKDF2/Argon2 salted hash
+            if stored_val.startswith(('pbkdf2_', 'argon2', 'bcrypt')):
+                return check_password(cleaned, stored_val)
+            # Constant-time comparison for legacy plaintext; auto-upgrades to hash on successful match
+            is_match = secrets.compare_digest(cleaned, stored_val.strip().lower())
+            if is_match and record:
+                record.set_answer(cleaned)
+                record.save(update_fields=['answer'])
+            return is_match
+
+        # 1. Match against dynamic UserSecurityAnswer records
         try:
             q_id = int(question_identifier)
             ans_record = self.security_answers.filter(question_id=q_id).first()
             if ans_record:
-                return cleaned == ans_record.answer.strip().lower()
+                return verify_and_upgrade(ans_record.answer, record=ans_record)
         except (ValueError, TypeError):
             pass
 
@@ -143,7 +161,7 @@ class CustomUser(AbstractUser):
             question__question_text__iexact=str(question_identifier).strip()
         ).first()
         if ans_record:
-            return cleaned == ans_record.answer.strip().lower()
+            return verify_and_upgrade(ans_record.answer, record=ans_record)
 
         # 2. Legacy fallback
         mapping = { 
@@ -154,7 +172,7 @@ class CustomUser(AbstractUser):
         stored = mapping.get(question_identifier)
         if not stored:
             return False
-        return cleaned == stored.strip().lower()
+        return verify_and_upgrade(stored)
 
     @property
     def masked_ghana_card(self):
@@ -362,13 +380,27 @@ class PolicyRecord(models.Model):
         )['total'] or 0.00
 
     @property
+    def statutory_disbursement_value(self):
+        """
+        Returns the live payout figure for statutory tracking:
+        1. If formal claim disbursements exist, uses that exact amount.
+        2. If the policy is marked SETTLED directly, uses the guaranteed sum_assured.
+        3. If ACTIVE, GRACE_PERIOD, or LAPSED, contributes 0.00.
+        """
+        if self.policy_status != 'SETTLED':
+            return 0.00
+        disbursed = float(self.total_disbursed_claims or 0.00)
+        if disbursed > 0:
+            return disbursed
+        return float(self.sum_assured or 0.00)
+
+    @property
     def net_estimated_benefit(self):
         """Calculates remaining statutory payout after existing disbursements"""
         return max(float(self.sum_assured) - float(self.total_disbursed_claims), 0.00)
 
     def __str__(self):
         return f"{self.policy_number} - {self.insurer.name} ({self.policyholder.username})"
-
 
 # 5. Claims History & Statutory Disbursement Ledger
 class PolicyClaim(models.Model):
@@ -787,6 +819,13 @@ class PlatformConfiguration(models.Model):
         help_text="Number of security questions a citizen must select and answer during registration or setup (e.g. 3, 5, or 10)."
     )
 
+    # Master Developer Anti-Inspect & DevTools Lockout Switch (Controlled via Django Admin)
+    security_anti_inspect_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Enable Anti-Inspect & DevTools Lockout",
+        help_text="Developer Master Toggle: When enabled, suppresses right-click menus, shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U), and active debuggers site-wide. Uncheck to inspect elements during development and debugging."
+    )
+
     # Modular Vault Feature Switches (Checked = Active | Unchecked = Coming Soon)
     module_policies_enabled = models.BooleanField(
         default=True,
@@ -862,6 +901,7 @@ class PlatformConfiguration(models.Model):
                 annual_subscription_fee=120.00,
                 paystack_annual_plan_code='PLN_14xz26jx9j3gakp',
                 required_security_questions=3,
+                security_anti_inspect_enabled=True,
                 module_policies_enabled=True,
                 module_memories_enabled=False,
                 module_family_tree_enabled=False,
@@ -1030,7 +1070,7 @@ class UserSecurityAnswer(models.Model):
     )
     answer = models.CharField(
         max_length=255,
-        help_text="Case-insensitive verification string"
+        help_text="Cryptographically salted one-way hash (PBKDF2/SHA256)"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -1040,6 +1080,18 @@ class UserSecurityAnswer(models.Model):
         unique_together = ('user', 'question')
         verbose_name = "User Security Answer"
         verbose_name_plural = "User Security Answers"
+
+    def set_answer(self, raw_answer):
+        """Normalizes and hashes raw answer using Django's cryptographically salted hasher."""
+        if raw_answer:
+            cleaned = raw_answer.strip().lower()
+            self.answer = make_password(cleaned)
+
+    def save(self, *args, **kwargs):
+        # Automatically hash answers before writing to disk if passed as raw text
+        if self.answer and not self.answer.startswith(('pbkdf2_', 'argon2', 'bcrypt')):
+            self.set_answer(self.answer)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} -> {self.question.question_text[:35]}..."

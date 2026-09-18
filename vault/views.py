@@ -14,6 +14,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -35,6 +36,7 @@ from .forms import (
     SecurityQuestionsSetupForm,
     SignUpForm,
 )
+
 from .models import (
     AssetRecord,
     BankAccount,
@@ -57,21 +59,17 @@ from .models import (
     UserSubscription,
 )
 
-PAYSTACK_SECRET_KEY = getattr(
-    settings,
-    'PAYSTACK_SECRET_KEY',
-    'sk_test_c40d6c80263fef031ca0079a7ad21a22d65f729b',
-)
+PAYSTACK_SECRET_KEY = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
 
 
 def get_client_ip(request):
-    """Resolves real client IP address through proxies and standard headers."""
+    """Resolves origin IP, prioritizing REMOTE_ADDR unless in production behind a verified reverse proxy."""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
+    if x_forwarded_for and not settings.DEBUG:
         ip = x_forwarded_for.split(',')[0].strip()
     else:
         ip = request.META.get('REMOTE_ADDR')
-    return ip
+    return ip or '127.0.0.1'
 
 
 def decode_base64_image(data_uri, file_prefix="biometric"):
@@ -97,48 +95,49 @@ def home_search_view(request):
     if query:
         has_searched = True
         clean_digits = re.sub(r'\D', '', query)
+        clean_card = query.replace('-', '').replace(' ', '').upper()
+
+        card_variations = [query, clean_card]
+        if clean_digits:
+            card_variations.extend([
+                clean_digits,
+                f"GHA-{clean_digits}",
+                f"GHA{clean_digits}",
+            ])
+            if len(clean_digits) >= 10:
+                card_variations.extend([
+                    f"GHA-{clean_digits[:9]}-{clean_digits[9:10]}",
+                    f"{clean_digits[:9]}-{clean_digits[9:10]}",
+                ])
+            if len(clean_digits) >= 9:
+                card_variations.append(clean_digits[:9])
 
         user_q = (
             Q(first_name__icontains=query)
             | Q(last_name__icontains=query)
             | Q(username__icontains=query)
-            | Q(ghana_card_number__icontains=query)
         )
-        if clean_digits:
-            user_q |= Q(ghana_card_number__icontains=clean_digits)
+        for var in set(card_variations):
+            if var:
+                user_q |= Q(ghana_card_number__iexact=var)
+                user_q |= Q(ghana_card_number__icontains=var)
 
-        now = timezone.now()
-
-        # Restrict discovery strictly to citizen accounts with an active, unexpired subscription
-        matched_users = CustomUser.objects.filter(
-            user_q,
-            user_type='POLICYHOLDER',
-            is_staff=False,
-            is_superuser=False,
-            subscription__status='ACTIVE',
-            subscription__current_period_end__gte=now
-        )
+        matched_users = list(CustomUser.objects.filter(user_q))
 
         policy_q = (
             Q(policyholder__in=matched_users)
+            | Q(policy_number__icontains=query)
             | Q(policyholder__first_name__icontains=query)
             | Q(policyholder__last_name__icontains=query)
             | Q(policyholder__username__icontains=query)
-            | Q(policyholder__ghana_card_number__icontains=query)
         )
-        if clean_digits:
-            policy_q |= Q(policyholder__ghana_card_number__icontains=clean_digits)
+        for var in set(card_variations):
+            if var:
+                policy_q |= Q(policyholder__ghana_card_number__iexact=var)
+                policy_q |= Q(policyholder__ghana_card_number__icontains=var)
 
-        # Retrieve policies exclusively for verified active subscribers
         existing_policies = list(
-            PolicyRecord.objects.filter(
-                policy_q,
-                is_active=True,
-                policyholder__is_staff=False,
-                policyholder__is_superuser=False,
-                policyholder__subscription__status='ACTIVE',
-                policyholder__subscription__current_period_end__gte=now
-            )
+            PolicyRecord.objects.filter(policy_q)
             .select_related('policyholder', 'insurer', 'policyholder__subscription')
             .prefetch_related('unlock_grants', 'claims')
         )
@@ -159,7 +158,6 @@ def home_search_view(request):
     }
     return render(request, 'home.html', context)
 
-
 def pricing_view(request):
     """
     Public pricing page presenting quarterly and annual digital estate vault plans.
@@ -172,7 +170,6 @@ def pricing_view(request):
     return render(request, 'pricing.html', context)
 
 
-@csrf_exempt
 def verify_subscription_view(request):
     """
     Verifies Paystack recurring subscription payment, records the active UserSubscription,
@@ -255,22 +252,23 @@ def verify_subscription_view(request):
     else:
         end_date = start_date + timedelta(days=365)
 
-    subscription, _ = UserSubscription.objects.update_or_create(
-        user=request.user,
-        defaults={
-            'tier': 'STANDARD',
-            'billing_cycle': billing_cycle,
-            'status': 'ACTIVE',
-            'paystack_customer_code': customer_code,
-            'paystack_plan_code': plan_code,
-            'paystack_subscription_code': subscription_code,
-            'paystack_authorization_code': auth_code,
-            'amount_paid': amount_paid,
-            'current_period_start': start_date,
-            'current_period_end': end_date,
-            'auto_renew': True,
-        }
-    )
+    with transaction.atomic():
+        subscription, _ = UserSubscription.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'tier': 'STANDARD',
+                'billing_cycle': billing_cycle,
+                'status': 'ACTIVE',
+                'paystack_customer_code': customer_code,
+                'paystack_plan_code': plan_code,
+                'paystack_subscription_code': subscription_code,
+                'paystack_authorization_code': auth_code,
+                'amount_paid': amount_paid,
+                'current_period_start': start_date,
+                'current_period_end': end_date,
+                'auto_renew': True,
+            }
+        )
 
     messages.success(request, f"Vault protection activated successfully under the {subscription.get_billing_cycle_display()} plan!")
     return JsonResponse({
@@ -282,6 +280,7 @@ def verify_subscription_view(request):
     })
 
 
+@csrf_exempt
 @csrf_exempt
 def check_claimant_match_view(request):
     """
@@ -467,7 +466,6 @@ def check_claimant_match_view(request):
     })
 
 
-@csrf_exempt
 def verify_unlock_view(request):
     """
     Verifies Paystack payment, enforces claim locking against duplicate unlocks,
@@ -497,27 +495,30 @@ def verify_unlock_view(request):
     if not audit_id:
         return JsonResponse({'status': 'error', 'message': 'Security audit reference required.'}, status=403)
 
-    policy = get_object_or_404(
-        PolicyRecord.objects.select_related('policyholder', 'insurer'), id=record_id
-    )
+    with transaction.atomic():
+        # Enforce ACID row-level mutual exclusion lock (SELECT ... FOR UPDATE)
+        policy = get_object_or_404(
+            PolicyRecord.objects.select_for_update().select_related('policyholder', 'insurer'), 
+            id=record_id
+        )
 
-    audit_entry = ClaimSecurityAuditLog.objects.filter(
-        id=audit_id,
-        policy=policy,
-        is_matched=True
-    ).first()
+        audit_entry = ClaimSecurityAuditLog.objects.filter(
+            id=audit_id,
+            policy=policy,
+            is_matched=True
+        ).first()
 
-    if not audit_entry:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Unauthorized: Identity credentials did not pass next-of-kin verification. Vault cannot be unlocked.'
-        }, status=403)
+        if not audit_entry:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Unauthorized: Identity credentials did not pass next-of-kin verification. Vault cannot be unlocked.'
+            }, status=403)
 
-    if policy.is_claim_locked:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'This policy has already been unlocked by a verified relative and a claim filing is in progress.'
-        }, status=400)
+        if policy.is_claim_locked:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'This policy has already been unlocked by a verified relative and a claim filing is in progress.'
+            }, status=400)
 
     paystack_url = f"https://api.paystack.co/transaction/verify/{reference}"
     headers = {
@@ -545,50 +546,55 @@ def verify_unlock_view(request):
     if not payment_verified:
         return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
 
-    policyholder = policy.policyholder
-    access_token = secrets.token_urlsafe(24)
+    with transaction.atomic():
+        policy = get_object_or_404(
+            PolicyRecord.objects.select_for_update().select_related('policyholder', 'insurer'), 
+            id=record_id
+        )
+        policyholder = policy.policyholder
+        access_token = secrets.token_urlsafe(24)
 
-    claimant_username = f"claimant_{secrets.token_hex(3)}"
-    temp_password = f"LT-{secrets.token_hex(4).upper()}"
-    name_parts = claimant_name.split(' ', 1) if claimant_name else ['Verified', 'Claimant']
-    first_name = name_parts[0]
-    last_name = name_parts[1] if len(name_parts) > 1 else ''
+        claimant_username = f"claimant_{secrets.token_hex(3)}"
+        temp_password = f"LT-{secrets.token_hex(4).upper()}"
+        name_parts = claimant_name.split(' ', 1) if claimant_name else ['Verified', 'Claimant']
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
 
-    claimant_user = CustomUser.objects.create(
-        username=claimant_username,
-        email=None,
-        first_name=first_name,
-        last_name=last_name,
-        phone_number=claimant_phone,
-        ghana_card_number=None,
-        permanent_address=permanent_address,
-        user_type='POLICYHOLDER',
-    )
-    claimant_user.set_password(temp_password)
-    claimant_user.save()
-    audit_id = data.get('audit_id')
-    if audit_id:
-        ClaimSecurityAuditLog.objects.filter(id=audit_id).update(disclaimer_acknowledged=True)
+        claimant_user = CustomUser.objects.create(
+            username=claimant_username,
+            email=None,
+            first_name=first_name,
+            last_name=last_name,
+            phone_number=claimant_phone,
+            ghana_card_number=None,
+            permanent_address=permanent_address,
+            user_type='POLICYHOLDER',
+        )
+        claimant_user.set_password(temp_password)
+        claimant_user.save()
 
-    grant, _ = ClaimantAccessGrant.objects.update_or_create(
-        payment_reference=reference,
-        defaults={
-            'policyholder': policyholder,
-            'policy': policy,
-            'claimant_user': claimant_user,
-            'claimant_name': claimant_name or claimant_user.get_full_name() or claimant_username,
-            'relationship_to_deceased': relationship,
-            'claimant_phone': claimant_phone,
-            'claimant_ghana_card': claimant_ghana_card,
-            'permanent_address': permanent_address,
-            'claimant_email': claimant_email,
-            'access_token': access_token,
-            'is_active': True,
-        },
-    )
+        if audit_id:
+            ClaimSecurityAuditLog.objects.filter(id=audit_id).update(disclaimer_acknowledged=True)
 
-    policy.policy_status = 'CLAIM_IN_PROGRESS'
-    policy.save(update_fields=['policy_status'])
+        grant, _ = ClaimantAccessGrant.objects.update_or_create(
+            payment_reference=reference,
+            defaults={
+                'policyholder': policyholder,
+                'policy': policy,
+                'claimant_user': claimant_user,
+                'claimant_name': claimant_name or claimant_user.get_full_name() or claimant_username,
+                'relationship_to_deceased': relationship,
+                'claimant_phone': claimant_phone,
+                'claimant_ghana_card': claimant_ghana_card,
+                'permanent_address': permanent_address,
+                'claimant_email': claimant_email,
+                'access_token': access_token,
+                'is_active': True,
+            },
+        )
+
+        policy.policy_status = 'CLAIM_IN_PROGRESS'
+        policy.save(update_fields=['policy_status'])
 
     request.session[f'claimant_vault_{access_token}'] = {
         'grant_id': grant.id,
@@ -963,6 +969,8 @@ def login_view(request):
         return redirect('vault:dashboard')
 
     next_url = request.POST.get('next') or request.GET.get('next') or '/dashboard/'
+    client_ip = get_client_ip(request)
+    ip_throttle_key = f"throttle_ip_{client_ip}"
 
     def prompt_single_saved_question(target_user):
         """Fetches 1 random question exclusively from the questions answered during registration."""
@@ -1004,6 +1012,9 @@ def login_view(request):
                 'next': next_url,
             })
 
+        cache.delete(ip_throttle_key)
+        clean_user_id = re.sub(r'[\s\-]', '', target_user.username).lower()
+        cache.delete(f"throttle_acc_{clean_user_id}")
         login(request, target_user)
         messages.success(request, f"Welcome back, {target_user.first_name or target_user.username}!")
         return redirect(next_url)
@@ -1029,12 +1040,17 @@ def login_view(request):
         answer = request.POST.get('security_answer', '').strip()
 
         if user.verify_security_answer(question_key, answer):
+            cache.delete(ip_throttle_key)
+            clean_user_id = re.sub(r'[\s\-]', '', user.username).lower()
+            cache.delete(f"throttle_acc_{clean_user_id}")
             request.session.pop('login_security_challenge', None)
             request.session.pop('login_pending_user_id', None)
             login(request, user)
             messages.success(request, f"Identity confirmed. Welcome back, {user.first_name or user.username}!")
             return redirect(next_destination)
         else:
+            failed_attempts = cache.get(ip_throttle_key, 0) + 1
+            cache.set(ip_throttle_key, failed_attempts, timeout=900)
             messages.error(request, "Incorrect security answer. Access denied.")
             return render(request, 'registration/login.html', {
                 'challenge_required': True,
@@ -1090,10 +1106,29 @@ def login_view(request):
 
         return prompt_single_saved_question(user)
 
-    # Stage 1: Check username/password
+    # Stage 1: Dual-Key Brute-Force Check (IP + Target Account)
     username_or_card = request.POST.get('username', '').strip()
     password = request.POST.get('password', '').strip()
     clean_card = username_or_card.replace('-', '').replace(' ', '')
+    clean_identifier = re.sub(r'[\s\-]', '', username_or_card).lower()
+    account_throttle_key = f"throttle_acc_{clean_identifier}" if clean_identifier else None
+
+    ip_fails = cache.get(ip_throttle_key, 0)
+    acc_fails = cache.get(account_throttle_key, 0) if account_throttle_key else 0
+
+    if ip_fails >= 5:
+        messages.error(
+            request, 
+            "Too many failed login attempts recorded from this network. Access locked for 15 minutes."
+        )
+        return redirect('vault:login')
+
+    if acc_fails >= 5:
+        messages.error(
+            request, 
+            "This account is temporarily locked due to excessive failed attempts. Access locked for 15 minutes."
+        )
+        return redirect('vault:login')
 
     matched_user = CustomUser.objects.filter(
         Q(username__iexact=username_or_card)
@@ -1117,6 +1152,10 @@ def login_view(request):
     user = authenticate(request, username=target_username, password=password)
 
     if user is not None:
+        cache.delete(ip_throttle_key)
+        if account_throttle_key:
+            cache.delete(account_throttle_key)
+
         if user.is_superuser:
             return redirect('vault:admin_login')
         elif user.is_staff or user.user_type in ['STAFF', 'INSURER_ADMIN']:
@@ -1137,8 +1176,18 @@ def login_view(request):
         # Fee already paid -> Present 1 random saved question
         return prompt_single_saved_question(user)
 
-    messages.error(request, "Invalid username or password. Please verify your credentials.")
+    new_ip_fails = ip_fails + 1
+    cache.set(ip_throttle_key, new_ip_fails, timeout=900)
+    if account_throttle_key:
+        cache.set(account_throttle_key, acc_fails + 1, timeout=900)
+
+    remaining = max(0, 5 - new_ip_fails)
+    messages.error(
+        request, 
+        f"Invalid username or password. {remaining} attempt{'s' if remaining != 1 else ''} remaining before temporary lockout."
+    )
     return redirect(login_fail_url)
+
 
 def forgot_password_view(request):
     """
@@ -1389,7 +1438,6 @@ def reset_password_confirm_view(request, uidb64, token):
     })
 
 
-@csrf_exempt
 @login_required
 def verify_registration_fee_view(request):
     """
@@ -1427,9 +1475,10 @@ def verify_registration_fee_view(request):
     if not verified:
         return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
 
-    request.user.has_paid_registration_fee = True
-    request.user.registration_payment_reference = reference
-    request.user.save(update_fields=['has_paid_registration_fee', 'registration_payment_reference'])
+    with transaction.atomic():
+        request.user.has_paid_registration_fee = True
+        request.user.registration_payment_reference = reference
+        request.user.save(update_fields=['has_paid_registration_fee', 'registration_payment_reference'])
 
     messages.success(request, "Statutory registration fee of GHS 10.00 settled! Your citizen account is now verified.")
     return JsonResponse({'status': 'success', 'message': 'Registration fee verified successfully.'})
@@ -1524,6 +1573,8 @@ def dashboard_view(request):
                 .exclude(policyholder=user)
                 .select_related('policyholder', 'insurer')
             )
+
+    platform_config = PlatformConfiguration.get_solo()
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -1834,7 +1885,6 @@ def dashboard_view(request):
         MilestonePrompt.seed_default_prompts()
 
     approved_prompts_count = MilestonePrompt.objects.filter(status='APPROVED', is_active=True).count()
-    platform_config = PlatformConfiguration.get_solo()
 
     context = {
         'profile_form': ProfileUpdateForm(instance=user),
@@ -2047,9 +2097,9 @@ def lead_admin_dashboard_view(request):
     total_audits = ClaimSecurityAuditLog.objects.count()
     flagged_audits_count = ClaimSecurityAuditLog.objects.filter(is_matched=False).count()
 
-    total_disbursed = PolicyClaim.objects.filter(status='DISBURSED').aggregate(
-        total=Sum('amount_disbursed')
-    )['total'] or 0.00
+    # Dynamic Statutory Disbursements (Option A with Claim Precision)
+    settled_policies = PolicyRecord.objects.filter(policy_status='SETTLED').prefetch_related('claims')
+    total_disbursed = sum(p.statutory_disbursement_value for p in settled_policies)
 
     telemetry_q = request.GET.get('telemetry_q', '').strip()
     telemetry_status = request.GET.get('telemetry_status', '').strip()
@@ -2144,7 +2194,6 @@ def lead_admin_dashboard_view(request):
 
     inquiries = ContactInquiry.objects.all().order_by('-created_at')[:40]
     new_inquiries_count = ContactInquiry.objects.filter(status='NEW').count()
-    platform_config = PlatformConfiguration.get_solo()
 
     pending_milestones = MilestonePrompt.objects.filter(status='PENDING_REVIEW').select_related('suggested_by').order_by('-created_at')
     recent_memories = CitizenMemory.objects.select_related('user', 'prompt').order_by('-created_at')[:30]
@@ -2347,8 +2396,6 @@ def update_claim_status_view(request, claim_id):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
 
-    claim = get_object_or_404(PolicyClaim.objects.select_related('policy__insurer'), id=claim_id)
-
     new_status = request.POST.get('status')
     amount_disbursed = request.POST.get('amount_disbursed')
     insurer_notes = request.POST.get('insurer_notes', '').strip()
@@ -2358,19 +2405,25 @@ def update_claim_status_view(request, claim_id):
         messages.error(request, 'Invalid claim status option.')
         return redirect('vault:staff_admin_dashboard')
 
-    claim.status = new_status
-    if insurer_notes:
-        claim.insurer_notes = insurer_notes
+    with transaction.atomic():
+        claim = get_object_or_404(
+            PolicyClaim.objects.select_for_update().select_related('policy'), 
+            id=claim_id
+        )
+        claim.status = new_status
+        if insurer_notes:
+            claim.insurer_notes = insurer_notes
 
-    if new_status == 'DISBURSED' and amount_disbursed:
-        try:
-            claim.amount_disbursed = float(amount_disbursed)
-            claim.policy.policy_status = 'SETTLED'
-            claim.policy.save(update_fields=['policy_status'])
-        except ValueError:
-            pass
+        if new_status == 'DISBURSED' and amount_disbursed:
+            try:
+                claim.amount_disbursed = float(amount_disbursed)
+                claim.policy.policy_status = 'SETTLED'
+                claim.policy.save(update_fields=['policy_status'])
+            except ValueError:
+                pass
 
-    claim.save()
+        claim.save()
+
     messages.success(request, f"Claim {claim.claim_reference} updated to {claim.get_status_display()}.")
     return redirect('vault:staff_admin_dashboard')
 
