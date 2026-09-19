@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}LegacyTrace | Insurance & Estate Discovery Vault{% endblock %}
+{% block title %}mySikaVault | Insurance & Estate Discovery Vault{% endblock %}
 {% block extra_css %}
 <style>
   /* ----------------------------------------------------
@@ -47,6 +47,42 @@
     text-transform: uppercase;
     letter-spacing: 0.6px;
     margin-bottom: 1rem;
+  }
+
+  /* Eye-Catching mySikaVault Dual-Tone Typography */
+  .brand-mysikavault {
+    display: inline-flex;
+    align-items: baseline;
+    font-weight: 900;
+    letter-spacing: -0.4px;
+    text-transform: none;
+  }
+
+  .brand-mysikavault .p-my {
+    color: #E0F2FE;
+    font-weight: 700;
+    font-size: 0.94em;
+    opacity: 0.95;
+  }
+
+  .brand-mysikavault .p-sika {
+    background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 55%, #D97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 950;
+    padding: 0 1px;
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45));
+  }
+
+  .brand-mysikavault .p-vault {
+    background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 950;
+  }
+
+  .brand-mysikavault.dark-contrast .p-my {
+    color: #0A192F;
   }
 
   .hero-headline {
@@ -1155,10 +1191,10 @@
       <!-- Branded Gold Vault App Icon & Badge -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
         <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(10, 25, 47, 0.95); border: 2px solid rgba(212, 175, 55, 0.6); padding: 0; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(212, 175, 55, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-pill" style="margin-bottom: 0;">
-          LegacyTrace • Encrypted Vault
+          <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> • Encrypted Vault
         </div>
       </div>
 
@@ -1293,7 +1329,7 @@
         >
         <div class="visual-overlay-tag">
           <div class="visual-tag-icon" style="width: 32px; height: 32px; padding: 0; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(212, 175, 55, 0.6); display: flex; align-items: center; justify-content: center;">
-            <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
           </div>
           <div>
             <div class="visual-tag-text">Peace of Mind for Loved Ones</div>
@@ -1461,9 +1497,9 @@
     <!-- Center Hub: Command Module -->
     <div class="orbital-core-hub">
       <span class="orbital-badge">🇬🇭 Powerful Digital Infrastructure</span>
-      <h2 class="orbital-title">What is <span>LegacyTrace</span>?</h2>
+      <h2 class="orbital-title">What is <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>?</h2>
       <p class="orbital-desc">
-        <strong>LegacyTrace</strong> is a centralized legacy registry and encrypted estate information system. It allows policyholders to proactively catalog active policies, bank accounts, investment securities, land titles, family lineage trees, precious keepsakes, and certified digital wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
+        <strong class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></strong> is a centralized legacy registry and encrypted estate information system. It allows policyholders to proactively catalog active policies, bank accounts, investment securities, land titles, family lineage trees, precious keepsakes, and certified digital wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
       </p>
       {% if not user.is_authenticated and not request.session.active_claimant_token %}
         <div style="display: flex; justify-content: center;">
@@ -2180,14 +2216,14 @@
     <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Got Questions?</span>
     <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Frequently Asked Questions</h2>
     <p class="section-description" style="text-align: center; margin: 0 auto; max-width: 600px;">
-      Clear answers on how LegacyTrace protects policyholders and simplifies family inheritance.
+      Clear answers on how <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> protects policyholders and simplifies family inheritance.
     </p>
   </div>
 
   <div class="faq-container">
     <div class="faq-item">
       <div class="faq-q">Can a policyholder hold policies from different insurance companies on one profile?</div>
-      <div class="faq-a">Yes. LegacyTrace allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
+      <div class="faq-a">Yes. <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
     </div>
 
     <div class="faq-item">
@@ -2212,13 +2248,13 @@
 
     <div class="faq-item">
       <div class="faq-q">Can policyholders catalog bank accounts, Treasury Bills, and land property?</div>
-      <div class="faq-a">Yes. Beyond insurance policies, LegacyTrace functions as a comprehensive estate depository where citizens securely record commercial bank accounts, Government of Ghana Treasury Bills, mutual funds, listed GSE shares, land titles, and family lineage trees so assets are never lost or left unclaimed.</div>
+      <div class="faq-a">Yes. Beyond insurance policies, <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> functions as a comprehensive estate depository where citizens securely record commercial bank accounts, Government of Ghana Treasury Bills, mutual funds, listed GSE shares, land titles, and family lineage trees so assets are never lost or left unclaimed.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">How are Group Policies managed?</div>
       <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
-    </div>
+    </div>  
   </div>
 </div>
 
