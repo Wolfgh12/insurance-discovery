@@ -1194,9 +1194,9 @@
             <span>Searching on behalf of a relative or deceased loved one?</span>
           </div>
 
-<form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar" id="registry-search-form">
+<form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar no-loader" id="registry-search-form">
   <input 
-    type="text" 
+    type="text"  
     name="q" 
     id="registry-search-input"
     placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
@@ -1208,7 +1208,7 @@
   >
   <!-- Instant X Reset Element (Bypasses Global Capture Loader) -->
   <span id="search-clear-btn" role="button" tabindex="0" class="btn-search-clear {% if query %}visible{% endif %}" aria-label="Clear search" title="Clear and reset search">✕</span>
-  <button type="submit" class="btn-verify-search">Search Registry 🔍</button>
+  <button type="submit" class="btn-verify-search no-loader">Search Registry 🔍</button>
 </form>
 
           <!-- Immediate Empty/Invalid Search Error Message -->
@@ -3371,12 +3371,23 @@
         });
       }
 
+      function dismissGlobalLoader() {
+        const loader = document.getElementById('global-loader') || document.querySelector('.global-loader') || document.querySelector('.loader-backdrop');
+        if (loader) {
+          loader.style.display = 'none';
+          loader.classList.remove('active', 'show');
+        }
+      }
+
       searchForm.addEventListener('submit', function (e) {
         const rawValue = searchInput.value.trim();
         const digits = rawValue.replace(/^GHA-?/, '').replace(/\D/g, '');
 
         if (!rawValue || rawValue === 'GHA' || rawValue === 'GHA-' || digits.length === 0) {
           e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          dismissGlobalLoader();
           triggerSearchShake();
           showFeedback("Please enter your relative's Ghana Card ID (e.g. GHA-123456789-0).");
           searchInput.focus();
@@ -3385,13 +3396,16 @@
 
         if (digits.length < 10) {
           e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          dismissGlobalLoader();
           triggerSearchShake();
           showFeedback(`Incomplete Ghana Card ID. You entered ${digits.length} of 10 required digits.`);
           searchInput.focus();
           return;
         }
         hideFeedback();
-      });
+      }); 
     }
 
     // ----------------------------------------------------
