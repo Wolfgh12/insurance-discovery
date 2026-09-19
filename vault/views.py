@@ -2662,3 +2662,10 @@ def contact_view(request):
             messages.error(request, "Please fill out all required fields before submitting.")
 
     return render(request, 'contact.html')
+
+
+def terms_view(request):
+    """
+    Public statutory Terms of Service and Platform Governance Agreement.
+    """
+    return render(request, 'terms.html')

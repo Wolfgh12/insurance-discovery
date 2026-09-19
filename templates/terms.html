@@ -1,0 +1,507 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}mySikaVault | Terms of Service & Governance Agreement{% endblock %}
+
+{% block extra_css %}
+<style>
+  .legal-container {
+    max-width: 960px;
+    margin: 1.5rem auto 4rem;
+    padding: 0 1rem;
+  }
+
+  .legal-header-card {
+    background: var(--gradient-oceanic);
+    border-radius: 20px;
+    padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+    color: #ffffff;
+    box-shadow: 0 16px 40px rgba(10, 25, 47, 0.3);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  .legal-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.85rem;
+  }
+
+  .legal-main-title {
+    font-size: clamp(1.75rem, 4vw, 2.4rem);
+    font-weight: 900;
+    line-height: 1.25;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
+
+  .legal-meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--accent-light-cyan);
+    border-top: 1px solid rgba(6, 182, 212, 0.25);
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+
+  .legal-meta-item strong {
+    color: #ffffff;
+  }
+
+  .legal-content-card {
+    background: #ffffff;
+    border: 1px solid rgba(2, 132, 199, 0.15);
+    border-radius: 20px;
+    padding: clamp(1.75rem, 4vw, 3rem);
+    box-shadow: 0 12px 35px rgba(2, 132, 199, 0.05);
+    color: #334155;
+    line-height: 1.7;
+    font-size: 0.94rem;
+  }
+
+  .legal-section {
+    margin-bottom: 2.75rem;
+    padding-bottom: 2.25rem;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  .legal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .legal-section h2 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--primary-deep-navy);
+    margin: 0 0 1rem;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legal-section h3 {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 1.35rem 0 0.5rem;
+  }
+
+  .legal-section p {
+    margin: 0 0 1rem;
+  }
+
+  .legal-section ul, .legal-section ol {
+    margin: 0 0 1.25rem;
+    padding-left: 1.4rem;
+  }
+
+  .legal-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Notice & Warning Callout Boxes */
+  .callout-box {
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    margin: 1.25rem 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .callout-warning {
+    background: #FEF2F2;
+    border: 1.5px solid #FCA5A5;
+    color: #991B1B;
+  }
+
+  .callout-warning strong {
+    color: #7F1D1D;
+  }
+
+  .callout-statutory {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    color: #166534;
+  }
+
+  .callout-statutory strong {
+    color: #14532D;
+  }
+
+  .callout-info {
+    background: #F0F9FF;
+    border: 1.5px solid #BAE6FD;
+    color: #075985;
+  }
+
+  .callout-info strong {
+    color: #0C4A6E;
+  }
+
+  /* Legal Fee Table */
+  .table-responsive {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+  }
+
+  .legal-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+  }
+
+  .legal-table th {
+    background: #0A192F;
+    color: #ffffff;
+    font-weight: 800;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .legal-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    color: #334155;
+    vertical-align: top;
+  }
+
+  .legal-table tr:nth-child(even) td {
+    background: #F8FAFC;
+  }
+
+  .badge-non-refundable {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #F87171;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    text-transform: uppercase;
+  }
+
+  /* Protocol Phase Cards */
+  .protocol-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .protocol-phase {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-left: 4px solid var(--secondary-sea-blue);
+    border-radius: 10px;
+    padding: 1.15rem 1.25rem;
+  }
+
+  .protocol-phase-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--primary-deep-navy);
+    margin-bottom: 0.35rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+
+  <!-- Master Legal Header Card -->
+  <div class="legal-header-card">
+    <div class="legal-badge-pill">
+      Statutory Platform Document • Act 843 & Act 29
+    </div>
+    <h1 class="legal-main-title">Terms of Service & Platform Governance Agreement</h1>
+    <p style="margin: 0; font-size: 0.92rem; color: var(--accent-light-cyan); max-width: 720px; line-height: 1.55;">
+      Governing technical registry utilization, AES-256 data custody, mandatory Act 843 biometric calibration, estate discovery fees, and statutory non-underwriting boundaries.
+    </p>
+
+    <div class="legal-meta-strip">
+      <div class="legal-meta-item">
+        Effective Date: <strong>September 19, 2026</strong>
+      </div>
+      <div class="legal-meta-item">
+        Operating Platform: <strong>mySikaVault</strong>
+      </div>
+      <div class="legal-meta-item">
+        Jurisdiction: <strong>Republic of Ghana</strong>
+      </div>
+      <div class="legal-meta-item">
+        Service Address: <strong>9 Sibis Street, Accra, Ghana</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Body Container -->
+  <div class="legal-content-card">
+
+    <!-- Section 1 -->
+    <div class="legal-section">
+      <h2>1. Preamble, Binding Agreement & Capacity</h2>
+      <p>
+        This Terms of Service and Platform Governance Agreement (the <strong>"Agreement"</strong>) constitutes a legally binding contract entered into between <strong>mySikaVault</strong> (<strong>"mySikaVault"</strong>, <strong>"the Platform"</strong>, <strong>"we"</strong>, <strong>"us"</strong>, or <strong>"our"</strong>), having its principal service address at 9 Sibis Street, Accra, Ghana, and any individual, entity, policyholder, subscriber, next-of-kin, or claimant (<strong>"User"</strong>, <strong>"Policyholder"</strong>, <strong>"Claimant"</strong>, or <strong>"you"</strong>) accessing, browsing, registering an account on, or querying the software infrastructure accessible via mysikavault.com and its affiliated subdomains.
+      </p>
+      <p>
+        By creating a citizen vault, initiating a national registry search, uploading estate records, completing biometric facial calibrations, or submitting payment credentials, you affirm and warrant that:
+      </p>
+      <ol>
+        <li>You are at least eighteen (18) years of age with full legal capacity under the laws of the Republic of Ghana to enter into legally enforceable agreements;</li>
+        <li>You have read, thoroughly understood, and unreservedly accept all covenants, disclaimers, liability caps, and governance protocols contained herein; and</li>
+        <li>If you access the platform on behalf of a family lineage council, corporate enterprise, or group insurance policyholder scheme, you hold certified legal authority to bind said entity to this Agreement.</li>
+      </ol>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="legal-section">
+      <h2>2. Technology Intermediary Classification & Non-Underwriting Disclaimers</h2>
+      <div class="callout-box callout-warning">
+        <strong>CRITICAL LEGAL NOTICE:</strong> mySikaVault is strictly an independent information technology software provider and cryptographic data custodian. <strong>mySikaVault is NOT an insurance company, insurance brokerage, insurance agency, loss adjuster, legal chambers, or financial underwriting institution.</strong>
+      </div>
+      <p>
+        <strong>2.1 Zero Payout Liability:</strong> mySikaVault does not underwrite, sell, issue, manage, or financially back any insurance policy, asset class, pension plan, or investment security. We bear zero legal, statutory, or financial liability for the approval, adjudication, payout, partial settlement, reduction, dispute, delay, or rejection of any insurance claim filed with any underwriting firm (including, but not limited to, Enterprise Life, SIC Insurance, StarLife Assurance, GLICO General, Hollard Insurance, Vanguard Assurance, or any other underwriter).
+      </p>
+      <p>
+        <strong>2.2 Direct Insurer Jurisdiction:</strong> All statutory claim reviews, assessments of insurable interest, terms of cover, exclusion clauses, and death benefit disbursements rest solely under the independent authority and underwriting contracts of the respective insurance company.
+      </p>
+      <p>
+        <strong>2.3 Absence of Agency:</strong> The citation, listing, or rendering of corporate logos, trademarks, or trade names on the Platform serves exclusively as an informational directory locator for user convenience. Such appearances do not establish an agency relationship, partnership, joint venture, fiduciary alliance, or official endorsement between mySikaVault and the referenced financial institutions.
+      </p>
+      <p>
+        <strong>2.4 No Legal or Probate Practice:</strong> Cataloging copies of wills, indentures, deeds, statutory declarations, or family tree lineages on mySikaVault does not constitute formal testamentary execution, legal probate, or legal advice. Ghanaian estate statutes, the Administration of Estates Act, 1961 (Act 63), and High Court Letters of Administration supersede any informal or uncertified designations stored on the Platform.
+      </p>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="legal-section">
+      <h2>3. Accuracy of Records & Sole Policyholder Responsibility</h2>
+      <p>
+        mySikaVault operates on a zero-knowledge data custody model. The Platform does not independently audit, verify, or warrant the real-world accuracy or active standing of records uploaded by users.
+      </p>
+      <ul>
+        <li><strong>Sole Custodial Warranty:</strong> The Policyholder bears sole and exclusive responsibility for ensuring that all policy reference numbers, underwriter names, bank account numbers, branch identities, Treasury Bill serials, property indentures, family lineage trees, and next-of-kin contact points are accurate, current, and legally owned by the Policyholder.</li>
+        <li><strong>Garbage-In, Garbage-Out Protection:</strong> mySikaVault accepts zero liability in instances where a surviving relative fails to discover, verify, or claim an active estate benefit due to typographical errors, expired policy numbers, fraudulent documents, lapsed premiums, omitted family records, or inaccurate Ghana Card identifications submitted by the Policyholder.</li>
+      </ul>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="legal-section">
+      <h2>4. Statutory Biometric Authentication & Data Protection Compliance</h2>
+      <div class="callout-box callout-statutory">
+        <strong>ACT 843 STATUTORY COMPLIANCE:</strong> All biometric capturing and identification processing operations conform strictly to the requirements of the <strong>Ghana Data Protection Act, 2012 (Act 843)</strong>.
+      </div>
+      <p>
+        <strong>4.1 Express Biometric Consent:</strong> To prevent fraudulent liquidation, unauthorized asset snooping, and estate identity theft, mySikaVault enforces a mandatory Three-Angle Facial Biometric Calibration (Front Profile, Left Profile, and Right Profile) paired with Ghana Card ID validation prior to provisioning any claimant dossier. By enabling your camera and completing the scan, you grant express, unambiguous, and irrevocable consent to mySikaVault to capture, analyze, and cryptographically hash your facial geometry.
+      </p>
+      <p>
+        <strong>4.2 Forensic Audit Depository:</strong> You expressly acknowledge that your biometric images, audio calibration metrics, device operating environment, public IP address, and network timestamps are permanently preserved in an immutable, tamper-proof security audit vault. These records are maintained to provide conclusive forensic proof of identity in the event of subsequent criminal investigation or estate litigation.
+      </p>
+      <p>
+        <strong>4.3 Prohibition of Living Citizen Surveillance:</strong> Searching the registry using the Ghana Card of a living individual without certified, written power of attorney or explicit legal authorization constitutes unlawful personal data processing under Act 843 and will trigger immediate session termination, identity blacklisting, and referral to the Data Protection Commission.
+      </p>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="legal-section">
+      <h2>5. Fee Structure, Billing Lifecycle & Strict Non-Refundability</h2>
+      <p>
+        All financial payments processed through the Platform are executed securely via certified payment gateways, including Paystack.
+      </p>
+
+      <div class="table-responsive">
+        <table class="legal-table">
+          <thead>
+            <tr>
+              <th>Fee Category</th>
+              <th>Statutory Purpose</th>
+              <th>Billing Schedule</th>
+              <th>Refund Classification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Claimant Discovery Unlock Fee</strong></td>
+              <td>Administrative record matching, biometric verification, and automated dossier synthesis.</td>
+              <td>One-time charge (GHS 50.00).</td>
+              <td><span class="badge-non-refundable">Strictly Non-Refundable</span></td>
+            </tr>
+            <tr>
+              <td><strong>Citizen Vault Registration</strong></td>
+              <td>Secure identity onboarding, Act 843 directory setup, and cryptographic key generation.</td>
+              <td>One-time charge (GHS 10.00).</td>
+              <td><span class="badge-non-refundable">Strictly Non-Refundable</span></td>
+            </tr>
+            <tr>
+              <td><strong>Annual Sovereign Vault Retainer</strong></td>
+              <td>256-bit encrypted data custody, high-availability server hosting, and contact synchronization.</td>
+              <td>Recurring annually (GHS 120.00/yr).</td>
+              <td><span class="badge-non-refundable">Non-Refundable Once Billed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>5.1 Administrative Nature of Unlock Fees:</strong> The GHS 50.00 Discovery Unlock Fee is charged strictly for administrative data indexing, biometric verification, and the dynamic synthesis of the Claimant Dossier. <strong>Payment of this fee does not guarantee that the policyholder's insurance policy holds an active cash value, nor does it guarantee that the underwriter will disburse payment.</strong> Under no circumstances will a refund be issued on the basis that a discovered policy has lapsed, is exhausted, is contested, or is rejected by an insurance company.
+      </p>
+      <p>
+        <strong>5.2 Recurring Billing Authorization:</strong> By subscribing to an annual plan, the Policyholder authorizes mySikaVault to automatically debit the designated card or Mobile Money account via Paystack until formal cancellation is completed inside the subscriber dashboard prior to the renewal date.
+      </p>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="legal-section">
+      <h2>6. Post-Mortem Inactive Account Protocol</h2>
+      <p>
+        To balance individual privacy during life with rightful estate continuity upon demise, mySikaVault operates under a strict four-stage protocol:
+      </p>
+
+      <div class="protocol-grid">
+        <div class="protocol-phase">
+          <div class="protocol-phase-title">Phase A: Lifetime Privacy & Zero-Leakage Search</div>
+          <div style="font-size: 0.88rem; color: #475569;">
+            During the lifetime of a Policyholder, all estate documents, account balances, sums assured, and digital wills remain encrypted under AES-256 protocols and hidden from public search queries. Public searches confirm only whether an underwritten record exists, revealing zero personal asset data.
+          </div>
+        </div>
+
+        <div class="protocol-phase">
+          <div class="protocol-phase-title">Phase B: Claimant Authentication Gate (The "Two-Key" Rule)</div>
+          <div style="font-size: 0.88rem; color: #475569;">
+            Following a Policyholder's death, a claimant must satisfy two distinct security factors: (1) Primary Key: successful 3-angle facial biometric verification matching an official Ghana Card; and (2) Secondary Key: claimant credentials must match the pre-registered Next-of-Kin credentials or Family Tree relationships deposited by the Policyholder while living.
+          </div>
+        </div>
+
+        <div class="protocol-phase">
+          <div class="protocol-phase-title">Phase C: Identity Discrepancy Escrow & Desk Review</div>
+          <div style="font-size: 0.88rem; color: #475569;">
+            If a Claimant's identity fails to match the deceased's registered records, the automated gateway immediately locks. The docket is moved into Administrative Escrow, requiring the claimant to provide an official Certified Death Certificate from the Births and Deaths Registry and certified true copies of High Court Letters of Administration before manual clearance is evaluated.
+          </div>
+        </div>
+
+        <div class="protocol-phase">
+          <div class="protocol-phase-title">Phase D: Subscription Default & Estate Preservation Window</div>
+          <div style="font-size: 0.88rem; color: #475569;">
+            If a Policyholder passes away and their annual subscription lapses, mySikaVault covenants that it will <strong>not</strong> wipe or purge the records. The vault enters a read-only "Dormant Estate State" for a statutory holding period of not less than <strong>seven (7) years</strong> from the last renewal, ensuring surviving family members retain the ability to discover their inheritance.
+          </div>
+        </div>
+
+        <div class="protocol-phase">
+          <div class="protocol-phase-title">Phase E: Interpleader Shield for Family Estate Disputes</div>
+          <div style="font-size: 0.88rem; color: #475569;">
+            In the event of competing claims, family caveats, or legal challenges between surviving relatives, mySikaVault reserves the unilateral right to freeze the subject vault. The vault shall remain locked without liability until presented with a certified Court Order or joint consent release signed by all disputing factions and validated by a High Court Registrar.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="legal-section">
+      <h2>7. Anti-Fraud Policy & Statutory Criminal Penalties</h2>
+      <div class="callout-box callout-warning">
+        <strong>CRIMINAL OFFENCES WARNING:</strong> Falsifying records or impersonating next-of-kin is a serious criminal offense under the laws of the Republic of Ghana.
+      </div>
+      <p>
+        <strong>7.1 Criminal Code Violations:</strong> Any individual who knowingly provides fraudulent details, impersonates a deceased citizen's next-of-kin, submits forged Letters of Administration, or attempts to circumvent biometric checks commits an indictable offense under <strong>Sections 131 through 133 of the Criminal Offences Act, 1960 (Act 29)</strong> (Defrauding by False Pretences) and the <strong>Cybersecurity Act, 2020 (Act 1038)</strong>.
+      </p>
+      <p>
+        <strong>7.2 Police & Underwriter Referral:</strong> Upon the automated or manual detection of identity spoofing or fraudulent document submission, mySikaVault will immediately furnish the offender's complete dossier—including uncompressed 3-angle facial images, uploaded documents, IP records, and phone numbers—to the Criminal Investigation Department (CID) of the Ghana Police Service and affected underwriter fraud units.
+      </p>
+    </div>
+
+    <!-- Section 8 -->
+    <div class="legal-section">
+      <h2>8. Limitation of Liability & Comprehensive Indemnification</h2>
+      <p>
+        <strong>8.1 Consequential Damages Waiver:</strong> To the fullest extent permitted by Ghanaian law, neither mySikaVault, nor its directors, officers, software engineers, or infrastructure partners shall be held liable for any indirect, incidental, special, punitive, consequential, or exemplary damages. This includes, without limitation, loss of estate inheritance, loss of insurance proceeds, delays in underwriter claim processing, emotional distress, system downtime, or family estate litigation expenses.
+      </p>
+      <p>
+        <strong>8.2 Absolute Cumulative Liability Cap:</strong> Under all circumstances, the maximum aggregate liability of mySikaVault for any claims arising out of or related to this Agreement or platform use, whether in contract, tort (including negligence), or statutory breach, shall not exceed the lesser of:
+      </p>
+      <ol>
+        <li>The total fees paid by the user to mySikaVault in the twelve (12) months preceding the event giving rise to liability; or</li>
+        <li>The fixed sum of <strong>Five Hundred Ghana Cedis (GHS 500.00)</strong>.</li>
+      </ol>
+      <p>
+        <strong>8.3 User Indemnification:</strong> You agree to defend, indemnify, and hold harmless mySikaVault and its directors against any claims, damages, liabilities, losses, costs, and expenses (including legal fees) arising from:
+      </p>
+      <ul>
+        <li>Your breach of any provision of this Agreement;</li>
+        <li>Inaccurate, incomplete, or fraudulent asset details uploaded to your vault;</li>
+        <li>Inter-familial disputes, inheritance lawsuits, or probate challenges concerning assets cataloged in your vault; or</li>
+        <li>Your violation of third-party privacy rights under Act 843.</li>
+      </ul>
+    </div>
+
+    <!-- Section 9 -->
+    <div class="legal-section">
+      <h2>9. Governing Law, Mediation & Compulsory Arbitration</h2>
+      <p>
+        <strong>9.1 Governing Law:</strong> This Agreement, its interpretation, and performance shall be governed exclusively by and construed in accordance with the laws of the <strong>Republic of Ghana</strong>.
+      </p>
+      <p>
+        <strong>9.2 Mandatory Mediation:</strong> In the event of any dispute or controversy arising out of or relating to this Agreement, the parties shall first attempt in good faith to resolve the dispute through private mediation in Accra, Ghana, for a mandatory period of thirty (30) calendar days following formal written notice.
+      </p>
+      <p>
+        <strong>9.3 Binding Arbitration (Act 798):</strong> If the dispute is not resolved within thirty (30) days of mediation, it shall be finally resolved by binding arbitration under the rules of the <strong>Alternative Dispute Resolution Act, 2010 (Act 798)</strong> at the <strong>Ghana Arbitration Centre in Accra</strong>. The tribunal shall consist of a single arbitrator appointed jointly by the parties, or failing agreement within 14 days, by the Chairperson of the Ghana Arbitration Centre. The arbitration shall be conducted in English, and the arbitral award shall be final and enforceable in any court of competent jurisdiction in Ghana.
+      </p>
+      <p>
+        <strong>9.4 Waiver of Class Actions:</strong> All proceedings must be initiated on an individual basis. Users expressly waive any right to bring or participate in class actions, consolidated actions, or representative proceedings against mySikaVault.
+      </p>
+    </div>
+
+    <!-- Section 10 -->
+    <div class="legal-section">
+      <h2>10. Modifications, Severability & Entire Agreement</h2>
+      <p>
+        <strong>10.1 Revisions:</strong> mySikaVault reserves the operational authority to update or amend this Agreement at any time. Material amendments will be highlighted on the platform with an updated "Effective Date." Continued use of platform services following publication constitutes binding acceptance of the updated terms.
+      </p>
+      <p>
+        <strong>10.2 Severability:</strong> If any provision of this Agreement is deemed invalid, unlawful, or unenforceable by an arbitrator or court of competent jurisdiction, that specific provision shall be enforced to the maximum extent permissible, and the remaining provisions shall continue in full force and effect.
+      </p>
+      <p>
+        <strong>10.3 Entire Agreement:</strong> This Agreement, together with the Privacy Policy and embedded modal consent notices, constitutes the entire and exclusive agreement between the User and mySikaVault, superseding all prior oral or written communications, drafts, or proposals.
+      </p>
+    </div>
+
+    <!-- Legal Notice Contact Box -->
+    <div class="callout-box callout-info" style="margin-top: 2rem;">
+      <h4 style="margin: 0 0 0.5rem; font-size: 1rem; font-weight: 800; color: #0369A1;">Formal Legal Notice & Subpoena Desk</h4>
+      <p style="margin: 0 0 0.5rem; font-size: 0.85rem;">
+        All official legal notices, subpoenas, court caveats, and formal regulatory inquiries must be delivered in writing via registered dispatch or hand delivery to:
+      </p>
+      <div style="font-size: 0.85rem; font-family: monospace; color: #0C4A6E; background: rgba(255, 255, 255, 0.7); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #BAE6FD;">
+        <strong>Legal Operations Director</strong><br>
+        mySikaVault<br>
+        9 Sibis Street, Accra, Greater Accra Region, Ghana<br>
+        Electronic Service: <a href="mailto:legal@mysikavault.com" style="color: #0284C7; font-weight: 700;">legal@mysikavault.com</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
