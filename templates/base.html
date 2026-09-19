@@ -9,6 +9,23 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>{% block title %}mySikaVault | Digital Legacy Vault{% endblock %}</title>
 
+<!-- WhatsApp, iMessage & Social Media Open Graph Previews -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mysikavault.com/">
+<meta property="og:title" content="mySikaVault | Digital Legacy Vault">
+<meta property="og:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted vault.">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/Original_logo.jpeg' %}">
+<meta property="og:image:secure_url" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/Original_logo.jpeg' %}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+
+<!-- Twitter Card Previews -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="mySikaVault | Digital Legacy Vault">
+<meta name="twitter:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted vault.">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/Original_logo.jpeg' %}">
+
 <!-- Shield Favicon & Touch Icons -->
 <link rel="icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=5">
 <link rel="shortcut icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=5">
