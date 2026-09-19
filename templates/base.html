@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A192F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>{% block title %}LegacyTrace | Digital Legacy Vault{% endblock %}</title>
+<title>{% block title %}mySikaVault | Digital Legacy Vault{% endblock %}</title>
 
 <!-- Shield Favicon & Touch Icons -->
 <link rel="icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=5">
@@ -94,6 +94,38 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    /* Eye-Catching mySikaVault Dual-Tone Brand Typography */
+    .brand-mysikavault {
+      display: inline-flex;
+      align-items: baseline;
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      text-transform: none;
+    }
+
+    .brand-mysikavault .p-my {
+      color: #E0F2FE;
+      font-weight: 700;
+      font-size: 0.94em;
+      opacity: 0.95;
+    }
+
+    .brand-mysikavault .p-sika {
+      background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 55%, #D97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 950;
+      padding: 0 1px;
+      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45));
+    }
+
+    .brand-mysikavault .p-vault {
+      background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 950;
     }
 
     .brand-badge {
@@ -707,7 +739,7 @@
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
         <div class="vault-loader-icon" id="vault-loader-icon">
-          <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace Shield Logo">
+          <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Shield Logo">
         </div>
       </div>
     </div>
@@ -720,10 +752,10 @@
       <!-- Brand Identity -->
       <a href="/" class="brand-group">
         <div class="brand-icon-shield" style="padding: 0; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); border-radius: 10px;">
-          <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-title">
-          LegacyTrace <span class="brand-badge">Vault</span>
+          <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>
         </div>
       </a>
       
@@ -918,9 +950,9 @@
         <div class="footer-brand-col">
           <a href="/" class="footer-brand-header">
             <div class="footer-brand-icon" style="padding: 0; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); border-radius: 10px;">
-              <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+              <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             </div>
-            <span class="footer-brand-name">LegacyTrace Vault</span>
+            <span class="footer-brand-name brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>
           </a>
           <p class="footer-brand-desc">
            Your digital legacy archive and verified underwritten policy repository. Protecting lifetime assets, policies, and certified wills for future generations.
@@ -980,7 +1012,7 @@
       <!-- Bottom Bar -->
       <div class="footer-bottom">
         <div class="footer-copy">
-          &copy; 2026 LegacyTrace Vault. All sovereign rights reserved.
+          &copy; 2026 mySikaVault. All sovereign rights reserved.
         </div>
         <div class="footer-architect">
           <span>Engineered with excellence by</span>
@@ -1324,9 +1356,9 @@
         <div class="mobile-drawer-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <div class="brand-icon-shield" style="width: 32px; height: 32px; padding: 0; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.6); border-radius: 8px;">
-              <img src="{% static 'images/Original_logo.jpeg' %}" alt="LegacyTrace Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+              <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             </div>
-            <strong style="color: #ffffff; font-size: 1.05rem;">LegacyTrace</strong>
+            <strong class="brand-mysikavault" style="font-size: 1.05rem;"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></strong>
           </div>
           <button type="button" class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">✕</button>
         </div>
