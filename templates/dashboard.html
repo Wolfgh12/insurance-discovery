@@ -1088,6 +1088,18 @@
               {{ profile_form.last_name }}
             </div>
             <div class="form-group">
+              <label class="form-label">Account Email Address (Locked)</label>
+              <input 
+                type="email" 
+                class="form-input" 
+                value="{{ user.email }}" 
+                readonly 
+                disabled 
+                style="background: #E2E8F0; color: #64748B; cursor: not-allowed; border-color: #CBD5E1;"
+              >
+              <div class="card-helper-hint">🔒 Primary vault identifier. Contact support to request an email modification.</div>
+            </div>
+            <div class="form-group">
               <label class="form-label">Phone Number</label>
               {{ profile_form.phone_number }}
             </div>
@@ -1114,6 +1126,13 @@
               <div class="record-main-title">Full Legal Name</div>
               <div class="record-sub-meta">{{ user.get_full_name|default:"Not specified" }}</div>
             </div>
+          </div>
+          <div class="record-item">
+            <div>
+              <div class="record-main-title">Registered Account Email</div>
+              <div class="record-sub-meta">{{ user.email|default:"Not specified" }}</div>
+            </div>
+            <span class="pill-badge pill-primary" style="font-size: 0.65rem; padding: 2px 6px;">Locked 🔒</span>
           </div>
           <div class="record-item">
             <div>
