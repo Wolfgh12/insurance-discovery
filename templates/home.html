@@ -1194,19 +1194,22 @@
             <span>Searching on behalf of a relative or deceased loved one?</span>
           </div>
 
-          <form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar" id="registry-search-form">
-            <input 
-              type="text" 
-              name="q" 
-              id="registry-search-input"
-              placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
-              value="{{ query }}"
-              autocomplete="off"
-            >
-            <!-- Instant X Reset Element (Bypasses Global Capture Loader) -->
-            <span id="search-clear-btn" role="button" tabindex="0" class="btn-search-clear {% if query %}visible{% endif %}" aria-label="Clear search" title="Clear and reset search">✕</span>
-            <button type="submit" class="btn-verify-search">Search Registry 🔍</button>
-          </form>
+<form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar" id="registry-search-form">
+  <input 
+    type="text" 
+    name="q" 
+    id="registry-search-input"
+    placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
+    value="{{ query }}"
+    autocomplete="off"
+    required
+    pattern="GHA-[0-9]{9}-[0-9]"
+    title="Please enter a valid Ghana Card ID (e.g. GHA-123456789-0)"
+  >
+  <!-- Instant X Reset Element (Bypasses Global Capture Loader) -->
+  <span id="search-clear-btn" role="button" tabindex="0" class="btn-search-clear {% if query %}visible{% endif %}" aria-label="Clear search" title="Clear and reset search">✕</span>
+  <button type="submit" class="btn-verify-search">Search Registry 🔍</button>
+</form>
 
           <!-- Immediate Empty/Invalid Search Error Message -->
           <div id="search-empty-feedback" class="search-empty-alert" role="alert" aria-live="polite">
