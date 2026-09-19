@@ -114,6 +114,147 @@ class CustomUser(AbstractUser):
         user_policies = self.policies.all()
         return user_policies.exists() and not user_policies.exclude(policy_status='SETTLED').exists()
 
+    @classmethod
+    def find_by_identifier(cls, identifier):
+        """Resolves user by username, email, or Ghana Card ID with format normalization."""
+        if not identifier:
+            return None
+        cleaned = str(identifier).strip()
+        card_variant = cleaned.upper()
+        
+        return cls.objects.filter(
+            models.Q(username__iexact=cleaned) |
+            models.Q(email__iexact=cleaned.lower()) |
+            models.Q(ghana_card_number__iexact=card_variant)
+        ).first()
+
+    def get_security_questions(self):
+        """Returns the list of security questions configured for this user."""
+        answers = self.security_answers.select_related('question').all()
+        if answers.exists():
+            return [
+                {'id': str(ans.question.id), 'prompt': ans.question.question_text}
+                for ans in answers
+            ]
+        # Legacy fields fallback
+        legacy = []
+        if self.security_birth_city:
+            legacy.append({'id': 'birth_city', 'prompt': 'Where were you born?'})
+        if self.security_mother_maiden_name:
+            legacy.append({'id': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+        if self.security_high_school_crush:
+            legacy.append({'id': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        return legacy
+
+    @classmethod
+    def find_by_identifier(cls, identifier):
+        """Resolves user by username, email, or Ghana Card ID with format normalization."""
+        if not identifier:
+            return None
+        cleaned = str(identifier).strip()
+        card_variant = cleaned.upper()
+        
+        return cls.objects.filter(
+            models.Q(username__iexact=cleaned) |
+            models.Q(email__iexact=cleaned.lower()) |
+            models.Q(ghana_card_number__iexact=card_variant)
+        ).first()
+
+    def get_security_questions(self):
+        """Returns the list of security questions configured for this user."""
+        answers = self.security_answers.select_related('question').all()
+        if answers.exists():
+            return [
+                {'id': str(ans.question.id), 'prompt': ans.question.question_text}
+                for ans in answers
+            ]
+        # Legacy fields fallback
+        legacy = []
+        if self.security_birth_city:
+            legacy.append({'id': 'birth_city', 'prompt': 'Where were you born?'})
+        if self.security_mother_maiden_name:
+            legacy.append({'id': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+        if self.security_high_school_crush:
+            legacy.append({'id': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        return legacy
+
+    @classmethod
+    def find_by_identifier(cls, identifier):
+        """Resolves user by username, email, or Ghana Card ID with format normalization."""
+        if not identifier:
+            return None
+        cleaned = str(identifier).strip()
+        card_variant = cleaned.upper()
+        
+        return cls.objects.filter(
+            models.Q(username__iexact=cleaned) |
+            models.Q(email__iexact=cleaned.lower()) |
+            models.Q(ghana_card_number__iexact=card_variant)
+        ).first()
+
+    def get_security_questions(self):
+        """Returns the list of security questions configured for this user."""
+        answers = self.security_answers.select_related('question').all()
+        if answers.exists():
+            return [
+                {'id': str(ans.question.id), 'prompt': ans.question.question_text}
+                for ans in answers
+            ]
+        # Legacy fields fallback
+        legacy = []
+        if self.security_birth_city:
+            legacy.append({'id': 'birth_city', 'prompt': 'Where were you born?'})
+        if self.security_mother_maiden_name:
+            legacy.append({'id': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+        if self.security_high_school_crush:
+            legacy.append({'id': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        return legacy
+
+    @property
+    def has_security_questions_configured(self):
+        """Returns True if the user has answered the required number of security questions."""
+        if not self.pk:
+            return False
+        config = PlatformConfiguration.get_solo()
+        required_count = config.required_security_questions if config else 3
+        if self.security_answers.count() >= required_count:
+            return True
+        return bool(
+            self.security_birth_city
+            and self.security_mother_maiden_name
+            and self.security_high_school_crush
+        )@classmethod
+    def find_by_identifier(cls, identifier):
+        """Resolves user by username, email, or Ghana Card ID with format normalization."""
+        if not identifier:
+            return None
+        cleaned = str(identifier).strip()
+        card_variant = cleaned.upper()
+        
+        return cls.objects.filter(
+            models.Q(username__iexact=cleaned) |
+            models.Q(email__iexact=cleaned.lower()) |
+            models.Q(ghana_card_number__iexact=card_variant)
+        ).first()
+
+    def get_security_questions(self):
+        """Returns the list of security questions configured for this user."""
+        answers = self.security_answers.select_related('question').all()
+        if answers.exists():
+            return [
+                {'id': str(ans.question.id), 'prompt': ans.question.question_text}
+                for ans in answers
+            ]
+        # Legacy fields fallback
+        legacy = []
+        if self.security_birth_city:
+            legacy.append({'id': 'birth_city', 'prompt': 'Where were you born?'})
+        if self.security_mother_maiden_name:
+            legacy.append({'id': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+        if self.security_high_school_crush:
+            legacy.append({'id': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        return legacy
+
     @property
     def has_security_questions_configured(self):
         """Returns True if the user has answered the required number of security questions."""
@@ -128,6 +269,61 @@ class CustomUser(AbstractUser):
             and self.security_mother_maiden_name
             and self.security_high_school_crush
         )
+
+    def verify_security_answer(self, question_identifier, raw_answer):
+        """Constant-time, hash-protected verification supporting dynamic questions and legacy fallback."""
+        if not raw_answer:
+            return False@classmethod
+    def find_by_identifier(cls, identifier):
+        """Resolves user by username, email, or Ghana Card ID with format normalization."""
+        if not identifier:
+            return None
+        cleaned = str(identifier).strip()
+        card_variant = cleaned.upper()
+        
+        return cls.objects.filter(
+            models.Q(username__iexact=cleaned) |
+            models.Q(email__iexact=cleaned.lower()) |
+            models.Q(ghana_card_number__iexact=card_variant)
+        ).first()
+
+    def get_security_questions(self):
+        """Returns the list of security questions configured for this user."""
+        answers = self.security_answers.select_related('question').all()
+        if answers.exists():
+            return [
+                {'id': str(ans.question.id), 'prompt': ans.question.question_text}
+                for ans in answers
+            ]
+        # Legacy fields fallback
+        legacy = []
+        if self.security_birth_city:
+            legacy.append({'id': 'birth_city', 'prompt': 'Where were you born?'})
+        if self.security_mother_maiden_name:
+            legacy.append({'id': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
+        if self.security_high_school_crush:
+            legacy.append({'id': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        return legacy
+
+    @property
+    def has_security_questions_configured(self):
+        """Returns True if the user has answered the required number of security questions."""
+        if not self.pk:
+            return False
+        config = PlatformConfiguration.get_solo()
+        required_count = config.required_security_questions if config else 3
+        if self.security_answers.count() >= required_count:
+            return True
+        return bool(
+            self.security_birth_city
+            and self.security_mother_maiden_name
+            and self.security_high_school_crush
+        )
+
+    def verify_security_answer(self, question_identifier, raw_answer):
+        """Constant-time, hash-protected verification supporting dynamic questions and legacy fallback."""
+        if not raw_answer:
+            return False
 
     def verify_security_answer(self, question_identifier, raw_answer):
         """Constant-time, hash-protected verification supporting dynamic questions and legacy fallback."""

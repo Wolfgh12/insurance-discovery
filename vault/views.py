@@ -1191,153 +1191,196 @@ def login_view(request):
 
 def forgot_password_view(request):
     """
-    Recovers citizen account via complete security questions challenge:
-    1. Citizen inputs Username, Email, or Ghana Card ID.
-    2. Prompts citizen to answer ALL configured security recovery keys simultaneously.
-    3. If all answers match, grants direct access to set a new password.
-    4. On the 3rd failed attempt, automatically dispatches an encrypted reset link to their email.
+    Dual-Path Password Recovery Flow:
+    1. Resolves citizen account via Username, Email, or Ghana Card ID (via CustomUser.find_by_identifier).
+    2. Offers two distinct pathways:
+       - Route A (Email Reset Link): Dispatches a one-time cryptographic reset token to the user's email with zero questions asked.
+       - Route B (Statutory Security Questions): Prompts the user to answer all configured security recovery keys on-screen.
     """
     if request.user.is_authenticated:
         return redirect('vault:dashboard')
 
     if request.method == 'GET':
         if request.GET.get('reset'):
-            request.session.pop('pwd_reset_challenge', None)
+            request.session.pop('pwd_recovery_user_id', None)
+            request.session.pop('pwd_reset_questions', None)
+            request.session.pop('pwd_reset_attempts', None)
             return redirect('vault:forgot_password')
 
-        challenge_data = request.session.get('pwd_reset_challenge')
-        if challenge_data and challenge_data.get('user_id'):
-            return render(request, 'registration/forgot_password.html', {
-                'challenge_active': True,
-                'questions': challenge_data.get('questions', []),
-                'identifier': challenge_data.get('identifier', ''),
-                'attempts': challenge_data.get('attempts', 0),
-            })
-        return render(request, 'registration/forgot_password.html', {'challenge_active': False})
+        user_id = request.session.get('pwd_recovery_user_id')
+        if user_id:
+            user = CustomUser.objects.filter(id=user_id, is_active=True).first()
+            if user:
+                questions = request.session.get('pwd_reset_questions')
+                if questions:
+                    return render(request, 'registration/forgot_password.html', {
+                        'stage': 'questions',
+                        'questions': questions,
+                        'attempts': request.session.get('pwd_reset_attempts', 0),
+                        'target_user': user,
+                    })
+
+                masked_email = None
+                if user.email:
+                    parts = user.email.split('@')
+                    user_part = parts[0]
+                    domain_part = parts[1] if len(parts) > 1 else ''
+                    masked_email = f"{user_part[:2]}***@{domain_part}"
+
+                return render(request, 'registration/forgot_password.html', {
+                    'stage': 'select_path',
+                    'target_user': user,
+                    'masked_email': masked_email,
+                    'has_questions': bool(user.get_security_questions()),
+                })
+
+        return render(request, 'registration/forgot_password.html', {'stage': 'lookup'})
 
     action = request.POST.get('action')
 
-    # Stage 1: Citizen Identity Lookup
+    # Step 1: Identifier Resolution (Username, Email, or Ghana Card ID)
     if action == 'lookup_citizen':
         identifier = request.POST.get('identifier', '').strip()
-        clean_card = identifier.replace('-', '').replace(' ', '').upper()
-
-        user = CustomUser.objects.filter(
-            Q(username__iexact=identifier)
-            | Q(email__iexact=identifier)
-            | Q(ghana_card_number__iexact=identifier)
-            | Q(ghana_card_number__iexact=clean_card)
-        ).first()
+        user = CustomUser.find_by_identifier(identifier)
 
         if not user or not user.is_active:
-            messages.error(request, "No registered citizen account found matching that identifier.")
-            return render(request, 'registration/forgot_password.html', {'identifier': identifier, 'challenge_active': False})
+            messages.error(request, "No registered citizen vault matches that identifier. Check for typos or re-enter your registered details.")
+            return render(request, 'registration/forgot_password.html', {'stage': 'lookup', 'identifier': identifier})
 
         if user.is_superuser or user.is_staff or getattr(user, 'user_type', None) in ['STAFF', 'INSURER_ADMIN']:
-            messages.error(request, "Administrative accounts cannot use citizen self-recovery. Please contact registry operations.")
+            messages.error(request, "Administrative accounts cannot use citizen recovery. Please contact registry operations.")
             return redirect('vault:admin_login')
 
-        answers_qs = list(user.security_answers.select_related('question').filter(question__is_active=True))
-        questions = []
-        if answers_qs:
-            for item in answers_qs:
-                questions.append({
-                    'key': str(item.question_id),
-                    'prompt': item.question.question_text,
-                })
-        else:
-            if user.security_birth_city:
-                questions.append({'key': 'birth_city', 'prompt': 'Where were you born?'})
-            if user.security_mother_maiden_name:
-                questions.append({'key': 'mother_maiden_name', 'prompt': "What is your mother's maiden name?"})
-            if user.security_high_school_crush:
-                questions.append({'key': 'high_school_crush', 'prompt': 'Who was your first high school crush?'})
+        request.session['pwd_recovery_user_id'] = user.id
+        request.session.pop('pwd_reset_questions', None)
+        request.session.pop('pwd_reset_attempts', None)
 
-        if not questions:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            reset_url = request.build_absolute_uri(
-                reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
-            )
-            email_subject = "LegacyTrace Vault | Password Reset Link"
-            email_message = (
-                f"Hello {user.first_name or user.username},\n\n"
-                f"A password reset request was initiated for your LegacyTrace vault.\n\n"
-                f"Click the secure link below to set your new password:\n"
-                f"{reset_url}\n\n"
-                f"This link expires in 24 hours. If you did not request this, please ignore this email.\n\n"
-                f"LegacyTrace National Registry Desk"
-            )
-            try:
-                send_mail(
-                    subject=email_subject,
-                    message=email_message,
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
-            except Exception:
-                pass
-            return render(request, 'registration/forgot_password.html', {
-                'email_sent': True,
-                'user_email': user.email,
-            })
+        masked_email = None
+        if user.email:
+            parts = user.email.split('@')
+            user_part = parts[0]
+            domain_part = parts[1] if len(parts) > 1 else ''
+            masked_email = f"{user_part[:2]}***@{domain_part}"
 
-        request.session['pwd_reset_challenge'] = {
-            'user_id': user.id,
-            'identifier': identifier,
-            'attempts': 0,
-            'questions': questions,
-        }
         return render(request, 'registration/forgot_password.html', {
-            'challenge_active': True,
-            'questions': questions,
-            'identifier': identifier,
-            'attempts': 0,
+            'stage': 'select_path',
+            'target_user': user,
+            'masked_email': masked_email,
+            'has_questions': bool(user.get_security_questions()),
         })
 
-    # Stage 2: Verify All Security Questions Concurrently
+    # Route A: Send Direct Email Reset Link (Zero Questions Asked)
+    elif action == 'send_email_link':
+        user_id = request.session.get('pwd_recovery_user_id')
+        user = get_object_or_404(CustomUser, id=user_id) if user_id else None
+
+        if not user or not user.email:
+            messages.error(request, "No email address on file for this vault. Please use the Statutory Questions path.")
+            return redirect('vault:forgot_password')
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_url = request.build_absolute_uri(
+            reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
+        )
+
+        email_subject = "LegacyTrace Vault | Password Reset Confirmation"
+        email_message = (
+            f"Hello {user.first_name or user.username},\n\n"
+            f"A password reset request was initiated for your LegacyTrace digital vault.\n\n"
+            f"Click the link below to set your new password:\n"
+            f"{reset_url}\n\n"
+            f"This link is valid for 24 hours. If you did not request a password reset, you can safely ignore this email.\n\n"
+            f"LegacyTrace National Registry Desk"
+        )
+
+        try:
+            send_mail(
+                subject=email_subject,
+                message=email_message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            messages.success(request, f"A secure reset link has been dispatched to {user.email}.")
+        except Exception:
+            messages.warning(request, "Reset link prepared, but delivery timed out. Please check your email inbox shortly.")
+
+        request.session.pop('pwd_recovery_user_id', None)
+        return render(request, 'registration/forgot_password.html', {
+            'stage': 'email_sent',
+            'user_email': user.email,
+        })
+
+    # Route B: Load Statutory Security Questions
+    elif action == 'start_security_questions':
+        user_id = request.session.get('pwd_recovery_user_id')
+        user = get_object_or_404(CustomUser, id=user_id) if user_id else None
+
+        if not user:
+            messages.error(request, "Session expired. Please enter your account identifier again.")
+            return redirect('vault:forgot_password')
+
+        questions = user.get_security_questions()
+        if not questions:
+            messages.error(request, "No statutory questions are configured on this account. Please use the email reset option.")
+            return redirect('vault:forgot_password')
+
+        request.session['pwd_reset_questions'] = questions
+        request.session['pwd_reset_attempts'] = 0
+
+        return render(request, 'registration/forgot_password.html', {
+            'stage': 'questions',
+            'questions': questions,
+            'attempts': 0,
+            'target_user': user,
+        })
+
+    # Route B Verification: Evaluate All Security Answers Concurrently
     elif action == 'verify_all_security_answers':
-        challenge_data = request.session.get('pwd_reset_challenge')
-        if not challenge_data:
+        user_id = request.session.get('pwd_recovery_user_id')
+        questions = request.session.get('pwd_reset_questions', [])
+        attempts = request.session.get('pwd_reset_attempts', 0)
+
+        if not user_id or not questions:
             messages.error(request, "Session expired. Please enter your account identifier to begin.")
             return redirect('vault:forgot_password')
 
-        user = get_object_or_404(CustomUser, id=challenge_data.get('user_id'))
-        questions = challenge_data.get('questions', [])
-        attempts = challenge_data.get('attempts', 0)
+        user = get_object_or_404(CustomUser, id=user_id)
 
         all_passed = True
         for q in questions:
-            user_input = request.POST.get(f"answer_{q['key']}", '').strip()
-            if not user.verify_security_answer(q['key'], user_input):
+            user_input = request.POST.get(f"answer_{q['id']}", '').strip()
+            if not user.verify_security_answer(q['id'], user_input):
                 all_passed = False
                 break
 
         if all_passed:
-            request.session.pop('pwd_reset_challenge', None)
+            request.session.pop('pwd_recovery_user_id', None)
+            request.session.pop('pwd_reset_questions', None)
+            request.session.pop('pwd_reset_attempts', None)
             request.session['can_reset_password_user_id'] = user.id
-            messages.success(request, "Security questions confirmed! Please configure your new password.")
+            messages.success(request, "Statutory questions verified! Please enter your new password.")
             return redirect('vault:reset_password_direct')
-        else:
-            attempts += 1
-            challenge_data['attempts'] = attempts
-            request.session['pwd_reset_challenge'] = challenge_data
-            request.session.modified = True
 
-            if attempts >= 3:
+        attempts += 1
+        request.session['pwd_reset_attempts'] = attempts
+        request.session.modified = True
+
+        if attempts >= 3:
+            # Automatic fallback: dispatch reset email on 3rd failure
+            if user.email:
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 reset_url = request.build_absolute_uri(
                     reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
                 )
-                email_subject = "LegacyTrace Vault | Password Reset Link (Attempts Exceeded)"
+                email_subject = "LegacyTrace Vault | Password Reset (Question Attempts Exceeded)"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
-                    f"Three consecutive incorrect security question attempts (3/3) were recorded for your vault.\n\n"
-                    f"To regain secure access, please click the link below to set a new password:\n"
+                    f"Three consecutive incorrect security answer attempts (3/3) were recorded for your vault.\n\n"
+                    f"To restore your account securely, click the link below:\n"
                     f"{reset_url}\n\n"
-                    f"This link is valid for 24 hours. If you did not initiate this, please report immediately to registry operations.\n\n"
                     f"LegacyTrace National Registry Desk"
                 )
                 try:
@@ -1351,24 +1394,27 @@ def forgot_password_view(request):
                 except Exception:
                     pass
 
-                request.session.pop('pwd_reset_challenge', None)
-                return render(request, 'registration/forgot_password.html', {
-                    'email_sent': True,
-                    'user_email': user.email,
-                    'max_attempts_exceeded': True,
-                })
-            else:
-                remaining = 3 - attempts
-                messages.error(
-                    request,
-                    f"One or more security answers are incorrect. Attempt {attempts} of 3 ({remaining} attempt{'s' if remaining > 1 else ''} remaining)."
-                )
-                return render(request, 'registration/forgot_password.html', {
-                    'challenge_active': True,
-                    'questions': questions,
-                    'identifier': challenge_data.get('identifier'),
-                    'attempts': attempts,
-                })
+            request.session.pop('pwd_recovery_user_id', None)
+            request.session.pop('pwd_reset_questions', None)
+            request.session.pop('pwd_reset_attempts', None)
+
+            return render(request, 'registration/forgot_password.html', {
+                'stage': 'email_sent',
+                'user_email': user.email,
+                'max_attempts_exceeded': True,
+            })
+
+        remaining = 3 - attempts
+        messages.error(
+            request,
+            f"One or more security answers are incorrect. Attempt {attempts} of 3 ({remaining} attempt{'s' if remaining != 1 else ''} remaining)."
+        )
+        return render(request, 'registration/forgot_password.html', {
+            'stage': 'questions',
+            'questions': questions,
+            'attempts': attempts,
+            'target_user': user,
+        })
 
     return redirect('vault:forgot_password')
 
