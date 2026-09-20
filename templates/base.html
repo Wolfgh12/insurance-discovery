@@ -2002,19 +2002,31 @@
         });
       }
 
-      // Check immediately on load: if installed before or in standalone mode, purge all install buttons
+      // Function to restore install elements when app is uninstalled or eligible
+      function showAllInstallButtons() {
+        document.documentElement.classList.remove('app-is-installed');
+        if (document.body) document.body.classList.remove('app-is-installed');
+        document.querySelectorAll('.pwa-install-element').forEach(function (el) {
+          el.style.removeProperty('display');
+        });
+      }
+
+      // If running inside the actual standalone installed app window, always hide
       if (
         window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true ||
-        localStorage.getItem('mysika_vault_installed') === 'true'
+        window.navigator.standalone === true
       ) {
+        hideAllInstallButtons();
+      } else if (localStorage.getItem('mysika_vault_installed') === 'true') {
         hideAllInstallButtons();
       }
 
-      // Intercept browser install prompt to keep on-page buttons as the sole trigger
+      // When browser detects the app is NOT installed, clear stale storage and show buttons immediately
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
+        localStorage.removeItem('mysika_vault_installed');
+        showAllInstallButtons();
       });
 
       // Direct trigger: fires native browser install dialog with zero delays or alert popups
