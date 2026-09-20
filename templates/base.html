@@ -1960,25 +1960,32 @@
         }
       }, 500);
 
-      // Execution Delta Timing Trap: Catches open DevTools even in separate undocked windows or emulations
+      // Device Intelligence: Detect mobile touchscreens & dynamic browser toolbars
+      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+                             (('ontouchstart' in window) && window.innerWidth <= 1024);
+
+      // Execution Delta Timing Trap (Desktop DevTools Detection Only)
       function monitorExecutionTiming() {
-        if (isLockdownActive) return;
+        if (isLockdownActive || isMobileDevice) return;
         const startTime = performance.now();
         (function () {
           return false;
         })['constructor']('debugger')();
         const executionDelta = performance.now() - startTime;
 
-        if (executionDelta > 100) {
+        if (executionDelta > 150) {
           triggerSecurityLockdown("Execution Latency Trap");
         }
       }
-      setInterval(monitorExecutionTiming, 400);
 
-      // Docked DevTools Resize Tripwire (Fires when side/bottom drawer opens on desktop)
+      if (!isMobileDevice) {
+        setInterval(monitorExecutionTiming, 500);
+      }
+
+      // Docked DevTools Resize Tripwire (Desktop Screens > 1024px Only)
       const threshold = 160;
       window.addEventListener('resize', function () {
-        if (isLockdownActive) return;
+        if (isLockdownActive || isMobileDevice || window.innerWidth <= 1024) return;
         if (
           (window.outerWidth - window.innerWidth > threshold) || 
           (window.outerHeight - window.innerHeight > threshold)
