@@ -1902,6 +1902,7 @@
   <!-- ====================================================
        Sovereign Anti-Tamper, Active Lockdown & DevTools Shield
   ==================================================== -->
+  {% if platform_config.security_anti_inspect_enabled and not user.is_superuser %}
   <script>
     (function () {
       'use strict';
@@ -2111,7 +2112,7 @@
       window.addEventListener('resize', function () {
         if (isLockdownActive) return;
         if (
-          (window.outerWidth - window.innerWidth > threshold) ||
+          (window.outerWidth - window.innerWidth > threshold) || 
           (window.outerHeight - window.innerHeight > threshold)
         ) {
           triggerSecurityLockdown("DevTools Docked Docking");
@@ -2119,6 +2120,7 @@
       }, { passive: true });
     })();
   </script>
+  {% endif %}
 
   <!-- ====================================================
        PWA Native Installation Pipeline (Instant Direct Trigger & Persistent Auto-Hide)
