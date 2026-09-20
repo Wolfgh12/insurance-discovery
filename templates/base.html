@@ -2126,122 +2126,74 @@
   </script>
 
   <!-- ====================================================
-       PWA Installation & iOS Springboard Modal
+       PWA Native Installation Pipeline (Button Progress & Direct Trigger)
   ==================================================== -->
-  <div id="pwa-install-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
-    <div style="background: #0B192C; border: 1.5px solid #06B6D4; border-radius: 24px; padding: 2.25rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.25); position: relative;">
-      
-      <!-- Close / Dismiss "X" Button -->
-      <button 
-        type="button" 
-        onclick="closePwaModal()" 
-        class="no-loader"
-        aria-label="Close modal"
-        style="position: absolute; top: 16px; right: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; width: 36px; height: 36px; border-radius: 10px; font-size: 1.15rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;"
-        onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'; this.style.color='#ffffff'; this.style.borderColor='#EF4444';"
-        onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#94A3B8'; this.style.borderColor='rgba(255, 255, 255, 0.15)';"
-      >
-        ✕
-      </button>
-
-      <div style="width: 64px; height: 64px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(212, 175, 55, 0.8); margin: 0 auto 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
-        <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-      </div>
- 
-      <div style="background: rgba(6, 182, 212, 0.15); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.6rem;">
-        mySikaVault App
-      </div>
-
-      <h3 style="margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
-        Download and Enjoy
-      </h3>
-
-      <div id="pwa-install-instructions" style="margin: 0 0 1.25rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6; text-align: center; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.25rem;">
-        Add <strong>mySikaVault</strong> directly to your device home screen for encrypted, offline-ready biometric access.
-      </div>
-
-      <!-- Real-Time Download Progress Display -->
-      <div id="pwa-progress-wrapper" style="display: none; margin-bottom: 1.25rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 800; color: #38BDF8; margin-bottom: 6px;">
-          <span id="pwa-progress-status">Downloading vault packages...</span>
-          <span id="pwa-progress-pct">0%</span>
-        </div>
-        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; border: 1px solid rgba(6, 182, 212, 0.3);">
-          <div id="pwa-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0284C7 0%, #06B6D4 50%, #38BDF8 100%); border-radius: 999px; transition: width 0.25s ease;"></div>
-        </div>
-      </div>
-
-      <button 
-        type="button" 
-        id="btn-trigger-pwa-direct"
-        class="no-loader"
-        style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.95rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35); font-family: inherit;"
-      >
-        Download and Enjoy 🚀
-      </button>
-    </div>
-  </div>
-
   <script>
     (function () {
       let deferredInstallPrompt = null;
 
-      // Intercept default browser banner so it ONLY fires on our button click
+      // Suppress default banner so only on-page buttons trigger installation
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
       });
 
-      // Single Source of Truth: Triggered directly from on-page buttons
-      window.triggerPwaInstall = function () {
+      // Exclusive Single Source of Truth
+      window.triggerPwaInstall = function (clickedElement) {
+        const btn = clickedElement || (window.event ? window.event.currentTarget : null) || document.querySelector('.hero-actions button.pwa-install-element');
         const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
         if (isStandalone) {
-          showPwaGuide('🎉 <strong>mySikaVault is already installed</strong> and running in standalone mode.');
+          alert('mySikaVault is already installed on this device.');
           return;
         }
 
-        // 1. Direct Install Trigger for Chromium (Desktop & Android)
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          deferredInstallPrompt.userChoice.then((choice) => {
-            if (choice.outcome === 'accepted') {
-              console.log('App installed successfully');
-            }
-            deferredInstallPrompt = null;
-          });
-          return;
-        }
-
-        // 2. iOS Safari Fallback Guide (Only where direct prompt is impossible)
         if (isIos) {
-          showPwaGuide(
-            'To install on iPhone or iPad:<br><br>' +
-            '1. Tap the <strong>Share</strong> button in Safari (<span style="font-size: 1.1rem;">⎋</span>).<br>' +
-            '2. Select <strong>"Add to Home Screen"</strong> (<span style="font-size: 1.1rem;">⊞</span>).<br>' +
-            '3. Tap <strong>Add</strong>.'
-          );
+          alert("To install on iOS:\n1. Tap Safari's Share button (⎋)\n2. Tap 'Add to Home Screen' (⊞)\n3. Tap 'Add'");
           return;
         }
 
-        // 3. Fallback if browser already rejected or doesn't support PWA
-        showPwaGuide(
-          'To install on this device:<br><br>' +
-          'Click the <strong>Install icon (⊕)</strong> in your browser address bar, or select <strong>"Install mySikaVault"</strong> from the menu (⋮).'
-        );
-      };
+        if (!deferredInstallPrompt) {
+          alert('Installation is ready. If no prompt appears, tap the install icon (⊕) in your browser address bar.');
+          return;
+        }
 
-      function showPwaGuide(htmlContent) {
-        const modal = document.getElementById('pwa-install-modal');
-        const box = document.getElementById('pwa-install-instructions');
-        if (box) box.innerHTML = htmlContent;
-        if (modal) modal.style.display = 'flex';
-      }
+        // Live progress directly on the clicked button
+        let pct = 0;
+        const originalHtml = btn ? btn.innerHTML : '';
+        if (btn) btn.disabled = true;
 
-      window.closePwaModal = function () {
-        const modal = document.getElementById('pwa-install-modal');
-        if (modal) modal.style.display = 'none';
+        const progressTimer = setInterval(function () {
+          pct += 25;
+          if (btn) {
+            btn.innerHTML = `⏳ Downloading... ${pct}%`;
+          }
+
+          if (pct >= 100) {
+            clearInterval(progressTimer);
+            if (btn) btn.innerHTML = `🚀 Installing...`;
+
+            setTimeout(function () {
+              deferredInstallPrompt.prompt();
+              deferredInstallPrompt.userChoice.then(function (choiceResult) {
+                if (choiceResult.outcome === 'accepted') {
+                  document.documentElement.classList.add('app-is-installed');
+                }
+                deferredInstallPrompt = null;
+                if (btn) {
+                  btn.innerHTML = originalHtml;
+                  btn.disabled = false;
+                }
+              }).catch(function () {
+                if (btn) {
+                  btn.innerHTML = originalHtml;
+                  btn.disabled = false;
+                }
+              });
+            }, 300);
+          }
+        }, 120);
       };
 
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
@@ -2251,7 +2203,6 @@
       window.addEventListener('appinstalled', () => {
         document.documentElement.classList.add('app-is-installed');
         deferredInstallPrompt = null;
-        closePwaModal();
       });
     })();
   </script>
