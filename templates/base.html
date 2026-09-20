@@ -2126,82 +2126,56 @@
   </script>
 
   <!-- ====================================================
-       PWA Native Installation Pipeline (Button Progress & Direct Trigger)
+       PWA Native Installation Pipeline (Instant Direct Trigger & Persistent Auto-Hide)
   ==================================================== -->
   <script>
     (function () {
       let deferredInstallPrompt = null;
 
-      // Suppress default banner so only on-page buttons trigger installation
-      window.addEventListener('beforeinstallprompt', (e) => {
+      // Function to hide all install elements across the entire page
+      function hideAllInstallButtons() {
+        document.documentElement.classList.add('app-is-installed');
+        if (document.body) document.body.classList.add('app-is-installed');
+        document.querySelectorAll('.pwa-install-element').forEach(function (el) {
+          el.style.setProperty('display', 'none', 'important');
+        });
+      }
+
+      // Check immediately on load: if installed before or in standalone mode, purge all install buttons
+      if (
+        window.matchMedia('(display-mode: standalone)').matches || 
+        window.navigator.standalone === true ||
+        localStorage.getItem('mysika_vault_installed') === 'true'
+      ) {
+        hideAllInstallButtons();
+      }
+
+      // Intercept browser install prompt to keep on-page buttons as the sole trigger
+      window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
       });
 
-      // Exclusive Single Source of Truth
-      window.triggerPwaInstall = function (clickedElement) {
-        const btn = clickedElement || (window.event ? window.event.currentTarget : null) || document.querySelector('.hero-actions button.pwa-install-element');
-        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      // Direct trigger: fires native browser install dialog with zero delays or alert popups
+      window.triggerPwaInstall = function () {
+        if (!deferredInstallPrompt) return;
 
-        if (isStandalone) {
-          alert('mySikaVault is already installed on this device.');
-          return;
-        }
-
-        if (isIos) {
-          alert("To install on iOS:\n1. Tap Safari's Share button (⎋)\n2. Tap 'Add to Home Screen' (⊞)\n3. Tap 'Add'");
-          return;
-        }
-
-        if (!deferredInstallPrompt) {
-          alert('Installation is ready. If no prompt appears, tap the install icon (⊕) in your browser address bar.');
-          return;
-        }
-
-        // Live progress directly on the clicked button
-        let pct = 0;
-        const originalHtml = btn ? btn.innerHTML : '';
-        if (btn) btn.disabled = true;
-
-        const progressTimer = setInterval(function () {
-          pct += 25;
-          if (btn) {
-            btn.innerHTML = `⏳ Downloading... ${pct}%`;
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(function (choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            localStorage.setItem('mysika_vault_installed', 'true');
+            hideAllInstallButtons();
           }
-
-          if (pct >= 100) {
-            clearInterval(progressTimer);
-            if (btn) btn.innerHTML = `🚀 Installing...`;
-
-            setTimeout(function () {
-              deferredInstallPrompt.prompt();
-              deferredInstallPrompt.userChoice.then(function (choiceResult) {
-                if (choiceResult.outcome === 'accepted') {
-                  document.documentElement.classList.add('app-is-installed');
-                }
-                deferredInstallPrompt = null;
-                if (btn) {
-                  btn.innerHTML = originalHtml;
-                  btn.disabled = false;
-                }
-              }).catch(function () {
-                if (btn) {
-                  btn.innerHTML = originalHtml;
-                  btn.disabled = false;
-                }
-              });
-            }, 300);
-          }
-        }, 120);
+          deferredInstallPrompt = null;
+        }).catch(function () {
+          deferredInstallPrompt = null;
+        });
       };
 
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        document.documentElement.classList.add('app-is-installed');
-      }
-
-      window.addEventListener('appinstalled', () => {
-        document.documentElement.classList.add('app-is-installed');
+      // Fired automatically by the browser the second installation finishes
+      window.addEventListener('appinstalled', function () {
+        localStorage.setItem('mysika_vault_installed', 'true');
+        hideAllInstallButtons();
         deferredInstallPrompt = null;
       });
     })();
