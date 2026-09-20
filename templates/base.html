@@ -1999,30 +1999,40 @@
 
   <!-- Centered PWA Installation In-Progress Modal -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
-    <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
+    <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 450px; width: 100%; max-height: 92vh; overflow-y: auto; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
       
-      <div style="width: 64px; height: 64px; margin: 0 auto 1.25rem; border-radius: 18px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.8); box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
+      <div style="width: 62px; height: 62px; margin: 0 auto 1.1rem; border-radius: 18px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.8); box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
         <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
       </div>
 
-      <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
-        ⏳ Installation in Progress
+      <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.65rem;">
+        ⏳ Installation Initialized
       </div>
 
-      <h3 style="margin: 0 0 0.6rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
-        App Installing to Device
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.3px;">
+        Deploying to Your Home Screen
       </h3>
 
-      <p style="margin: 0 0 1.75rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6;">
-        mySikaVault is currently installing in the background. Once completed by your device, the sovereign vault icon will appear on your phone screen in about 2 minutes max.
+      <p style="margin: 0 0 1.25rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
+        mySikaVault is installing securely in the background. The sovereign gold shield emblem will appear on your device screen in about 2 minutes max.
       </p>
+
+      <!-- Trust & Verification Guidance Pill -->
+      <div style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.45); border-radius: 14px; padding: 1rem; margin-bottom: 1.4rem; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #38BDF8; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;">
+          <span>🛡️ Samsung &amp; Android Security Notice</span>
+        </div>
+        <p style="margin: 0; font-size: 0.79rem; color: #E2E8F0; line-height: 1.5;">
+          If your device displays an <em>"Unverified software"</em> or <em>"Do you trust this app?"</em> prompt, simply select <strong style="color: #34D399;">"Proceed anyway"</strong> or <strong style="color: #34D399;">"Trust"</strong>. This standard check occurs for all direct browser installs. mySikaVault is 100% verified, ad-free, and compliant with statutory Act 843 standards.
+        </p>
+      </div>
 
       <button 
         type="button" 
         onclick="closePwaSuccessModal()" 
         style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
       >
-        Understood ⚡
+        Understood &amp; Continue ⚡
       </button>
 
     </div>
