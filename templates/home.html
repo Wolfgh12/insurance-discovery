@@ -126,6 +126,17 @@
     .hero-img {
       height: 220px;
     }
+    .hero-actions {
+      flex-direction: column;
+      width: 100%;
+      gap: 12px;
+    }
+    .hero-actions .btn-vault-primary {
+      width: 100%;
+      min-height: 48px;
+      flex: 1 1 100%;
+      box-sizing: border-box;
+    }
   }
 
   .visual-overlay-tag {
@@ -1191,7 +1202,7 @@
       <!-- Branded Gold Vault App Icon & Badge -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
         <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(10, 25, 47, 0.95); border: 2px solid rgba(212, 175, 55, 0.6); padding: 0; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(212, 175, 55, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-pill" style="margin-bottom: 0;">
           <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> • Encrypted Vault
@@ -1219,7 +1230,7 @@
         {% else %}
           <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your Vault 🔐</a>
         {% endif %}
-        <button type="button" onclick="triggerPwaInstall()" class="btn-vault-primary no-loader pwa-install-element" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.4); color: #38BDF8; cursor: pointer; flex: 0 1 auto; padding: 0.85rem 1.25rem;">
+        <button type="button" onclick="triggerPwaInstall()" class="btn-vault-primary no-loader pwa-install-element" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.4); color: #38BDF8; cursor: pointer; font-family: inherit;">
           📲 Download App
         </button>
       </div>
@@ -1331,7 +1342,7 @@
         >
         <div class="visual-overlay-tag">
           <div class="visual-tag-icon" style="width: 32px; height: 32px; padding: 0; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(212, 175, 55, 0.6); display: flex; align-items: center; justify-content: center;">
-            <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
           </div>
           <div>
             <div class="visual-tag-text">Peace of Mind for Loved Ones</div>
@@ -2231,7 +2242,7 @@
 <div class="pwa-chip-banner pwa-install-element">
   <div style="display: flex; align-items: center; gap: 14px;">
     <div style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); flex-shrink: 0; background: #0A192F;">
-      <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
     </div>
     <div>
       <div class="pwa-chip-title">Install mySikaVault on Your Phone</div>
