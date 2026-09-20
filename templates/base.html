@@ -1902,7 +1902,7 @@
   <!-- ====================================================
        Sovereign Anti-Tamper, Active Lockdown & DevTools Shield
   ==================================================== -->
-  {% if platform_config.security_anti_inspect_enabled and not user.is_superuser %}
+  {% if platform_config.security_anti_inspect_enabled %}
   <script>
     (function () {
       'use strict';
@@ -2035,7 +2035,12 @@
         } catch (e) {}
       }
 
-      
+      // Suppress Right-Click "Inspect Element" Context Menu
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }, { capture: true });
 
       // Keystroke Interceptor: Suppress F12, DevTools chords, View-Source, and Save-Page
       window.addEventListener('keydown', function (e) {
