@@ -770,13 +770,14 @@
 
   <!-- Global Minimal Big-Logo Vault Loader (Initial Load & Nav Transition) -->
   <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading vault">
-    <div class="vault-loader-card">
+    <div class="vault-loader-card" style="flex-direction: column;">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
         <div class="vault-loader-icon" id="vault-loader-icon">
           <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Shield Logo">
         </div>
       </div>
+      <div id="vault-loader-sub" style="margin-top: 1.25rem; font-size: 0.92rem; font-weight: 700; color: #38BDF8; letter-spacing: 0.3px; text-align: center; max-width: 300px; min-height: 1.2em;"></div>
     </div>
   </div>
 
@@ -1989,12 +1990,44 @@
   </script>
   {% endif %}
 
+  <!-- Centered PWA Installation Success Confirmation Modal -->
+  <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
+      
+      <div style="width: 64px; height: 64px; margin: 0 auto 1.25rem; border-radius: 18px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.8); box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
+        <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      </div>
+
+      <div style="background: rgba(16, 185, 129, 0.18); color: #34D399; border: 1px solid #10B981; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
+        Installation Complete
+      </div>
+
+      <h3 style="margin: 0 0 0.6rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
+        Vault Installed on Device
+      </h3>
+
+      <p style="margin: 0 0 1.75rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6;">
+        mySikaVault has been added to your device. You can now launch your sovereign vault directly from your home screen or desktop application menu.
+      </p>
+
+      <button 
+        type="button" 
+        onclick="closePwaSuccessModal()" 
+        style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
+      >
+        Open / Understood ⚡
+      </button>
+
+    </div>
+  </div>
+
   <!-- ====================================================
        PWA Native Installation Pipeline (Instant Direct Trigger & Persistent Auto-Hide)
   ==================================================== -->
   <script>
     (function () {
       let deferredInstallPrompt = null;
+      let installSafetyTimer = null;
 
       // Function to hide all install elements across the entire page
       function hideAllInstallButtons() {
@@ -2014,6 +2047,16 @@
         });
       }
 
+      window.openPwaSuccessModal = function () {
+        const modal = document.getElementById('pwa-install-success-modal');
+        if (modal) modal.style.display = 'flex';
+      };
+
+      window.closePwaSuccessModal = function () {
+        const modal = document.getElementById('pwa-install-success-modal');
+        if (modal) modal.style.display = 'none';
+      };
+
       // If running inside the actual standalone installed app window, always hide
       if (
         window.matchMedia('(display-mode: standalone)').matches || 
@@ -2032,15 +2075,24 @@
         showAllInstallButtons();
       });
 
-      // Direct trigger: fires native browser install dialog with zero delays or alert popups
+      // Direct trigger: fires native browser install dialog with real loader
       window.triggerPwaInstall = function () {
         if (!deferredInstallPrompt) return;
 
         deferredInstallPrompt.prompt();
         deferredInstallPrompt.userChoice.then(function (choiceResult) {
           if (choiceResult.outcome === 'accepted') {
-            localStorage.setItem('mysika_vault_installed', 'true');
-            hideAllInstallButtons();
+            // User accepted installation: activate the full vault loader
+            if (typeof window.showVaultLoader === 'function') {
+              window.showVaultLoader('Installing sovereign vault to your device...');
+            }
+
+            // Safety timeout: auto-clear loader after 8s if OS delays event
+            installSafetyTimer = setTimeout(function () {
+              if (typeof window.hideVaultLoader === 'function') {
+                window.hideVaultLoader();
+              }
+            }, 8000);
           }
           deferredInstallPrompt = null;
         }).catch(function () {
@@ -2050,8 +2102,17 @@
 
       // Fired automatically by the browser the second installation finishes
       window.addEventListener('appinstalled', function () {
+        if (installSafetyTimer) clearTimeout(installSafetyTimer);
         localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
+
+        // Dismiss the loader immediately
+        if (typeof window.hideVaultLoader === 'function') {
+          window.hideVaultLoader();
+        }
+
+        // Display centered installation success modal
+        window.openPwaSuccessModal();
         deferredInstallPrompt = null;
       });
     })();
