@@ -1990,7 +1990,7 @@
   </script>
   {% endif %}
 
-  <!-- Centered PWA Installation Success Confirmation Modal -->
+  <!-- Centered PWA Installation In-Progress Modal -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
     <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
       
@@ -1998,16 +1998,16 @@
         <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
       </div>
 
-      <div style="background: rgba(16, 185, 129, 0.18); color: #34D399; border: 1px solid #10B981; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
-        Installation Complete
+      <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
+        ⏳ Installation in Progress
       </div>
 
       <h3 style="margin: 0 0 0.6rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
-        Vault Installed on Device
+        App Installing to Device
       </h3>
 
       <p style="margin: 0 0 1.75rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6;">
-        mySikaVault has been added to your device. You can now launch your sovereign vault directly from your home screen or desktop application menu.
+        mySikaVault is currently installing in the background. Once completed by your device, the sovereign vault icon will appear on your phone screen in about 2 minutes max.
       </p>
 
       <button 
@@ -2015,7 +2015,7 @@
         onclick="closePwaSuccessModal()" 
         style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
       >
-        Open / Understood ⚡
+        Understood ⚡
       </button>
 
     </div>
@@ -2027,7 +2027,6 @@
   <script>
     (function () {
       let deferredInstallPrompt = null;
-      let installSafetyTimer = null;
 
       // Function to hide all install elements across the entire page
       function hideAllInstallButtons() {
@@ -2075,24 +2074,16 @@
         showAllInstallButtons();
       });
 
-      // Direct trigger: fires native browser install dialog with real loader
+      // Direct trigger: fires native browser install dialog and opens feedback modal immediately upon accept
       window.triggerPwaInstall = function () {
         if (!deferredInstallPrompt) return;
 
         deferredInstallPrompt.prompt();
         deferredInstallPrompt.userChoice.then(function (choiceResult) {
           if (choiceResult.outcome === 'accepted') {
-            // User accepted installation: activate the full vault loader
-            if (typeof window.showVaultLoader === 'function') {
-              window.showVaultLoader('Installing sovereign vault to your device...');
-            }
-
-            // Safety timeout: auto-clear loader after 8s if OS delays event
-            installSafetyTimer = setTimeout(function () {
-              if (typeof window.hideVaultLoader === 'function') {
-                window.hideVaultLoader();
-              }
-            }, 8000);
+            localStorage.setItem('mysika_vault_installed', 'true');
+            hideAllInstallButtons();
+            window.openPwaSuccessModal();
           }
           deferredInstallPrompt = null;
         }).catch(function () {
@@ -2102,17 +2093,8 @@
 
       // Fired automatically by the browser the second installation finishes
       window.addEventListener('appinstalled', function () {
-        if (installSafetyTimer) clearTimeout(installSafetyTimer);
         localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
-
-        // Dismiss the loader immediately
-        if (typeof window.hideVaultLoader === 'function') {
-          window.hideVaultLoader();
-        }
-
-        // Display centered installation success modal
-        window.openPwaSuccessModal();
         deferredInstallPrompt = null;
       });
     })();
