@@ -8,20 +8,32 @@ except ImportError:
 # 1. Zero Debug Information Leakage
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1')
 
-# 2. Hardened Host Domain Locking & CSRF Security (Zero Wildcard Fallback)
-DEFAULT_ALLOWED_HOSTS = 'mysikavault.com,www.mysikavault.com,localhost,127.0.0.1'
-ALLOWED_HOSTS = [
-    host.strip() 
-    for host in os.environ.get('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',') 
-    if host.strip() and host.strip() != '*'
-]
+# 2. Resilient Host Domain Locking & Reverse-Proxy Binding
+env_hosts = os.environ.get('ALLOWED_HOSTS', '')
+
+if env_hosts and env_hosts.strip() != '*':
+    ALLOWED_HOSTS = [h.strip() for h in env_hosts.split(',') if h.strip()]
+else:
+    # Comprehensive default: covers apex domain, subdomains, Coolify sslip.io, IP, and local
+    ALLOWED_HOSTS = [
+        'mysikavault.com',
+        'www.mysikavault.com',
+        '.mysikavault.com',
+        '.sslip.io',
+        '185.216.75.85',
+        'localhost',
+        '127.0.0.1',
+    ]
+
+# Tell Django to trust the Host header sent by Coolify's Traefik reverse proxy
+USE_X_FORWARDED_HOST = True
 
 # Required for Django 4.0+ when processing form POST requests over HTTPS
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = [ 
     origin.strip()
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS', 
-        'https://mysikavault.com,https://www.mysikavault.com,https://*.sslip.io'
+        'https://mysikavault.com,https://www.mysikavault.com,https://*.mysikavault.com,https://*.sslip.io'
     ).split(',')
     if origin.strip()
 ]
