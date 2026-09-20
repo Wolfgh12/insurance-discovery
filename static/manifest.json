@@ -1,7 +1,7 @@
-{
+﻿{
   "id": "/",
-  "name": "LegacyTrace Digital Vault",
-  "short_name": "LegacyTrace",
+  "name": "mySikaVault | Digital Legacy Vault",
+  "short_name": "mySikaVault",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,16 +10,16 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/static/images/icon-192.png",
+      "src": "/static/images/download.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/static/images/icon-512.png",
+      "src": "/static/images/download.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
