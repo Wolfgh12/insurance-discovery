@@ -1,4 +1,4 @@
-const CACHE_NAME = 'legacytrace-v6';
+const CACHE_NAME = 'legacytrace-v7';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
@@ -106,9 +106,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Static Resources (CSS, Scripts, Icons, Images)
+  // 2. Static Resources (Instant Cache Match ignoring version query strings like ?v=8)
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
       return fetch(event.request).catch(() => {});
     })
