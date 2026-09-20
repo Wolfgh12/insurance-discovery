@@ -1219,8 +1219,10 @@
         {% else %}
           <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your Vault 🔐</a>
         {% endif %}
+        <button type="button" onclick="triggerPwaInstall()" class="btn-vault-primary no-loader pwa-install-element" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.4); color: #38BDF8; cursor: pointer; flex: 0 1 auto; padding: 0.85rem 1.25rem;">
+          📲 Download App
+        </button>
       </div>
-
       <!-- Integrated Discovery Search Bar (Visible only to Guests / Logged-Out Visitors) -->
       {% if not user.is_authenticated and not request.session.active_claimant_token %}
         <div id="registry-search" style="margin-top: 1.25rem;">
@@ -1501,15 +1503,17 @@
       <p class="orbital-desc">
         <strong class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></strong> is a centralized legacy registry and encrypted estate information system. It allows policyholders to proactively catalog active policies, bank accounts, investment securities, land titles, family lineage trees, precious keepsakes, and certified digital wills—ensuring that if unforeseen circumstances arise before informing living relatives, family members can search with full confidentiality to discover what exists and claim their rightful inheritance.
       </p>
-      {% if not user.is_authenticated and not request.session.active_claimant_token %}
-        <div style="display: flex; justify-content: center;">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+        {% if not user.is_authenticated and not request.session.active_claimant_token %}
           <a href="{% url 'vault:signup' %}" class="btn-vault-primary" style="flex: 0 1 auto; padding: 0.85rem 1.6rem; font-size: 0.88rem;">
             Register Your Vault 🛡️
           </a>
-        </div>
-      {% endif %}
+        {% endif %}
+        <button type="button" onclick="triggerPwaInstall()" class="no-loader pwa-install-element" style="background: rgba(6, 182, 212, 0.12); border: 1.5px solid rgba(6, 182, 212, 0.45); color: #38BDF8; font-weight: 800; font-size: 0.84rem; padding: 0.8rem 1.4rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+          📲 Install Mobile App
+        </button>
+      </div>
     </div>
-
     <!-- Right Flank: 3 Encircled Satellite Modules -->
     <div class="orbital-wing wing-right">
       <div class="satellite-node">
@@ -2149,6 +2153,20 @@
       <p class="lifecycle-body">Review active underwritten policies, bank accounts, investments, and certified wills to file direct claims with underwriters.</p>
     </div>
   </div>
+
+<!-- Lifecycle Micro-Callout Bar -->
+  <div class="pwa-install-element" style="margin-top: 2rem; background: #ffffff; border: 1.5px solid rgba(6, 182, 212, 0.25); border-radius: 16px; padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 20px rgba(10, 25, 47, 0.04);">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="font-size: 1.8rem;">📱</span>
+      <div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #0A192F;">Keep Emergency Access in Your Pocket</div>
+        <div style="font-size: 0.8rem; color: #64748B;">Add mySikaVault to your home screen for rapid biometric authentication and family policy lookup.</div>
+      </div>
+    </div>
+    <button type="button" onclick="triggerPwaInstall()" class="no-loader" style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; font-weight: 800; font-size: 0.84rem; padding: 0.75rem 1.4rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);">
+      📲 Add to Home Screen
+    </button>
+  </div> 
 </section>
 
 <!-- Group Policy & Corporate Spotlight -->
@@ -2207,6 +2225,22 @@
       <div class="sec-desc">Eliminates lost paperwork by routing claims directly into verified underwriter portals with statutory tracking.</div>
     </div>
   </div>
+</div>
+
+<!-- PWA Quick Install Banner -->
+<div class="pwa-chip-banner pwa-install-element">
+  <div style="display: flex; align-items: center; gap: 14px;">
+    <div style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); flex-shrink: 0; background: #0A192F;">
+      <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+    </div>
+    <div>
+      <div class="pwa-chip-title">Install mySikaVault on Your Phone</div>
+      <div class="pwa-chip-sub">Add to your home screen for rapid biometric access, offline vault viewing, and estate management.</div>
+    </div>
+  </div>
+  <button type="button" onclick="triggerPwaInstall()" class="badge-appstore no-loader" style="cursor: pointer; border: 1px solid rgba(6, 182, 212, 0.4); background: #0A192F; color: #38BDF8; font-weight: 800; font-size: 0.85rem; padding: 10px 18px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
+    📲 Download App
+  </button>
 </div>
 
 <!-- Frequently Asked Questions -->

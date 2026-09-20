@@ -1,5 +1,7 @@
+import os
 import re
 import secrets
+import uuid
 from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -7,6 +9,17 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
+
+
+def secure_vault_upload_path(instance, filename):
+    """
+    Cryptographically randomizes uploaded file paths to prevent
+    filename enumeration, path traversal, and malicious file overwrites.
+    """
+    ext = filename.split('.')[-1].lower() if '.' in filename else 'bin'
+    random_filename = f"{uuid.uuid4().hex}_{secrets.token_hex(6)}.{ext}"
+    model_folder = instance.__class__.__name__.lower()
+    return os.path.join(f"vault_sec/{model_folder}/", random_filename)
 
 
 # 1. Custom User Model with Profile Fields & Vault Discovery Helpers
@@ -25,9 +38,13 @@ class CustomUser(AbstractUser):
     ghana_card_number = models.CharField(max_length=30, unique=True, blank=True, null=True, db_index=True)
     permanent_address = models.TextField(blank=True, null=True)
 
-    # Phone-First OTP Verification for Non-Email / Elderly Users
+# Phone-First OTP Verification for Non-Email / Elderly Users
     phone_otp = models.CharField(max_length=6, blank=True, null=True)
     otp_created_at = models.DateTimeField(blank=True, null=True)
+    otp_failed_attempts = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="Tracks consecutive invalid attempts to halt brute-force attacks."
+    )
 
     # Statutory Registration Fee Tracking (One-Time GHS 10.00)
     has_paid_registration_fee = models.BooleanField(
@@ -79,21 +96,47 @@ class CustomUser(AbstractUser):
         self.save(update_fields=['phone_otp', 'otp_created_at'])
         return code
 
-    def verify_phone_otp(self, candidate_code, max_valid_minutes=10):
-        """Validates the candidate OTP using constant-time comparison to prevent timing attacks."""
+    def verify_phone_otp(self, candidate_code, max_valid_minutes=10, max_attempts=5):
+        """
+        Validates the candidate OTP using constant-time comparison.
+        Terminates the code immediately if failed attempts exceed max_attempts.
+        """
         if not self.phone_otp or not self.otp_created_at:
             return False
+
+        # Expire code after timeout window
         if timezone.now() > self.otp_created_at + timedelta(minutes=max_valid_minutes):
+            self.phone_otp = None
+            self.otp_created_at = None
+            self.otp_failed_attempts = 0
+            self.save(update_fields=['phone_otp', 'otp_created_at', 'otp_failed_attempts'])
             return False
+
+        # Lock out if maximum attempts exceeded
+        if self.otp_failed_attempts >= max_attempts:
+            self.phone_otp = None
+            self.otp_created_at = None
+            self.otp_failed_attempts = 0
+            self.save(update_fields=['phone_otp', 'otp_created_at', 'otp_failed_attempts'])
+            return False
+
         candidate_clean = str(candidate_code).strip()
         stored_clean = self.phone_otp.strip()
+
         if secrets.compare_digest(candidate_clean, stored_clean):
             self.phone_otp = None
             self.otp_created_at = None
+            self.otp_failed_attempts = 0
             self.is_active = True
-            self.save(update_fields=['phone_otp', 'otp_created_at', 'is_active'])
+            self.save(update_fields=['phone_otp', 'otp_created_at', 'otp_failed_attempts', 'is_active'])
             return True
-        return False
+        else:
+            self.otp_failed_attempts += 1
+            if self.otp_failed_attempts >= max_attempts:
+                self.phone_otp = None
+                self.otp_created_at = None
+            self.save(update_fields=['phone_otp', 'otp_created_at', 'otp_failed_attempts'])
+            return False
 
     def save(self, *args, **kwargs):
         # Auto-normalize Ghana Card format to uppercase before saving
@@ -103,6 +146,13 @@ class CustomUser(AbstractUser):
             self.email = self.email.strip().lower()
         else:
             self.email = None
+
+        # Automatically hash legacy recovery keys if passed as raw plaintext
+        for field in ['security_birth_city', 'security_mother_maiden_name', 'security_high_school_crush']:
+            val = getattr(self, field, None)
+            if val and not val.startswith(('pbkdf2_', 'argon2', 'bcrypt')):
+                setattr(self, field, make_password(val.strip().lower()))
+
         super().save(*args, **kwargs)
 
     @property
@@ -494,7 +544,7 @@ class AssetRecord(models.Model):
     description = models.TextField(blank=True, null=True)
     estimated_value = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
     location_or_identifier = models.CharField(max_length=255, blank=True, null=True)
-    document_proof = models.FileField(upload_to="asset_proofs/", blank=True, null=True)
+    document_proof = models.FileField(upload_to=secure_vault_upload_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -521,7 +571,7 @@ class EstateDocument(models.Model):
     )
     document_type = models.CharField(max_length=30, choices=DOC_TYPES)
     title = models.CharField(max_length=255)
-    document_file = models.FileField(upload_to="estate_vault/")
+    document_file = models.FileField(upload_to=secure_vault_upload_path)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True, null=True)
 
@@ -561,8 +611,19 @@ class ClaimantAccessGrant(models.Model):
     claimant_email = models.EmailField(blank=True, null=True)
     payment_reference = models.CharField(max_length=150, unique=True, blank=True, db_index=True)
     access_token = models.CharField(max_length=100, unique=True, blank=True, db_index=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Designates whether this claimant docket remains active and accessible."
+    )
     unlocked_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_token_valid(self):
+        """
+        Grants continuous access to verified next-of-kin throughout
+        the active claim and estate settlement lifecycle.
+        """
+        return self.is_active
 
     class Meta:
         ordering = ['-unlocked_at']
@@ -721,7 +782,7 @@ class BankAccount(models.Model):
         help_text="Optional rough balance or deposit balance for executor tracking"
     )
     document_proof = models.FileField(
-        upload_to="bank_records/",
+        upload_to=secure_vault_upload_path,
         blank=True,
         null=True,
         help_text="Account statement, deposit certificate, or passbook copy"
@@ -798,7 +859,7 @@ class InvestmentHolding(models.Model):
         help_text="Maturity date if applicable (e.g. for T-Bills or fixed bonds)"
     )
     document_proof = models.FileField(
-        upload_to="investment_proofs/",
+        upload_to=secure_vault_upload_path,
         blank=True,
         null=True,
         help_text="CSD statement, investment contract certificate, or purchase slip"
@@ -924,24 +985,28 @@ class PlatformConfiguration(models.Model):
 
     @classmethod
     def get_solo(cls):
-        config = cls.objects.first()
-        if not config:
-            config = cls.objects.create(
-                id=1,
-                unlock_fee=50.00,
-                registration_fee=10.00,
-                annual_subscription_fee=120.00,
-                paystack_annual_plan_code='PLN_14xz26jx9j3gakp',
-                required_security_questions=3,
-                security_anti_inspect_enabled=True,
-                module_policies_enabled=True,
-                module_memories_enabled=False,
-                module_family_tree_enabled=False,
-                module_banks_enabled=False,
-                module_investments_enabled=False,
-                module_assets_enabled=False,
-                module_wills_enabled=False,
-            )
+        """
+        Thread-safe singleton retriever using atomic get_or_create.
+        Prevents IntegrityError crashes across concurrent Gunicorn workers.
+        """
+        config, _ = cls.objects.get_or_create(
+            id=1,
+            defaults={
+                'unlock_fee': 50.00,
+                'registration_fee': 10.00,
+                'annual_subscription_fee': 120.00,
+                'paystack_annual_plan_code': 'PLN_14xz26jx9j3gakp',
+                'required_security_questions': 3,
+                'security_anti_inspect_enabled': True,
+                'module_policies_enabled': True,
+                'module_memories_enabled': False,
+                'module_family_tree_enabled': False,
+                'module_banks_enabled': False,
+                'module_investments_enabled': False,
+                'module_assets_enabled': False,
+                'module_wills_enabled': False,
+            }
+        )
         return config
 
     def __str__(self):

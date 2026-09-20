@@ -239,9 +239,12 @@ def verify_subscription_view(request):
             if subscriptions_list:
                 subscription_code = subscriptions_list[0].get('subscription_code', '')
     except Exception:
-        if reference.startswith('SUB-'):
+        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
+        if settings.DEBUG and reference.startswith('SUB-'):
             payment_verified = True
             amount_paid = 1200.00 if billing_cycle == 'ANNUALLY' else 450.00
+        else:
+            payment_verified = False
 
     if not payment_verified:
         return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
@@ -281,16 +284,26 @@ def verify_subscription_view(request):
 
 
 @csrf_exempt
-@csrf_exempt
 def check_claimant_match_view(request):
     """
     Pre-payment identity audit check, rate-limiting & 3-angle biometric capture engine:
-    1. Enforces 5-minute lockout on 5 consecutive false/unmatched attempts.
+    1. Enforces 15-minute IP lockout on 5 consecutive false/unmatched attempts.
     2. Captures front, left, and right profile snapshots.
     3. Returns opaque security response on mismatch without exposing network telemetry.
     """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    client_ip = get_client_ip(request)
+    claimant_throttle_key = f"throttle_claimant_audit_{client_ip}"
+    failed_attempts = cache.get(claimant_throttle_key, 0)
+
+    # Rate Limiting: Lock out IP after 5 failed identity attempts to halt automated brute-force attacks
+    if failed_attempts >= 5:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Too many failed identity verification attempts from this network. Access locked for 15 minutes.'
+        }, status=429)
 
     try:
         data = json.loads(request.body)
@@ -458,6 +471,10 @@ def check_claimant_match_view(request):
         status='UNMATCHED_FLAGGED',
     )
 
+    # Increment throttle count: 15-minute (900s) timeout window
+    new_fails = failed_attempts + 1
+    cache.set(claimant_throttle_key, new_fails, timeout=900)
+
     return JsonResponse({
         'status': 'mismatch_flagged',
         'is_matched': False,
@@ -526,21 +543,22 @@ def verify_unlock_view(request):
         "Content-Type": "application/json",
     }
 
-    payment_verified = True
+    payment_verified = False
     platform_config = PlatformConfiguration.get_solo()
 
     try:
         resp = requests.get(paystack_url, headers=headers, timeout=10)
         resp_data = resp.json()
         data_payload = resp_data.get('data', {})
-        if not resp_data.get('status') or data_payload.get('status') != 'success':
-            payment_verified = False
-        else:
+        if resp_data.get('status') and data_payload.get('status') == 'success':
             amount_paid_pesewas = data_payload.get('amount')
-            if amount_paid_pesewas and int(amount_paid_pesewas) < platform_config.unlock_fee_pesewas:
-                payment_verified = False
+            if amount_paid_pesewas and int(amount_paid_pesewas) >= platform_config.unlock_fee_pesewas:
+                payment_verified = True
     except Exception:
-        if not reference.startswith('LT-'):
+        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
+        if settings.DEBUG and reference.startswith('LT-'):
+            payment_verified = True
+        else:
             payment_verified = False
 
     if not payment_verified:
@@ -723,6 +741,14 @@ def claimant_vault_view(request, access_token):
 
     if not grant_data and not grant_record:
         messages.error(request, "Access session expired or invalid. Please authenticate to open your vault.")
+        return redirect('vault:claimant_login')
+
+    # Verify grant remains active
+    if grant_record and not grant_record.is_active:
+        messages.error(
+            request, 
+            "This estate docket has been formally closed or archived. Please contact support if you need assistance."
+        )
         return redirect('vault:claimant_login')
 
     grant_dict = {
@@ -1085,8 +1111,11 @@ def login_view(request):
             if resp_data.get('status') and resp_data.get('data', {}).get('status') == 'success':
                 verified = True
         except Exception:
-            if reference.startswith('REG-'):
+            # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
+            if settings.DEBUG and reference.startswith('REG-'):
                 verified = True
+            else:
+                verified = False
 
         if not verified:
             messages.error(request, "Statutory registration fee could not be verified. Please try again.")
@@ -1284,21 +1313,21 @@ def forgot_password_view(request):
             reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
         )
 
-        email_subject = "LegacyTrace Vault | Password Reset Confirmation"
+        email_subject = "mySikaVault | Password Reset Confirmation"
         email_message = (
             f"Hello {user.first_name or user.username},\n\n"
-            f"A password reset request was initiated for your LegacyTrace digital vault.\n\n"
+            f"A password reset request was initiated for your mySikaVault digital vault.\n\n"
             f"Click the link below to set your new password:\n"
             f"{reset_url}\n\n"
             f"This link is valid for 24 hours. If you did not request a password reset, you can safely ignore this email.\n\n"
-            f"LegacyTrace National Registry Desk"
+            f"mySikaVault National Registry Desk"
         )
 
         try:
             send_mail(
                 subject=email_subject,
                 message=email_message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
                 recipient_list=[user.email],
                 fail_silently=False,
             )
@@ -1375,19 +1404,19 @@ def forgot_password_view(request):
                 reset_url = request.build_absolute_uri(
                     reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
                 )
-                email_subject = "LegacyTrace Vault | Password Reset (Question Attempts Exceeded)"
+                email_subject = "mySikaVault | Password Reset (Question Attempts Exceeded)"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
                     f"Three consecutive incorrect security answer attempts (3/3) were recorded for your vault.\n\n"
                     f"To restore your account securely, click the link below:\n"
                     f"{reset_url}\n\n"
-                    f"LegacyTrace National Registry Desk"
+                    f"mySikaVault National Registry Desk"
                 )
                 try:
                     send_mail(
                         subject=email_subject,
                         message=email_message,
-                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
                         recipient_list=[user.email],
                         fail_silently=False,
                     )
@@ -1515,8 +1544,11 @@ def verify_registration_fee_view(request):
         if resp_data.get('status') and resp_data.get('data', {}).get('status') == 'success':
             verified = True
     except Exception:
-        if reference.startswith('REG-'):
+        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
+        if settings.DEBUG and reference.startswith('REG-'):
             verified = True
+        else:
+            verified = False
 
     if not verified:
         return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
