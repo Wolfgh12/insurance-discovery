@@ -1997,7 +1997,7 @@
   </script>
   {% endif %}
 
-  <!-- Centered PWA Installation In-Progress Modal -->
+  <!-- Centered PWA Installation Guidance & Trust Modal (Opens FIRST) -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
     <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 450px; width: 100%; max-height: 92vh; overflow-y: auto; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
       
@@ -2006,7 +2006,7 @@
       </div>
 
       <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.65rem;">
-        ⏳ Installation Initialized
+        🛡️ Sovereign App Installation
       </div>
 
       <h3 style="margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.3px;">
@@ -2014,7 +2014,7 @@
       </h3>
 
       <p style="margin: 0 0 1.25rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        mySikaVault is installing securely in the background. The sovereign gold shield emblem will appear on your device screen in about 2 minutes max.
+        mySikaVault will install directly to your device launcher. Once confirmed, the sovereign gold shield emblem will appear on your home screen in about 2 minutes max.
       </p>
 
       <!-- Trust & Verification Guidance Pill -->
@@ -2027,19 +2027,29 @@
         </p>
       </div>
 
-      <button 
-        type="button" 
-        onclick="closePwaSuccessModal()" 
-        style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
-      >
-        Understood &amp; Continue ⚡
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button 
+          type="button" 
+          onclick="confirmAndExecuteInstall()" 
+          style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
+        >
+          Proceed to Install ➔
+        </button>
+
+        <button 
+          type="button" 
+          onclick="closePwaSuccessModal()" 
+          style="width: 100%; background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; padding: 0.75rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;"
+        >
+          Maybe Later ✕
+        </button>
+      </div>
 
     </div>
   </div>
 
   <!-- ====================================================
-       PWA Native Installation Pipeline (Instant Direct Trigger & Persistent Auto-Hide)
+       PWA Native Installation Pipeline (Primer First & Trigger Handoff)
   ==================================================== -->
   <script>
     (function () {
@@ -2091,21 +2101,33 @@
         showAllInstallButtons();
       });
 
-      // Direct trigger: fires native browser install dialog and opens feedback modal immediately upon accept
+      // 1. Initial on-page click: Opens the reassurance briefing modal FIRST
       window.triggerPwaInstall = function () {
-        if (!deferredInstallPrompt) return;
+        window.openPwaSuccessModal();
+      };
 
-        deferredInstallPrompt.prompt();
-        deferredInstallPrompt.userChoice.then(function (choiceResult) {
-          if (choiceResult.outcome === 'accepted') {
-            localStorage.setItem('mysika_vault_installed', 'true');
-            hideAllInstallButtons();
-            window.openPwaSuccessModal();
+      // 2. Modal confirmation click: Closes the modal and fires the native browser prompt
+      window.confirmAndExecuteInstall = function () {
+        window.closePwaSuccessModal();
+
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then(function (choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+              localStorage.setItem('mysika_vault_installed', 'true');
+              hideAllInstallButtons();
+            }
+            deferredInstallPrompt = null;
+          }).catch(function () {
+            deferredInstallPrompt = null;
+          });
+        } else {
+          // iOS Safari fallback
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          if (isIOS) {
+            alert("To install on iPhone/iPad: Tap the Share button (square with arrow pointing up) at the bottom of Safari, then choose 'Add to Home Screen'.");
           }
-          deferredInstallPrompt = null;
-        }).catch(function () {
-          deferredInstallPrompt = null;
-        });
+        }
       };
 
       // Fired automatically by the browser the second installation finishes
