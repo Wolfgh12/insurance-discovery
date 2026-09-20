@@ -36,7 +36,7 @@
 <meta name="application-name" content="mySikaVault">
 
 <!-- PWA Manifest -->
-<link rel="manifest" href="{% static 'manifest.json' %}?v=2026.1">
+<link rel="manifest" href="{% static 'manifest.json' %}?v=2026.5">
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   
@@ -2186,104 +2186,63 @@
     (function () {
       let deferredInstallPrompt = null;
 
-      // Strictly intercept and prevent the browser from automatically popping up its own prompt
+      // Intercept default browser banner so it ONLY fires on our button click
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
       });
 
-      // Exclusive Single Source of Truth: Opening the custom modal
+      // Single Source of Truth: Triggered directly from on-page buttons
       window.triggerPwaInstall = function () {
-        const modal = document.getElementById('pwa-install-modal');
-        const progressWrapper = document.getElementById('pwa-progress-wrapper');
-        const progressBar = document.getElementById('pwa-progress-bar');
-        const progressPct = document.getElementById('pwa-progress-pct');
-        const progressStatus = document.getElementById('pwa-progress-status');
-        const directBtn = document.getElementById('btn-trigger-pwa-direct');
-        const instructions = document.getElementById('pwa-install-instructions');
-
-        if (!modal) return;
-
-        // Reset state on open
-        if (progressWrapper) progressWrapper.style.display = 'none';
-        if (progressBar) progressBar.style.width = '0%';
-        if (progressPct) progressPct.textContent = '0%';
-        if (progressStatus) progressStatus.textContent = 'Downloading vault packages...';
-        if (directBtn) {
-          directBtn.style.display = 'block';
-          directBtn.disabled = false;
-        }
-
         const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
         if (isStandalone) {
-          if (instructions) instructions.innerHTML = '🎉 <strong>mySikaVault is already installed</strong> and running in sovereign standalone mode.';
-          if (directBtn) directBtn.style.display = 'none';
-        } else if (isIos) {
-          if (instructions) {
-            instructions.innerHTML = 'To install on iOS Safari:<br>1. Tap the <strong>Share</strong> icon (⎋).<br>2. Select <strong>"Add to Home Screen"</strong> (⊞).<br>3. Tap <strong>Add</strong>.';
-          }
-          if (directBtn) directBtn.style.display = 'none';
-        } else {
-          if (instructions) {
-            instructions.innerHTML = 'Add <strong>mySikaVault</strong> directly to your device home screen for encrypted, offline-ready biometric access.';
-          }
+          showPwaGuide('🎉 <strong>mySikaVault is already installed</strong> and running in standalone mode.');
+          return;
         }
 
-        modal.style.display = 'flex';
+        // 1. Direct Install Trigger for Chromium (Desktop & Android)
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              console.log('App installed successfully');
+            }
+            deferredInstallPrompt = null;
+          });
+          return;
+        }
+
+        // 2. iOS Safari Fallback Guide (Only where direct prompt is impossible)
+        if (isIos) {
+          showPwaGuide(
+            'To install on iPhone or iPad:<br><br>' +
+            '1. Tap the <strong>Share</strong> button in Safari (<span style="font-size: 1.1rem;">⎋</span>).<br>' +
+            '2. Select <strong>"Add to Home Screen"</strong> (<span style="font-size: 1.1rem;">⊞</span>).<br>' +
+            '3. Tap <strong>Add</strong>.'
+          );
+          return;
+        }
+
+        // 3. Fallback if browser already rejected or doesn't support PWA
+        showPwaGuide(
+          'To install on this device:<br><br>' +
+          'Click the <strong>Install icon (⊕)</strong> in your browser address bar, or select <strong>"Install mySikaVault"</strong> from the menu (⋮).'
+        );
       };
+
+      function showPwaGuide(htmlContent) {
+        const modal = document.getElementById('pwa-install-modal');
+        const box = document.getElementById('pwa-install-instructions');
+        if (box) box.innerHTML = htmlContent;
+        if (modal) modal.style.display = 'flex';
+      }
 
       window.closePwaModal = function () {
         const modal = document.getElementById('pwa-install-modal');
         if (modal) modal.style.display = 'none';
       };
-
-      // Progress bar execution when clicking "Download and Enjoy"
-      const directInstallBtn = document.getElementById('btn-trigger-pwa-direct');
-      if (directInstallBtn) {
-        directInstallBtn.addEventListener('click', function () {
-          const progressWrapper = document.getElementById('pwa-progress-wrapper');
-          const progressBar = document.getElementById('pwa-progress-bar');
-          const progressPct = document.getElementById('pwa-progress-pct');
-          const progressStatus = document.getElementById('pwa-progress-status');
-
-          directInstallBtn.disabled = true;
-          directInstallBtn.style.opacity = '0.6';
-          if (progressWrapper) progressWrapper.style.display = 'block';
-
-          const stages = [
-            { pct: 25, label: 'Downloading vault security packages...' },
-            { pct: 60, label: 'Encrypting local biometric cache...' },
-            { pct: 90, label: 'Verifying offline integrity...' },
-            { pct: 100, label: 'Ready for installation!' }
-          ];
-
-          let step = 0;
-          const interval = setInterval(function () {
-            if (step < stages.length) {
-              const current = stages[step];
-              if (progressBar) progressBar.style.width = current.pct + '%';
-              if (progressPct) progressPct.textContent = current.pct + '%';
-              if (progressStatus) progressStatus.textContent = current.label;
-              step++;
-            } else {
-              clearInterval(interval);
-              setTimeout(function () {
-                if (deferredInstallPrompt) {
-                  deferredInstallPrompt.prompt();
-                  deferredInstallPrompt.userChoice.then(() => {
-                    deferredInstallPrompt = null;
-                    closePwaModal();
-                  });
-                } else {
-                  closePwaModal();
-                }
-              }, 450);
-            }
-          }, 320);
-        });
-      }
 
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         document.documentElement.classList.add('app-is-installed');
