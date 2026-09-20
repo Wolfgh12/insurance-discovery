@@ -27,11 +27,17 @@
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/Original_logo.jpeg' %}">
 
 <!-- Shield Favicon & Touch Icons --> 
-<link rel="icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=5">
-<link rel="shortcut icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=5">
-<link rel="apple-touch-icon" href="{% static 'images/Original_logo.jpeg' %}?v=5">
+<link rel="icon" type="image/jpeg" sizes="32x32" href="{% static 'images/Original_logo.jpeg' %}?v=6">
+<link rel="shortcut icon" type="image/jpeg" href="{% static 'images/Original_logo.jpeg' %}?v=6">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/Original_logo.jpeg' %}?v=6">
+<link rel="apple-touch-icon-precomposed" href="{% static 'images/Original_logo.jpeg' %}?v=6">
+
+<!-- Android / Chrome Web App Icon -->
+<meta name="apple-mobile-web-app-title" content="mySikaVault">
+<meta name="application-name" content="mySikaVault">
+
 <!-- PWA Manifest -->
-<link rel="manifest" href="{% static 'manifest.json' %}">
+<link rel="manifest" href="{% static 'manifest.json' %}?v=6">
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   
