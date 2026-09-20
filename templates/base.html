@@ -1060,18 +1060,14 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="{% static 'js/app.js' %}?v=4.0"></script>
+  <script src="{% static 'js/app.js' %}?v=4.1"></script>
   
-  <!-- Nav & Action Route Transition Loader (2-Second Execution Window) -->
+  <!-- Nav & Action Route Transition Loader (Snappy & Responsive) -->
   <script> 
     (function () {
       const loader = document.getElementById('vault-page-loader');
       const subText = document.getElementById('vault-loader-sub');
       if (!loader) return;
-
-      const LOADER_DURATION = 2000; // Exactly 2 seconds
-      let navHoldTimer = null;
-      let isNavigating = false;
 
       function showNavLoader(message) {
         if (subText && message) subText.textContent = message;
@@ -1082,172 +1078,35 @@
       function hideNavLoader() {
         loader.classList.remove('active');
         loader.setAttribute('aria-hidden', 'true');
-        if (navHoldTimer) clearTimeout(navHoldTimer);
-        isNavigating = false;
       }
 
-      // Initial Page Load: 2-second hold
-      window.addEventListener('load', function () {
-        setTimeout(hideNavLoader, LOADER_DURATION);
-      });
+      // Dismiss immediately once DOM is interactive (no artificial 2s wait)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideNavLoader);
+      } else {
+        hideNavLoader();
+      }
 
-      window.addEventListener('pageshow', function () {
-        setTimeout(hideNavLoader, 400);
-      });
+      window.addEventListener('load', hideNavLoader);
+      window.addEventListener('pageshow', hideNavLoader);
 
       window.showVaultLoader = showNavLoader;
       window.hideVaultLoader = hideNavLoader;
 
-      // Comprehensive action target selector
-      const ACTION_SELECTOR = [
-        '.nav-menu-links a', '.nav-menu-links button',
-        '.nav-auth-cluster a', '.nav-auth-cluster button',
-        '.mobile-nav-list a', '.mobile-nav-list button',
-        '.brand-group', '.mobile-drawer a', '.mobile-drawer button',
-        'a[href*="login"]', 'a[href*="logout"]', 'a[href*="signup"]',
-        'a[href*="pricing"]', 'a[href*="dashboard"]', 'a[href*="claimant"]',
-        '.btn-nav-portal', '.btn-nav-cta',
-        'a[href*="#registry-search"]', '.btn-registry-search',
-        'button[type="submit"]', 'input[type="submit"]'
-      ].join(', ');
-
+      // Smooth scroll for anchor links
       document.addEventListener('click', function (e) {
-        if (isNavigating) {
-          e.preventDefault();
-          return;
-        }
-
-        const target = e.target.closest(ACTION_SELECTOR);
-        if (!target) return;
-
-        // Ignore confirmation modals, drawer close triggers, and hamburger toggles
-        if (
-          target.closest('#universal-confirm-modal') ||
-          target.closest('#session-conflict-modal') ||
-          target.closest('#session-timeout-modal') ||
-          target.classList.contains('no-loader') ||
-          target.classList.contains('btn-hamburger') ||
-          target.classList.contains('mobile-drawer-close')
-        ) {
-          return;
-        }
-
-        // 1. Navigation & Search Form Buttons
-        const parentForm = target.closest('form');
-        if (target.matches('button[type="submit"], input[type="submit"]') || (parentForm && target.tagName === 'BUTTON')) {
-          if (parentForm && !parentForm.classList.contains('no-loader')) {
-            e.preventDefault();
-            e.stopPropagation();
-            isNavigating = true;
-
-            const text = (target.innerText || target.value || '').toLowerCase();
-            const action = (parentForm.getAttribute('action') || '').toLowerCase();
-            const formId = (parentForm.id || '').toLowerCase();
-
-            if (text.includes('search') || formId.includes('search') || action.includes('search') || action.includes('registry')) {
-              showNavLoader('Querying National Policy Registry...');
-            } else if (text.includes('log out') || action.includes('logout')) {
-              showNavLoader('Terminating session & locking vault...');
-            } else if (text.includes('log in') || text.includes('sign in') || action.includes('login')) {
-              showNavLoader('Authenticating credentials...');
-            } else {
-              showNavLoader('Processing secure request...');
-            }
-
-            navHoldTimer = setTimeout(function () {
-              if (parentForm.requestSubmit) parentForm.requestSubmit(target);
-              else parentForm.submit();
-            }, LOADER_DURATION);
-            return;
-          }
-        }
-
-        // 2. Navigation Anchor Links
-        const link = target.closest('a');
+        const link = e.target.closest('a[href^="#"]');
         if (!link) return;
 
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-
         const href = link.getAttribute('href');
-        if (!href) return;
+        if (href === '#' || href === '') return;
 
-        // Smooth scroll for anchor targets
-        if (href.startsWith('#')) {
-          const hashTarget = document.querySelector(href);
-          if (hashTarget) {
-            e.preventDefault();
-            showNavLoader('Locating Registry Section...');
-            setTimeout(function () {
-              hideNavLoader();
-              hashTarget.scrollIntoView({ behavior: 'smooth' });
-            }, 800);
-            return;
-          }
-          return;
+        const targetEl = document.querySelector(href);
+        if (targetEl) {
+          e.preventDefault();
+          targetEl.scrollIntoView({ behavior: 'smooth' });
         }
-
-        if (
-          href.startsWith('javascript:') ||
-          href.startsWith('mailto:') ||
-          href.startsWith('tel:') ||
-          link.getAttribute('target') === '_blank' ||
-          link.hasAttribute('download')
-        ) {
-          return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-        isNavigating = true;
-
-        const linkText = (link.innerText || '').trim().toLowerCase();
-        if (linkText.includes('search') || href.includes('registry')) {
-          showNavLoader('Accessing National Registry Search...');
-        } else if (linkText.includes('sign in') || linkText.includes('log in') || href.includes('login')) {
-          showNavLoader('Opening encrypted sign-in access...');
-        } else if (linkText.includes('register') || linkText.includes('sign up') || href.includes('signup') || href.includes('pricing')) {
-          showNavLoader('Preparing Citizen Vault Enrollment...');
-        } else if (linkText.includes('open vault') || linkText.includes('dashboard') || href.includes('dashboard') || href.includes('claimant')) {
-          showNavLoader('Accessing Sovereign Digital Vault...');
-        } else if (href === '/' || linkText.includes('home')) {
-          showNavLoader('Returning to National Registry Home...');
-        } else {
-          showNavLoader('Establishing secure channel...');
-        }
-
-        navHoldTimer = setTimeout(function () {
-          window.location.href = link.href;
-        }, LOADER_DURATION);
-
-      }, true);
-
-      // 3. Form Submit Interceptor (Registry Search enter keypresses & general forms)
-      document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (isNavigating || form.classList.contains('no-loader') || form.closest('#universal-confirm-modal')) {
-          return;
-        }
-
-        e.preventDefault();
-        isNavigating = true;
-
-        const formAction = (form.getAttribute('action') || '').toLowerCase();
-        const formId = (form.id || '').toLowerCase();
-
-        if (formId.includes('search') || formAction.includes('search') || formAction.includes('registry') || form.querySelector('input[type="search"], input[name*="search"], input[name*="gha"], input[name*="query"], input[name*="id_number"]')) {
-          showNavLoader('Querying Sovereign Policy Registry...');
-        } else if (formAction.includes('logout') || formId.includes('logout')) {
-          showNavLoader('Securing credentials & terminating session...');
-        } else if (formAction.includes('login') || formId.includes('login')) {
-          showNavLoader('Authenticating credentials...');
-        } else {
-          showNavLoader('Transmitting secure payload...');
-        }
-
-        navHoldTimer = setTimeout(function () {
-          HTMLFormElement.prototype.submit.call(form);
-        }, LOADER_DURATION);
-      }, true);
+      });
     })();
   </script>
 
@@ -1257,7 +1116,7 @@
       
       <div id="session-conflict-icon" style="width: 60px; height: 60px; background: rgba(239, 68, 68, 0.15); border: 2px solid #EF4444; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
         🔒
-      </div>
+      </div> 
 
       <div id="session-conflict-badge" style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid #EF4444; font-size: 0.72rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.6rem;">
         Active Session Conflict
