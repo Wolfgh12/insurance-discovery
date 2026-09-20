@@ -751,6 +751,16 @@
       box-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
       transform: translateY(-2px);
     }
+
+    /* Auto-hide all installation buttons & banners when running inside installed app */
+    @media (display-mode: standalone) {
+      .pwa-install-element {
+        display: none !important;
+      }
+    }
+    .app-is-installed .pwa-install-element {
+      display: none !important;
+    }
   </style>
   {% block extra_css %}{% endblock %}
 </head>
@@ -986,7 +996,7 @@
           </div>
         </div>
 
-        <!-- Column 2: Quick Vault Navigation -->
+<!-- Column 2: Quick Vault Navigation -->
         <div>
           <div class="footer-heading">Vault Navigation</div>
           <ul class="footer-links">
@@ -999,6 +1009,11 @@
             <li>
               <a href="{% url 'vault:claimant_dashboard' %}" class="footer-link" style="color: #38BDF8;">
                 🔐 Claimant Private Dashboard
+              </a>
+            </li>
+<li class="pwa-install-element">
+              <a href="javascript:void(0)" onclick="triggerPwaInstall()" class="footer-link no-loader" style="color: #38BDF8; font-weight: 700;">
+                📲 Download App (PWA)
               </a>
             </li>
           </ul>
@@ -1885,18 +1900,132 @@
   </script>
   {% endif %}
 
-  {% if platform_config.security_anti_inspect_enabled %}
   <!-- ====================================================
-       Sovereign Anti-Tamper, Anti-Inspect & DevTools Shield
+       Sovereign Anti-Tamper, Active Lockdown & DevTools Shield
   ==================================================== -->
   <script>
     (function () {
       'use strict';
 
-      // 1. Silent Terminal Blindfold: Neutralize all console inspection telemetry
+      let isLockdownActive = false;
+
+      // Master Security Purge: Wipes DOM, halts requests, and locks the interface
+      function triggerSecurityLockdown(reason) {
+        if (isLockdownActive) return;
+        isLockdownActive = true;
+
+        try {
+          window.stop();
+        } catch (e) {}
+
+        // Terminate authenticated session immediately if logout form is mounted
+        const autoLogoutForm = document.getElementById('auto-inactivity-logout-form') || document.getElementById('session-conflict-logout-form');
+        if (autoLogoutForm) {
+          try {
+            autoLogoutForm.submit();
+          } catch (e) {}
+        }
+
+        document.title = "SECURITY ACCESS REVOKED | mySikaVault";
+
+        // Overwrite full DOM to purge sensitive estate data and active views
+        document.documentElement.innerHTML = `
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>SECURITY ACCESS REVOKED | mySikaVault</title>
+            <style>
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              body {
+                background: #07111E;
+                color: #FFFFFF;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1.5rem;
+              }
+              .lockdown-card {
+                background: #0B192C;
+                border: 2px solid #EF4444;
+                border-radius: 24px;
+                padding: 2.75rem 2rem;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(239, 68, 68, 0.35);
+              }
+              .lockdown-icon {
+                width: 68px;
+                height: 68px;
+                background: rgba(239, 68, 68, 0.15);
+                border: 2px solid #EF4444;
+                border-radius: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.2rem;
+                margin-bottom: 1.25rem;
+              }
+              .lockdown-badge {
+                background: rgba(239, 68, 68, 0.2);
+                color: #FCA5A5;
+                border: 1px solid #EF4444;
+                font-size: 0.74rem;
+                font-weight: 900;
+                padding: 4px 12px;
+                border-radius: 6px;
+                display: inline-block;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                margin-bottom: 0.85rem;
+              }
+              .lockdown-title {
+                font-size: 1.45rem;
+                font-weight: 900;
+                margin-bottom: 0.65rem;
+                letter-spacing: -0.4px;
+              }
+              .lockdown-text {
+                font-size: 0.88rem;
+                color: #94A3B8;
+                line-height: 1.6;
+                margin-bottom: 1.75rem;
+              }
+              .lockdown-btn {
+                display: inline-block;
+                width: 100%;
+                background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+                color: #FFFFFF;
+                text-decoration: none;
+                font-weight: 900;
+                font-size: 0.92rem;
+                padding: 0.95rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 18px rgba(239, 68, 68, 0.45);
+              }
+            </style>
+          </head>
+          <body>
+            <div class="lockdown-card">
+              <div class="lockdown-icon">🚨</div>
+              <div><span class="lockdown-badge">Security Protocol • Act 843 & Act 1038</span></div>
+              <h1 class="lockdown-title">Access Revoked: Inspection Prohibited</h1>
+              <p class="lockdown-text">
+                An unauthorized source-inspection or developer terminal tool was detected. To protect confidential estate assets, biometrics, and underwritten records, this session has been terminated and purged from browser memory.
+              </p>
+              <a href="/" class="lockdown-btn">Return to Sovereign Portal ➔</a>
+            </div>
+          </body>
+        `;
+      }
+
+      // Preserve native console logging internally before blindfolding the public window
+      const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
       const noop = function () {};
       const methods = [
-        'log', 'debug', 'info', 'warn', 'error', 'table', 
+        'debug', 'info', 'warn', 'error', 'table', 
         'trace', 'dir', 'dirxml', 'group', 'groupCollapsed', 
         'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count'
       ];
@@ -1906,28 +2035,27 @@
         } catch (e) {}
       }
 
-      // 2. Total Context Menu Lockdown: Suppress Right-Click "Inspect Element"
+      // Suppress Right-Click "Inspect Element" Context Menu
       document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }, { capture: true });
 
-      // 3. Keystroke Interceptor: Suppress F12, DevTools shortcuts, View-Source, and Save-Page
+      // Keystroke Interceptor: Suppress F12, DevTools chords, View-Source, and Save-Page
       window.addEventListener('keydown', function (e) {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const metaOrCtrl = isMac ? e.metaKey : e.ctrlKey;
         const keyCode = e.keyCode || e.which;
         const key = (e.key || '').toUpperCase();
 
-        // Block F12
         if (keyCode === 123 || key === 'F12') {
           e.preventDefault();
           e.stopPropagation();
+          triggerSecurityLockdown("F12 Key");
           return false;
         }
 
-        // Block Ctrl+Shift+I / J / C / K / E (Inspect, Console, Inspector)
         if (metaOrCtrl && e.shiftKey && (
           keyCode === 73 || key === 'I' || 
           keyCode === 74 || key === 'J' || 
@@ -1937,17 +2065,17 @@
         )) {
           e.preventDefault();
           e.stopPropagation();
+          triggerSecurityLockdown("DevTools Shortcut Chord");
           return false;
         }
 
-        // Block Ctrl+U / Cmd+Alt+U (View Page Source)
         if ((metaOrCtrl && (keyCode === 85 || key === 'U')) || (isMac && e.altKey && metaOrCtrl && (keyCode === 85 || key === 'U'))) {
           e.preventDefault();
           e.stopPropagation();
+          triggerSecurityLockdown("View Source Shortcut");
           return false;
         }
 
-        // Block Ctrl+S / Cmd+S (Save Page to Disk)
         if (metaOrCtrl && (keyCode === 83 || key === 'S')) {
           e.preventDefault();
           e.stopPropagation();
@@ -1955,33 +2083,157 @@
         }
       }, { capture: true });
 
-      // 4. Active Debugger Tripwire: Instantly locks execution if DevTools is attached
-      function deployTripwire() {
-        try {
-          const trip = function () {
-            (function () {
-              return false;
-            })['constructor']('debugger')();
-          };
-          trip();
-        } catch (err) {}
+      // Active C++ Console Evaluation Probe: Triggers the microsecond DevTools inspects objects
+      const probeElement = new Image();
+      Object.defineProperty(probeElement, 'id', {
+        get: function () {
+          triggerSecurityLockdown("Console Object Inspection");
+        }
+      });
+
+      setInterval(function () {
+        if (!isLockdownActive) {
+          _nativeLog(probeElement);
+        }
+      }, 500);
+
+      // Execution Delta Timing Trap: Catches open DevTools even in separate undocked windows or emulations
+      function monitorExecutionTiming() {
+        if (isLockdownActive) return;
+        const startTime = performance.now();
+        (function () {
+          return false;
+        })['constructor']('debugger')();
+        const executionDelta = performance.now() - startTime;
+
+        if (executionDelta > 100) {
+          triggerSecurityLockdown("Execution Latency Trap");
+        }
       }
+      setInterval(monitorExecutionTiming, 400);
 
-      setInterval(deployTripwire, 300);
-
-      // 5. Window Dimension Delta Tripwire (Detects detached/docked DevTools opening)
+      // Docked DevTools Resize Tripwire (Fires when side/bottom drawer opens on desktop)
       const threshold = 160;
       window.addEventListener('resize', function () {
+        if (isLockdownActive) return;
         if (
           (window.outerWidth - window.innerWidth > threshold) ||
           (window.outerHeight - window.innerHeight > threshold)
         ) {
-          deployTripwire();
+          triggerSecurityLockdown("DevTools Docked Docking");
         }
       }, { passive: true });
     })();
   </script>
-  {% endif %}
+
+  <!-- ====================================================
+       PWA Installation & iOS Springboard Modal
+  ==================================================== -->
+  <div id="pwa-install-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 1.5px solid #06B6D4; border-radius: 24px; padding: 2.25rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.25);">
+      
+      <div style="width: 64px; height: 64px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(212, 175, 55, 0.8); margin: 0 auto 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+        <img src="{% static 'images/Original_logo.jpeg' %}" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      </div>
+
+      <div style="background: rgba(6, 182, 212, 0.15); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.6rem;">
+        Install mySikaVault
+      </div>
+
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.3px;">
+        Add to Home Screen
+      </h3>
+
+      <div id="pwa-install-instructions" style="margin: 0 0 1.75rem; font-size: 0.85rem; color: #94A3B8; line-height: 1.6; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem 1.25rem;">
+        <!-- Dynamically injected based on device/browser -->
+      </div>
+
+      <button 
+        type="button" 
+        onclick="closePwaModal()" 
+        class="no-loader"
+        style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; padding: 0.85rem; border-radius: 12px; font-size: 0.9rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35); font-family: inherit;"
+      >
+        Understood ✕
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      let deferredInstallPrompt = null;
+
+      // Intercept browser install prompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+      });
+
+      window.triggerPwaInstall = function () {
+        // 1. If native prompt is ready (Chrome / Android / Edge Desktop)
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User installed mySikaVault PWA');
+            }
+            deferredInstallPrompt = null;
+          });
+          return;
+        }
+
+        // 2. Detect Apple iOS (iPhone / iPad)
+        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        if (isStandalone) {
+          showPwaGuide('🎉 <strong>mySikaVault is already installed</strong> on your device and running in standalone mode.');
+          return;
+        }
+
+        if (isIos) {
+          showPwaGuide(
+            'To install on iPhone or iPad:<br><br>' +
+            '1. Tap the <strong>Share</strong> button at the bottom of Safari (<span style="font-size: 1.1rem;">⎋</span> or square with arrow).<br>' +
+            '2. Scroll down and tap <strong>"Add to Home Screen"</strong> (<span style="font-size: 1.1rem;">⊞</span>).<br>' +
+            '3. Tap <strong>Add</strong> in the top-right corner.'
+          );
+          return;
+        }
+
+        // 3. Fallback for desktop or non-Chromium browsers
+        showPwaGuide(
+          'To install on this browser:<br><br>' +
+          '• Click the <strong>Install / App icon (⊕)</strong> on the right side of your browser address bar, or<br>' +
+          '• Open the browser menu (⋮) and select <strong>"Install mySikaVault"</strong>.'
+        );
+      };
+
+      function showPwaGuide(htmlContent) {
+        const modal = document.getElementById('pwa-install-modal');
+        const box = document.getElementById('pwa-install-instructions');
+        if (box) box.innerHTML = htmlContent;
+        if (modal) modal.style.display = 'flex';
+      }
+
+      window.closePwaModal = function () {
+        const modal = document.getElementById('pwa-install-modal');
+        if (modal) modal.style.display = 'none';
+      };
+
+      // Instant standalone check on load (Android, Desktop Chrome & iOS Safari)
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        document.documentElement.classList.add('app-is-installed');
+      }
+
+      // Auto-hide elements immediately upon successful installation
+      window.addEventListener('appinstalled', () => {
+        document.documentElement.classList.add('app-is-installed');
+        deferredInstallPrompt = null;
+        closePwaModal();
+      });
+    })();
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>
