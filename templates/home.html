@@ -1458,15 +1458,47 @@
     {% endwith %}
 
   {% else %}
-    <!-- No Policy Match Located -->
-    <div id="search-results-wrapper" style="margin-bottom: 3rem;">
-      <div style="text-align: center; padding: 2.5rem 1.5rem; background: #ffffff; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);">
-        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔎</div>
-        <h4 style="margin: 0 0 0.4rem; color: #0F172A; font-size: 1.05rem; font-weight: 800;">No Matching Records Located</h4>
-        <p style="color: #64748B; font-size: 0.84rem; margin: 0 auto 1.25rem; max-width: 460px; line-height: 1.5;">
-          No active vault matches the query: <strong style="color: #0F172A;">"{{ query }}"</strong>.
+    <!-- Centered Glassmorphic No Policy Found Pop-up Modal -->
+    <div id="no-policy-modal-backdrop" style="display: flex; position: fixed; inset: 0; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 9999999; align-items: center; justify-content: center; padding: 1.25rem;">
+      <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; max-width: 460px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(6, 182, 212, 0.3); animation: alertSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+        
+        <div style="width: 64px; height: 64px; margin: 0 auto 1.2rem; border-radius: 18px; background: rgba(6, 182, 212, 0.12); border: 2px solid #06B6D4; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 8px 24px rgba(6, 182, 212, 0.25);">
+          🛡️
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
+          Registry Verification Notice
+        </div>
+
+        <h3 style="margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px; color: #ffffff;">
+          No Active Policy Located
+        </h3>
+
+        <p style="margin: 0 0 1.2rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6;">
+          Our sovereign registry was unable to locate an active underwritten policy matching Ghana Card ID:
         </p>
-        <a href="/" class="btn-reset-view no-loader">✕ Clear Search</a>
+
+        <div style="background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.4rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1rem; font-weight: 900; color: #38BDF8; letter-spacing: 1px;">
+          {{ query }}
+        </div>
+
+        <div style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.78rem; color: #CBD5E1; line-height: 1.5;">
+          <strong style="color: #38BDF8;">💡 Verification Notes:</strong>
+          <ul style="margin: 6px 0 0; padding-left: 18px; color: #94A3B8;">
+            <li>The citizen has not yet deposited an active policy into their vault profile.</li>
+            <li>Double-check the digits entered to eliminate typographical mistakes.</li>
+          </ul>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <a href="/" class="btn-reset-view no-loader" style="flex: 1; padding: 0.85rem; border-radius: 12px; font-size: 0.88rem; font-weight: 800; justify-content: center; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.2); color: #CBD5E1; text-decoration: none; display: inline-flex; align-items: center;">
+            ✕ Dismiss &amp; Reset
+          </a>
+          <button type="button" onclick="closeNoPolicyModal()" style="flex: 1.2; padding: 0.85rem; border-radius: 12px; font-size: 0.88rem; font-weight: 900; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); border: none; color: #ffffff; cursor: pointer; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35); font-family: inherit;">
+            Search Again 🔍
+          </button>
+        </div>
+
       </div>
     </div>
   {% endif %}
@@ -2614,6 +2646,72 @@
       } else {
         executeSpeech();
       }
+    }
+
+    // ----------------------------------------------------
+    // Deep, Clear Male Voice Engine (For Unmatched Searches)
+    // ----------------------------------------------------
+    function speakMaleVoice(text, onCompleteCallback) {
+      if (!('speechSynthesis' in window)) {
+        if (onCompleteCallback) onCompleteCallback();
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      } catch (err) {}
+
+      const executeSpeech = () => {
+        if (availableVoices.length === 0) {
+          availableVoices = window.speechSynthesis.getVoices();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.88;
+        utterance.pitch = 0.82; // Authoritative male frequency
+
+        const maleVoice = availableVoices.find(v =>
+          /male|david|george|james|daniel|alex|fred|guy|google uk english male|microsoft david/i.test(v.name)
+        ) || availableVoices.find(v => v.lang && v.lang.startsWith('en')) || availableVoices[0];
+
+        if (maleVoice) {
+          utterance.voice = maleVoice;
+        }
+
+        if (onCompleteCallback) {
+          utterance.onend = onCompleteCallback;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      if (availableVoices.length === 0) {
+        setTimeout(executeSpeech, 250);
+      } else {
+        executeSpeech();
+      }
+    }
+
+    window.closeNoPolicyModal = function () {
+      const modal = document.getElementById('no-policy-modal-backdrop');
+      if (modal) modal.style.display = 'none';
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const input = document.getElementById('registry-search-input');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    };
+
+    // Auto-announce with male voice when no-policy modal is loaded
+    const noPolicyModal = document.getElementById('no-policy-modal-backdrop');
+    if (noPolicyModal) {
+      setTimeout(() => {
+        speakMaleVoice('No active policy record was located in the registry for this Ghana Card ID. Please verify the ID number or ensure an active policy has been registered.');
+      }, 400);
     }
 
     // ----------------------------------------------------
