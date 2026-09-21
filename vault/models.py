@@ -30,10 +30,28 @@ class CustomUser(AbstractUser):
         ('INSURER_ADMIN', 'Insurer Administrator'),
     )
 
+    ACCOUNT_STATUS_CHOICES = (
+        ('ACTIVE', 'Active & In Good Standing'),
+        ('SUSPENDED', 'Suspended (Temporary Review / Lock)'),
+        ('TERMINATED', 'Terminated (Permanent Revocation / Ban)'),
+    )
+
     # Email unique constraint dropped at database level to allow family reuse on settled/claimed estates.
     # Uniqueness is enforced dynamically in forms/views, excluding settled accounts.
     email = models.EmailField(blank=True, null=True, db_index=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='POLICYHOLDER')
+    account_status = models.CharField(
+        max_length=20,
+        choices=ACCOUNT_STATUS_CHOICES,
+        default='ACTIVE',
+        db_index=True,
+        help_text="Administrative access clearance state: Active, Suspended, or Terminated."
+    )
+    suspension_reason = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Reason for administrative suspension or termination displayed to the user upon login."
+    )
     phone_number = models.CharField(max_length=20, blank=True, null=True, db_index=True)
     ghana_card_number = models.CharField(max_length=30, unique=True, blank=True, null=True, db_index=True)
     permanent_address = models.TextField(blank=True, null=True)
@@ -152,6 +170,10 @@ class CustomUser(AbstractUser):
             val = getattr(self, field, None)
             if val and not val.startswith(('pbkdf2_', 'argon2', 'bcrypt')):
                 setattr(self, field, make_password(val.strip().lower()))
+
+        # Enforce instant session/auth lockout if account status is Suspended or Terminated
+        if self.account_status in ['SUSPENDED', 'TERMINATED']:
+            self.is_active = False
 
         super().save(*args, **kwargs)
 
