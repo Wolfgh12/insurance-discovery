@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Q
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from .models import (
     AssetRecord,
     CitizenMemory,
@@ -156,15 +157,15 @@ class CustomUserAdmin(UserAdmin):
 
     def account_status_badge(self, obj):
         if obj.account_status == "ACTIVE" and obj.is_active:
-            return format_html(
+            return mark_safe(
                 '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">✓ ACTIVE</span>'
             )
         elif obj.account_status == "SUSPENDED" or (not obj.is_active and obj.account_status != "TERMINATED"):
-            return format_html(
+            return mark_safe(
                 '<span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">⏸️ SUSPENDED</span>'
             )
         elif obj.account_status == "TERMINATED":
-            return format_html(
+            return mark_safe(
                 '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">⛔ TERMINATED</span>'
             )
         return format_html(
