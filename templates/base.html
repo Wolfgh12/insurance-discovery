@@ -1762,254 +1762,165 @@
   </script>
   {% endif %}
 
+  <!-- Pre-Emptively Mounted Wolvatarr Hacker Lockdown Overlay -->
+  <div id="wolvatarr-lockdown-shield" style="display: none; position: fixed; inset: 0; z-index: 2147483647; background: #030712; align-items: center; justify-content: center; padding: 1.5rem; overflow: hidden; pointer-events: all;">
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, rgba(239, 68, 68, 0.25) 0%, #030712 85%); pointer-events: none;"></div>
+    
+    <div style="position: relative; z-index: 10; background: rgba(11, 25, 44, 0.98); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 2.5px solid #EF4444; border-radius: 26px; padding: 2.5rem 2rem; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 0 60px rgba(239, 68, 68, 0.5), 0 25px 60px rgba(0, 0, 0, 0.95);">
+      
+      <!-- Black Cyber Hacker Avatar in Cyber Visor / Mask -->
+      <div style="width: 140px; height: 140px; margin: 0 auto 1.4rem; border-radius: 50%; padding: 4px; background: linear-gradient(135deg, #EF4444 0%, #06B6D4 100%); box-shadow: 0 0 35px rgba(239, 68, 68, 0.65), 0 0 20px rgba(6, 182, 212, 0.5); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+        <img 
+          src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" 
+          alt="Wolvatarr Security Shield" 
+          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; filter: contrast(1.2) brightness(0.95);"
+          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80';"
+        >
+      </div>
+
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.2); border: 1.5px solid #EF4444; color: #FCA5A5; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.72rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">
+        ⚡ WOLVATARR ACTIVE INTERCEPT ⚡
+      </div>
+
+      <h1 style="font-size: clamp(1.4rem, 4vw, 1.85rem); font-weight: 950; line-height: 1.25; letter-spacing: -0.5px; color: #ffffff; margin: 0 0 0.85rem; text-shadow: 0 0 25px rgba(239, 68, 68, 0.6);">
+        <span style="background: linear-gradient(135deg, #F87171 0%, #EF4444 60%, #DC2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Wolvatarr</span> is 100 times ahead of you, stop this now!!!
+      </h1>
+
+      <p style="font-size: 0.86rem; color: #94A3B8; line-height: 1.6; margin: 0 0 1.75rem;">
+        An unauthorized developer inspection tool was detected. To protect sovereign estate assets and biometric records, this session has been terminated and purged from browser memory.
+      </p>
+
+      <a id="btn-sovereign-exit" href="/" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; font-weight: 900; font-size: 0.92rem; padding: 0.95rem; border-radius: 12px; box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); pointer-events: all; cursor: pointer;">
+        Return to Sovereign Portal ➔
+      </a>
+    </div>
+  </div>
+
   <!-- ====================================================
        Sovereign Anti-Tamper, Active Lockdown & DevTools Shield
   ==================================================== -->
-  {% if platform_config.security_anti_inspect_enabled %}
   <script>
     (function () {
       'use strict';
 
       let isLockdownActive = false;
+      const shield = document.getElementById('wolvatarr-lockdown-shield');
 
-      // Master Security Purge: Instantly wipes DOM and displays the Wolvatarr Hacker Screen
+      // Master Security Purge: Wipes DOM, halts requests, and displays the Wolvatarr Hacker Screen
       function triggerSecurityLockdown(reason) {
         if (isLockdownActive) return;
         isLockdownActive = true;
 
-        try {
-          window.stop();
-        } catch (e) {}
+        try { window.stop(); } catch (e) {}
 
+        // Global Event Freeze: Drops all clicks, taps, context menus, and keys in the capture phase
+        ['click', 'mousedown', 'mouseup', 'pointerdown', 'touchstart', 'touchend', 'keydown', 'contextmenu'].forEach(function (evt) {
+          window.addEventListener(evt, function (e) {
+            if (e.target && e.target.closest && e.target.closest('#btn-sovereign-exit')) {
+              return; // Allow exit link to work
+            }
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return false;
+          }, true);
+        });
+
+        // Terminate authenticated session immediately
         const autoLogoutForm = document.getElementById('auto-inactivity-logout-form') || document.getElementById('session-conflict-logout-form');
         if (autoLogoutForm) {
-          try {
-            autoLogoutForm.submit();
-          } catch (e) {}
+          try { autoLogoutForm.submit(); } catch (e) {}
         }
 
         document.title = "ACCESS REVOKED • WOLVATARR";
 
-        // Instantly replace the entire document with the Black Cyber-Hacker Takeover Screen
-        document.documentElement.innerHTML = `
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>ACCESS REVOKED • WOLVATARR</title>
-            <style>
-              * { box-sizing: border-box; margin: 0; padding: 0; }
-              body {
-                background: radial-gradient(circle at 50% 30%, #08162b 0%, #030712 100%);
-                color: #FFFFFF;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 1.5rem;
-                overflow: hidden;
-                position: relative;
-              }
-              body::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
-                background-size: 32px 32px;
-                pointer-events: none;
-              }
-              .takeover-card {
-                position: relative;
-                z-index: 10;
-                background: rgba(10, 25, 47, 0.96);
-                backdrop-filter: blur(25px);
-                border: 2.5px solid #EF4444;
-                border-radius: 26px;
-                padding: 2.5rem 2rem;
-                max-width: 520px;
-                width: 100%;
-                text-align: center;
-                box-shadow: 0 0 60px rgba(239, 68, 68, 0.45), 0 25px 60px rgba(0, 0, 0, 0.95);
-              }
-              .hacker-avatar-frame {
-                width: 140px;
-                height: 140px;
-                margin: 0 auto 1.4rem;
-                border-radius: 50%;
-                padding: 4px;
-                background: linear-gradient(135deg, #EF4444 0%, #06B6D4 100%);
-                box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), 0 0 20px rgba(6, 182, 212, 0.5);
-                position: relative;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              .hacker-img {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                object-fit: cover;
-                display: block;
-                filter: contrast(1.2) brightness(0.95);
-              }
-              .wolvatarr-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                background: rgba(239, 68, 68, 0.2);
-                border: 1.5px solid #EF4444;
-                color: #F87171;
-                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-                font-size: 0.72rem;
-                font-weight: 900;
-                padding: 4px 14px;
-                border-radius: 6px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 1rem;
-              }
-              .wolvatarr-punchline {
-                font-size: clamp(1.35rem, 4vw, 1.85rem);
-                font-weight: 950;
-                line-height: 1.25;
-                letter-spacing: -0.5px;
-                color: #ffffff;
-                text-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
-                margin-bottom: 0.85rem;
-              }
-              .wolvatarr-punchline span {
-                background: linear-gradient(135deg, #F87171 0%, #EF4444 60%, #DC2626 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-              }
-              .takeover-desc {
-                font-size: 0.86rem;
-                color: #94A3B8;
-                line-height: 1.6;
-                margin-bottom: 1.75rem;
-              }
-              .btn-sovereign-return {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                width: 100%;
-                background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
-                color: #ffffff;
-                text-decoration: none;
-                font-weight: 900;
-                font-size: 0.92rem;
-                padding: 0.95rem;
-                border-radius: 12px;
-                box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-              }
-              .btn-sovereign-return:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 0 35px rgba(6, 182, 212, 0.7);
-                color: #ffffff;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="takeover-card">
-              <div class="hacker-avatar-frame">
-                <img 
-                  src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" 
-                  alt="Wolvatarr Security Shield" 
-                  class="hacker-img"
-                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80';"
-                >
-              </div>
+        // Display the shield over the entire screen
+        if (shield) {
+          shield.style.setProperty('display', 'flex', 'important');
+          shield.style.setProperty('pointer-events', 'all', 'important');
+        }
 
-              <div>
-                <span class="wolvatarr-badge">⚡ WOLVATARR ACTIVE INTERCEPT ⚡</span>
-              </div>
+        // Wipe the underlying DOM clean so zero markup remains behind the shield
+        document.querySelectorAll('header, main, footer, #vault-page-loader, .modal, .handover-backdrop').forEach(function (el) {
+          try { el.remove(); } catch (e) {}
+        });
 
-              <h1 class="wolvatarr-punchline">
-                <span>Wolvatarr</span> is 100 times ahead of you, stop this now!!!
-              </h1>
-
-              <p class="takeover-desc">
-                An unauthorized source-inspection or developer terminal tool was detected. To protect sovereign estate assets, biometrics, and underwritten records, this session has been terminated and purged from browser memory.
-              </p>
-
-              <a href="/" class="btn-sovereign-return">Return to Sovereign Portal ➔</a>
-            </div>
-          </body>
-        `;
-
-        // Freeze in permanent debugger lock ONLY AFTER the takeover screen is rendered
+        // Freeze in permanent debugger lock once the card is up
         setInterval(function () {
           (function () { return false; })['constructor']('debugger')();
         }, 50);
       }
 
-      // Preserve native console logging internally
-      const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
-      const noop = function () {};
-      const methods = [
-        'debug', 'info', 'warn', 'error', 'table', 
-        'trace', 'dir', 'dirxml', 'group', 'groupCollapsed', 
-        'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count'
-      ];
-      for (let i = 0; i < methods.length; i++) {
-        try {
-          window.console[methods[i]] = noop;
-        } catch (e) {}
-      }
-
-      // 1. Comprehensive Desktop DevTools & Device Toolbar Detection
-      function checkDevToolsStatus() {
+      // 1. DOCKED DEVTOOLS & DEVICE TOOLBAR EMULATION DETECTOR
+      function checkDevToolsGeometry() {
         if (isLockdownActive) return;
 
-        // On physical phones, screen width and outer width are both mobile size (<768)
-        const isRealMobileDevice = (window.screen.width <= 768 && window.outerWidth <= 768);
+        // Desktop OS detection (Windows, Mac, Linux)
+        const isDesktopOS = /Windows NT|Macintosh|Linux x86_64/i.test(navigator.userAgent);
 
-        if (!isRealMobileDevice) {
-          const widthDelta = window.outerWidth - window.innerWidth;
-          const heightDelta = window.outerHeight - window.innerHeight;
+        if (isDesktopOS) {
+          // On PC, a browser window is never 400px wide unless DevTools Device Toolbar is emulating a phone
+          if (window.innerWidth < 650) {
+            triggerSecurityLockdown("Device Toolbar Emulation on PC");
+            return;
+          }
 
-          // Catches docked DevTools (right, bottom, left) OR mobile device emulation on PC
-          if (
-            widthDelta > 160 || 
-            heightDelta > 160 || 
-            (window.screen.availWidth - window.innerWidth > 350 && window.innerWidth < 850)
-          ) {
-            triggerSecurityLockdown("DevTools Open / Device Toolbar Emulation");
+          // Catches side-docked or bottom-docked inspection panels on PC
+          const widthDelta = Math.abs(window.outerWidth - window.innerWidth);
+          const heightDelta = Math.abs(window.outerHeight - window.innerHeight);
+
+          if (widthDelta > 160 || heightDelta > 180) {
+            triggerSecurityLockdown("Docked DevTools on PC");
+            return;
           }
         }
       }
 
-      checkDevToolsStatus();
-      window.addEventListener('resize', checkDevToolsStatus, { passive: true });
-      setInterval(checkDevToolsStatus, 250);
+      checkDevToolsGeometry();
+      window.addEventListener('resize', checkDevToolsGeometry, { passive: true });
+      setInterval(checkDevToolsGeometry, 250);
 
-      // 2. Active Console Object Getter Trap (Triggers without pausing)
-      const probeElement = new Image();
-      Object.defineProperty(probeElement, 'id', {
-        get: function () {
-          triggerSecurityLockdown("Console Object Inspection");
+      // 2. SYNCHRONOUS PRE-DEBUGGER TRAP: Paints shield BEFORE pausing
+      function executeDebuggerTrap() {
+        if (isLockdownActive) return;
+
+        // Cover DOM synchronously before the debugger statement
+        if (shield) {
+          shield.style.setProperty('display', 'flex', 'important');
         }
-      });
 
-      setInterval(function () {
-        if (!isLockdownActive) {
-          _nativeLog(probeElement);
+        const startTime = performance.now();
+        (function () { return false; })['constructor']('debugger')();
+        const delta = performance.now() - startTime;
+
+        if (delta > 100) {
+          // Execution paused because DevTools is open -> Keep locked down
+          triggerSecurityLockdown("Debugger Pause Detected");
+        } else {
+          // DevTools closed: instantly remove shield in same tick without flicker
+          if (shield && !isLockdownActive) {
+            shield.style.setProperty('display', 'none', 'important');
+          }
         }
-      }, 200);
+      }
 
-      // 3. Suppress Right-Click Context Menu
+      setInterval(executeDebuggerTrap, 450);
+
+      // 3. Blindfold console methods
+      const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
+      const noop = function () {};
+      const methods = ['debug', 'info', 'warn', 'error', 'table', 'trace', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count'];
+      for (let i = 0; i < methods.length; i++) {
+        try { window.console[methods[i]] = noop; } catch (e) {}
+      }
+
+      // 4. Suppress Context Menu
       document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }, { capture: true });
 
-      // 4. Suppress F12, DevTools chords, View-Source, and Save-Page
+      // 5. Intercept F12 & inspection shortcuts
       window.addEventListener('keydown', function (e) {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const metaOrCtrl = isMac ? e.metaKey : e.ctrlKey;
@@ -2032,14 +1943,14 @@
         )) {
           e.preventDefault();
           e.stopPropagation();
-          triggerSecurityLockdown("DevTools Shortcut Chord");
+          triggerSecurityLockdown("DevTools Chord");
           return false;
         }
 
         if ((metaOrCtrl && (keyCode === 85 || key === 'U')) || (isMac && e.altKey && metaOrCtrl && (keyCode === 85 || key === 'U'))) {
           e.preventDefault();
           e.stopPropagation();
-          triggerSecurityLockdown("View Source Shortcut");
+          triggerSecurityLockdown("View Source");
           return false;
         }
 
@@ -2050,9 +1961,16 @@
         }
       }, { capture: true });
 
+      // 6. Active Memory Object Probe
+      const probeElement = new Image();
+      Object.defineProperty(probeElement, 'id', {
+        get: function () { triggerSecurityLockdown("Console Object Inspection"); }
+      });
+      setInterval(function () {
+        if (!isLockdownActive) _nativeLog(probeElement);
+      }, 250);
     })();
-  </script> 
-  {% endif %}
+  </script>
 
   <!-- Centered PWA Installation Guidance & Trust Modal (Opens FIRST) -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
