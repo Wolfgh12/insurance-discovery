@@ -57,11 +57,12 @@ class CustomUserAdmin(UserAdmin):
         "username",
         "email",
         "admin_role_badge",
+        "account_status_badge",
         "ghana_card_number",
         "phone_number",
-        "is_active",
     )
     list_filter = (
+        "account_status",
         "is_superuser",
         "is_staff",
         "user_type",
@@ -74,8 +75,14 @@ class CustomUserAdmin(UserAdmin):
         "last_name",
         "ghana_card_number",
         "phone_number",
+        "suspension_reason",
     )
     ordering = ("-is_superuser", "-is_staff", "username")
+    actions = [
+        "suspend_selected_users",
+        "terminate_selected_users",
+        "reactivate_selected_users",
+    ]
 
     fieldsets = UserAdmin.fieldsets + (
         (
@@ -89,6 +96,16 @@ class CustomUserAdmin(UserAdmin):
                 )
             },
         ),
+        (
+            "🛡️ Administrative Access & Clearance Controls",
+            {
+                "fields": (
+                    "account_status",
+                    "suspension_reason",
+                ),
+                "description": "Terminate, suspend, or reactivate clearance. Setting an account to Suspended or Terminated blocks authentication immediately.",
+            },
+        ),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
         (
@@ -100,6 +117,16 @@ class CustomUserAdmin(UserAdmin):
                     "ghana_card_number",
                     "permanent_address",
                 )
+            },
+        ),
+        (
+            "🛡️ Administrative Access & Clearance Controls",
+            {
+                "fields": (
+                    "account_status",
+                    "suspension_reason",
+                ),
+                "description": "Set initial clearance level upon manual account creation.",
             },
         ),
     )
@@ -126,6 +153,41 @@ class CustomUserAdmin(UserAdmin):
         )
 
     admin_role_badge.short_description = "Role & Clearance"
+
+    def account_status_badge(self, obj):
+        if obj.account_status == "ACTIVE" and obj.is_active:
+            return format_html(
+                '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">✓ ACTIVE</span>'
+            )
+        elif obj.account_status == "SUSPENDED" or (not obj.is_active and obj.account_status != "TERMINATED"):
+            return format_html(
+                '<span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">⏸️ SUSPENDED</span>'
+            )
+        elif obj.account_status == "TERMINATED":
+            return format_html(
+                '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">⛔ TERMINATED</span>'
+            )
+        return format_html(
+            '<span style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.72rem;">{}</span>',
+            obj.account_status,
+        )
+
+    account_status_badge.short_description = "Clearance Status"
+
+    @admin.action(description="⏸️ Suspend selected accounts (Temporary Lock)")
+    def suspend_selected_users(self, request, queryset):
+        rows = queryset.update(account_status="SUSPENDED", is_active=False)
+        self.message_user(request, f"{rows} user account(s) have been SUSPENDED and locked out.")
+
+    @admin.action(description="⛔ Terminate selected accounts (Permanent Ban)")
+    def terminate_selected_users(self, request, queryset):
+        rows = queryset.update(account_status="TERMINATED", is_active=False)
+        self.message_user(request, f"{rows} user account(s) have been permanently TERMINATED.")
+
+    @admin.action(description="✅ Reactivate selected accounts (Restore Full Access)")
+    def reactivate_selected_users(self, request, queryset):
+        rows = queryset.update(account_status="ACTIVE", is_active=True, suspension_reason="")
+        self.message_user(request, f"{rows} user account(s) have been RE-ACTIVATED and restored.")
 
 
 @admin.register(InsuranceCompany)
