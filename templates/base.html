@@ -1763,34 +1763,34 @@
   {% endif %}
 
   <!-- Pre-Emptively Mounted Wolvatarr Hacker Lockdown Overlay -->
-  <div id="wolvatarr-lockdown-shield" style="display: none; position: fixed; inset: 0; z-index: 2147483647; background: #030712; align-items: center; justify-content: center; padding: 1.5rem; overflow: hidden; pointer-events: all;">
-    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, rgba(239, 68, 68, 0.25) 0%, #030712 85%); pointer-events: none;"></div>
+  <div id="wolvatarr-lockdown-shield" style="display: none; position: fixed; inset: 0; z-index: 2147483647; background: #030712; align-items: center; justify-content: center; padding: 1.25rem; overflow: hidden; pointer-events: all;">
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 28%, rgba(239, 68, 68, 0.28) 0%, #030712 85%); pointer-events: none;"></div>
     
-    <div style="position: relative; z-index: 10; background: rgba(11, 25, 44, 0.98); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 2.5px solid #EF4444; border-radius: 26px; padding: 2.5rem 2rem; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 0 60px rgba(239, 68, 68, 0.5), 0 25px 60px rgba(0, 0, 0, 0.95);">
+    <div style="position: relative; z-index: 10; background: rgba(11, 25, 44, 0.98); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 2.5px solid #EF4444; border-radius: 28px; padding: 2.25rem 2rem; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 0 70px rgba(239, 68, 68, 0.55), 0 25px 60px rgba(0, 0, 0, 0.95);">
       
-      <!-- Black Cyber Hacker Avatar in Cyber Visor / Mask -->
-      <div style="width: 140px; height: 140px; margin: 0 auto 1.4rem; border-radius: 50%; padding: 4px; background: linear-gradient(135deg, #EF4444 0%, #06B6D4 100%); box-shadow: 0 0 35px rgba(239, 68, 68, 0.65), 0 0 20px rgba(6, 182, 212, 0.5); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+      <!-- Prominent Cyber Wolf Avatar Frame (Enlarged & Bold) -->
+      <div style="width: 210px; height: 210px; margin: 0 auto 1.35rem; border-radius: 50%; padding: 4.5px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 40%, #06B6D4 100%); box-shadow: 0 0 45px rgba(239, 68, 68, 0.8), 0 0 25px rgba(6, 182, 212, 0.55); overflow: hidden; display: flex; align-items: center; justify-content: center;">
         <img 
-          src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" 
-          alt="Wolvatarr Security Shield" 
-          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; filter: contrast(1.2) brightness(0.95);"
-          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80';"
+          src="{% static 'images/hacker.png' %}?v=1" 
+          alt="Wolvatarr Cyber Wolf" 
+          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; filter: contrast(1.25) brightness(1.05); transform: scale(1.03);"
+          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80';"
         >
       </div>
 
-      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.2); border: 1.5px solid #EF4444; color: #FCA5A5; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.72rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.22); border: 1.5px solid #EF4444; color: #FCA5A5; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.74rem; font-weight: 900; padding: 5px 16px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 0.95rem;">
         ⚡ WOLVATARR ACTIVE INTERCEPT ⚡
       </div>
 
-      <h1 style="font-size: clamp(1.4rem, 4vw, 1.85rem); font-weight: 950; line-height: 1.25; letter-spacing: -0.5px; color: #ffffff; margin: 0 0 0.85rem; text-shadow: 0 0 25px rgba(239, 68, 68, 0.6);">
+      <h1 style="font-size: clamp(1.45rem, 4.2vw, 1.95rem); font-weight: 950; line-height: 1.22; letter-spacing: -0.5px; color: #ffffff; margin: 0 0 0.85rem; text-shadow: 0 0 30px rgba(239, 68, 68, 0.65);">
         <span style="background: linear-gradient(135deg, #F87171 0%, #EF4444 60%, #DC2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Wolvatarr</span> is 100 times ahead of you, stop this now!!!
       </h1>
 
-      <p style="font-size: 0.86rem; color: #94A3B8; line-height: 1.6; margin: 0 0 1.75rem;">
+      <p style="font-size: 0.86rem; color: #94A3B8; line-height: 1.6; margin: 0 0 1.65rem;">
         An unauthorized developer inspection tool was detected. To protect sovereign estate assets and biometric records, this session has been terminated and purged from browser memory.
       </p>
 
-      <a id="btn-sovereign-exit" href="/" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; font-weight: 900; font-size: 0.92rem; padding: 0.95rem; border-radius: 12px; box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); pointer-events: all; cursor: pointer;">
+      <a id="btn-sovereign-exit" href="/" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; font-weight: 900; font-size: 0.95rem; padding: 0.95rem; border-radius: 12px; box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); pointer-events: all; cursor: pointer;">
         Return to Sovereign Portal ➔
       </a>
     </div>
