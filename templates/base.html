@@ -1762,13 +1762,17 @@
   </script>
   {% endif %}
 
+  <!-- ====================================================
+       Sovereign Anti-Tamper, Active Lockdown & DOM Poisoning Shield
+  ==================================================== -->
+  {% if platform_config.security_anti_inspect_enabled %}
   <!-- Pre-Emptively Mounted Wolvatarr Hacker Lockdown Overlay -->
   <div id="wolvatarr-lockdown-shield" style="display: none; position: fixed; inset: 0; z-index: 2147483647; background: #030712; align-items: center; justify-content: center; padding: 1.25rem; overflow: hidden; pointer-events: all;">
     <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 28%, rgba(239, 68, 68, 0.28) 0%, #030712 85%); pointer-events: none;"></div>
     
     <div style="position: relative; z-index: 10; background: rgba(11, 25, 44, 0.98); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 2.5px solid #EF4444; border-radius: 28px; padding: 2.25rem 2rem; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 0 70px rgba(239, 68, 68, 0.55), 0 25px 60px rgba(0, 0, 0, 0.95);">
       
-      <!-- Prominent Cyber Wolf Avatar Frame (Enlarged & Bold) -->
+      <!-- Prominent Cyber Wolf Avatar Frame (210px x 210px) -->
       <div style="width: 210px; height: 210px; margin: 0 auto 1.35rem; border-radius: 50%; padding: 4.5px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 40%, #06B6D4 100%); box-shadow: 0 0 45px rgba(239, 68, 68, 0.8), 0 0 25px rgba(6, 182, 212, 0.55); overflow: hidden; display: flex; align-items: center; justify-content: center;">
         <img 
           src="{% static 'images/hacker.png' %}?v=1" 
@@ -1796,17 +1800,46 @@
     </div>
   </div>
 
-  <!-- ====================================================
-       Sovereign Anti-Tamper, Active Lockdown & DevTools Shield
-  ==================================================== -->
   <script>
     (function () {
       'use strict';
 
       let isLockdownActive = false;
       const shield = document.getElementById('wolvatarr-lockdown-shield');
+      const isPoisoningEnabled = {{ platform_config.security_dom_poisoning_enabled|yesno:"true,false" }};
+      const poisonDensity = {{ platform_config.security_poison_density|default:30 }};
 
-      // Master Security Purge: Wipes DOM, halts requests, and displays the Wolvatarr Hacker Screen
+      // Synthetic Forensic Honey-Pot & Simulated Kernel Memory Dump Generator
+      function buildPoisonTree(densityCount) {
+        const hexChars = "0123456789ABCDEF";
+        const registers = ["RAX", "RBX", "RCX", "RDX", "RSI", "RDI", "RBP", "RSP", "RIP", "CR0", "CR3", "EFLAGS"];
+        let dump = '<system-fault-matrix id="0xDEADBEEF" status="CRITICAL_KERNEL_PANIC" error="MEMORY_CORRUPTION_0xC0000005">';
+        dump += '<forensic-audit-intercept statutory-act="ACT_1038_SEC_49" data-protection="ACT_843_ENFORCED" canary="CANARY_CORRUPTED">';
+        dump += '<client-fingerprint hash="' + Array.from({length: 64}, () => hexChars[Math.floor(Math.random() * 16)]).join('') + '" forensic-docket="GH-CERT-' + Date.now() + '" ip-lockout="ACTIVE"></client-fingerprint>';
+        dump += '<hardware-registers status="TRAPPED">';
+        registers.forEach(function (reg) {
+          dump += '<register-state name="' + reg + '" val="0x' + Array.from({length: 16}, () => hexChars[Math.floor(Math.random() * 16)]).join('') + '"></register-state>';
+        });
+        dump += '</hardware-registers>';
+
+        for (let i = 0; i < densityCount; i++) {
+          const sectorAddr = "0x" + (0x7FFF5F000000 + (i * 0x1000)).toString(16).toUpperCase();
+          let rawBytes = [];
+          for (let b = 0; b < 16; b++) {
+            rawBytes.push(hexChars[Math.floor(Math.random() * 16)] + hexChars[Math.floor(Math.random() * 16)]);
+          }
+          dump += '<memory-sector sector="' + sectorAddr + '" parity="CORRUPTED_HEAP_DUMP">';
+          dump += '<stack-frame rip="0x' + Array.from({length: 16}, () => hexChars[Math.floor(Math.random() * 16)]).join('') + '" payload="' + rawBytes.join(' ') + '">';
+          dump += '0x' + Array.from({length: 32}, () => hexChars[Math.floor(Math.random() * 16)]).join('');
+          dump += '</stack-frame>';
+          dump += '</memory-sector>';
+        }
+
+        dump += '</forensic-audit-intercept></system-fault-matrix>';
+        return dump;
+      }
+
+      // Master Security Purge: Annihilates DOM, destroys comments, locks storage, and injects memory dump
       function triggerSecurityLockdown(reason) {
         if (isLockdownActive) return;
         isLockdownActive = true;
@@ -1825,26 +1858,48 @@
           }, true);
         });
 
+        // Client-side storage purge
+        try {
+          sessionStorage.clear();
+          localStorage.clear();
+        } catch (e) {}
+
         // Terminate authenticated session immediately
         const autoLogoutForm = document.getElementById('auto-inactivity-logout-form') || document.getElementById('session-conflict-logout-form');
         if (autoLogoutForm) {
           try { autoLogoutForm.submit(); } catch (e) {}
         }
 
-        document.title = "ACCESS REVOKED • WOLVATARR";
+        document.title = "CRITICAL_MEMORY_CORRUPTION | 0xC0000005";
 
-        // Display the shield over the entire screen
-        if (shield) {
-          shield.style.setProperty('display', 'flex', 'important');
-          shield.style.setProperty('pointer-events', 'all', 'important');
+        const cardMarkup = shield ? shield.outerHTML : '';
+        const poisonMarkup = isPoisoningEnabled ? buildPoisonTree(poisonDensity) : '';
+
+        // Vaporize every single comment, script, and HTML node in the document
+        document.documentElement.innerHTML = `
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CRITICAL_MEMORY_CORRUPTION | 0xC0000005</title>
+            <style>
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              body { background: #030712; color: #FFFFFF; font-family: monospace; overflow: hidden; }
+              system-fault-matrix, forensic-audit-intercept, memory-sector, stack-frame, hardware-registers, register-state { display: none !important; }
+            </style>
+          </head>
+          <body>
+            ${cardMarkup}
+            ${poisonMarkup}
+          </body>
+        `;
+
+        const activeShield = document.getElementById('wolvatarr-lockdown-shield');
+        if (activeShield) {
+          activeShield.style.setProperty('display', 'flex', 'important');
+          activeShield.style.setProperty('pointer-events', 'all', 'important');
         }
 
-        // Wipe the underlying DOM clean so zero markup remains behind the shield
-        document.querySelectorAll('header, main, footer, #vault-page-loader, .modal, .handover-backdrop').forEach(function (el) {
-          try { el.remove(); } catch (e) {}
-        });
-
-        // Freeze in permanent debugger lock once the card is up
+        // Freeze in permanent debugger lock once the card and poison tree are mounted
         setInterval(function () {
           (function () { return false; })['constructor']('debugger')();
         }, 50);
@@ -1883,7 +1938,6 @@
       function executeDebuggerTrap() {
         if (isLockdownActive) return;
 
-        // Cover DOM synchronously before the debugger statement
         if (shield) {
           shield.style.setProperty('display', 'flex', 'important');
         }
@@ -1893,10 +1947,8 @@
         const delta = performance.now() - startTime;
 
         if (delta > 100) {
-          // Execution paused because DevTools is open -> Keep locked down
           triggerSecurityLockdown("Debugger Pause Detected");
         } else {
-          // DevTools closed: instantly remove shield in same tick without flicker
           if (shield && !isLockdownActive) {
             shield.style.setProperty('display', 'none', 'important');
           }
@@ -1971,6 +2023,7 @@
       }, 250);
     })();
   </script>
+  {% endif %}
 
   <!-- Centered PWA Installation Guidance & Trust Modal (Opens FIRST) -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">

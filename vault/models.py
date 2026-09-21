@@ -918,6 +918,16 @@ class PlatformConfiguration(models.Model):
         verbose_name="Enable Anti-Inspect & DevTools Lockout",
         help_text="Developer Master Toggle: When enabled, suppresses right-click menus, shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U), and active debuggers site-wide. Uncheck to inspect elements during development and debugging."
     )
+    security_dom_poisoning_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Enable Hardcore DOM Memory Poisoning",
+        help_text="When active, wipes the DOM tree clean upon inspection and floods the Elements tab with simulated kernel panics and forensic honeypot memory dumps."
+    )
+    security_poison_density = models.PositiveIntegerField(
+        default=30,
+        verbose_name="Poison Decoy Density",
+        help_text="Number of simulated hex memory sectors, register dumps, and audit traps to inject."
+    )
 
     # Modular Vault Feature Switches (Checked = Active | Unchecked = Coming Soon)
     module_policies_enabled = models.BooleanField(
@@ -998,6 +1008,8 @@ class PlatformConfiguration(models.Model):
                 'paystack_annual_plan_code': 'PLN_14xz26jx9j3gakp',
                 'required_security_questions': 3,
                 'security_anti_inspect_enabled': True,
+                'security_dom_poisoning_enabled': True,
+                'security_poison_density': 30,
                 'module_policies_enabled': True,
                 'module_memories_enabled': False,
                 'module_family_tree_enabled': False,

@@ -24,8 +24,8 @@ from .models import (
 )
 
 # Custom Django Admin Header & Titles
-admin.site.site_header = "LegacyTrace Vault Administration"
-admin.site.site_title = "LegacyTrace Portal"
+admin.site.site_header = "mySikaVault Administration"
+admin.site.site_title = "mySikaVault Portal"
 admin.site.index_title = "National Estate & Policy Management"
 
 
@@ -316,7 +316,7 @@ class ClaimantAccessGrantAdmin(admin.ModelAdmin):
 
                 new_user = CustomUser.objects.create(
                     username=generated_username,
-                    email=obj.claimant_email or f"{generated_username}@legacytrace.gov.gh",
+                    email=obj.claimant_email or f"{generated_username}@mysikavault.com",
                     first_name=first_name,
                     last_name=last_name,
                     phone_number=obj.claimant_phone or "",
@@ -523,6 +523,7 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
     list_display = (
         "config_summary",
         "anti_inspect_badge",
+        "dom_poison_badge",
         "required_questions_display",
         "unlock_fee_display",
         "annual_retainer_display",
@@ -534,8 +535,12 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
         (
             "🛡️ Developer Security & Anti-Inspection Shield",
             {
-                "fields": ("security_anti_inspect_enabled",),
-                "description": "Toggle client-side protection across all public, login, and registration pages. Uncheck this box when you need to inspect elements, test layout changes, or read console output during development.",
+                "fields": (
+                    "security_anti_inspect_enabled",
+                    "security_dom_poisoning_enabled",
+                    "security_poison_density",
+                ),
+                "description": "Master Developer Controls: Toggle client-side inspection lockout, or engage hardcore DOM memory-poisoning. When active, opening DevTools floods the Elements tab with simulated kernel crashes, registers, and statutory audit honeypot traps.",
             },
         ),
         (
@@ -593,6 +598,18 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
             "🛠️ DEV INSPECT ALLOWED"
         )
     anti_inspect_badge.short_description = "Anti-Inspect Status"
+
+    def dom_poison_badge(self, obj):
+        if getattr(obj, "security_dom_poisoning_enabled", True):
+            density = getattr(obj, "security_poison_density", 30)
+            return format_html(
+                '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">☠️ POISON ACTIVE ({}x)</span>',
+                density,
+            )
+        return format_html(
+            '<span style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">OFF</span>'
+        )
+    dom_poison_badge.short_description = "DOM Poison Trap"
 
     def config_summary(self, obj):
         return "Global Platform Monetization Settings"
