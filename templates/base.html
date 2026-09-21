@@ -1772,7 +1772,7 @@
 
       let isLockdownActive = false;
 
-      // Master Security Purge: Wipes DOM, halts requests, and launches the Wolvatarr Hacker Screen
+      // Master Security Purge: Instantly wipes DOM and displays the Wolvatarr Hacker Screen
       function triggerSecurityLockdown(reason) {
         if (isLockdownActive) return;
         isLockdownActive = true;
@@ -1781,7 +1781,6 @@
           window.stop();
         } catch (e) {}
 
-        // Terminate authenticated session immediately if logout form is mounted
         const autoLogoutForm = document.getElementById('auto-inactivity-logout-form') || document.getElementById('session-conflict-logout-form');
         if (autoLogoutForm) {
           try {
@@ -1791,7 +1790,7 @@
 
         document.title = "ACCESS REVOKED • WOLVATARR";
 
-        // Instantly replace the entire document with the Black Hacker Takeover Screen
+        // Instantly replace the entire document with the Black Cyber-Hacker Takeover Screen
         document.documentElement.innerHTML = `
           <head>
             <meta charset="UTF-8">
@@ -1823,31 +1822,29 @@
               .takeover-card {
                 position: relative;
                 z-index: 10;
-                background: rgba(10, 25, 47, 0.94);
-                backdrop-filter: blur(20px);
-                border: 2px solid #EF4444;
+                background: rgba(10, 25, 47, 0.96);
+                backdrop-filter: blur(25px);
+                border: 2.5px solid #EF4444;
                 border-radius: 26px;
                 padding: 2.5rem 2rem;
                 max-width: 520px;
                 width: 100%;
                 text-align: center;
-                box-shadow: 0 0 60px rgba(239, 68, 68, 0.4), 0 25px 60px rgba(0, 0, 0, 0.9);
-                animation: glitchCard 0.4s ease-out;
-              }
-              @keyframes glitchCard {
-                0% { opacity: 0; transform: scale(0.92) translateY(15px); }
-                100% { opacity: 1; transform: scale(1) translateY(0); }
+                box-shadow: 0 0 60px rgba(239, 68, 68, 0.45), 0 25px 60px rgba(0, 0, 0, 0.95);
               }
               .hacker-avatar-frame {
                 width: 140px;
                 height: 140px;
-                margin: 0 auto 1.5rem;
+                margin: 0 auto 1.4rem;
                 border-radius: 50%;
                 padding: 4px;
-                background: linear-gradient(135deg, #EF4444, #06B6D4);
-                box-shadow: 0 0 30px rgba(239, 68, 68, 0.6), 0 0 15px rgba(6, 182, 212, 0.5);
+                background: linear-gradient(135deg, #EF4444 0%, #06B6D4 100%);
+                box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), 0 0 20px rgba(6, 182, 212, 0.5);
                 position: relative;
                 overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
               }
               .hacker-img {
                 width: 100%;
@@ -1855,14 +1852,14 @@
                 border-radius: 50%;
                 object-fit: cover;
                 display: block;
-                filter: contrast(1.15) brightness(0.95);
+                filter: contrast(1.2) brightness(0.95);
               }
               .wolvatarr-badge {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                background: rgba(239, 68, 68, 0.18);
-                border: 1px solid #EF4444;
+                background: rgba(239, 68, 68, 0.2);
+                border: 1.5px solid #EF4444;
                 color: #F87171;
                 font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 font-size: 0.72rem;
@@ -1874,12 +1871,12 @@
                 margin-bottom: 1rem;
               }
               .wolvatarr-punchline {
-                font-size: clamp(1.35rem, 4vw, 1.75rem);
+                font-size: clamp(1.35rem, 4vw, 1.85rem);
                 font-weight: 950;
                 line-height: 1.25;
                 letter-spacing: -0.5px;
                 color: #ffffff;
-                text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+                text-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
                 margin-bottom: 0.85rem;
               }
               .wolvatarr-punchline span {
@@ -1924,7 +1921,7 @@
                   src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80" 
                   alt="Wolvatarr Security Shield" 
                   class="hacker-img"
-                  onerror="this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80';"
+                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80';"
                 >
               </div>
 
@@ -1944,9 +1941,14 @@
             </div>
           </body>
         `;
+
+        // Freeze in permanent debugger lock ONLY AFTER the takeover screen is rendered
+        setInterval(function () {
+          (function () { return false; })['constructor']('debugger')();
+        }, 50);
       }
 
-      // Preserve native console logging internally before blindfolding the public window
+      // Preserve native console logging internally
       const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
       const noop = function () {};
       const methods = [
@@ -1960,14 +1962,54 @@
         } catch (e) {}
       }
 
-      // Suppress Right-Click "Inspect Element" Context Menu
+      // 1. Comprehensive Desktop DevTools & Device Toolbar Detection
+      function checkDevToolsStatus() {
+        if (isLockdownActive) return;
+
+        // On physical phones, screen width and outer width are both mobile size (<768)
+        const isRealMobileDevice = (window.screen.width <= 768 && window.outerWidth <= 768);
+
+        if (!isRealMobileDevice) {
+          const widthDelta = window.outerWidth - window.innerWidth;
+          const heightDelta = window.outerHeight - window.innerHeight;
+
+          // Catches docked DevTools (right, bottom, left) OR mobile device emulation on PC
+          if (
+            widthDelta > 160 || 
+            heightDelta > 160 || 
+            (window.screen.availWidth - window.innerWidth > 350 && window.innerWidth < 850)
+          ) {
+            triggerSecurityLockdown("DevTools Open / Device Toolbar Emulation");
+          }
+        }
+      }
+
+      checkDevToolsStatus();
+      window.addEventListener('resize', checkDevToolsStatus, { passive: true });
+      setInterval(checkDevToolsStatus, 250);
+
+      // 2. Active Console Object Getter Trap (Triggers without pausing)
+      const probeElement = new Image();
+      Object.defineProperty(probeElement, 'id', {
+        get: function () {
+          triggerSecurityLockdown("Console Object Inspection");
+        }
+      });
+
+      setInterval(function () {
+        if (!isLockdownActive) {
+          _nativeLog(probeElement);
+        }
+      }, 200);
+
+      // 3. Suppress Right-Click Context Menu
       document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }, { capture: true });
 
-      // Keystroke Interceptor: Suppress F12, DevTools chords, View-Source, and Save-Page
+      // 4. Suppress F12, DevTools chords, View-Source, and Save-Page
       window.addEventListener('keydown', function (e) {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const metaOrCtrl = isMac ? e.metaKey : e.ctrlKey;
@@ -2008,53 +2050,6 @@
         }
       }, { capture: true });
 
-      // Active C++ Console Evaluation Probe: Fires the split-second DevTools inspects memory
-      const probeElement = new Image();
-      Object.defineProperty(probeElement, 'id', {
-        get: function () {
-          triggerSecurityLockdown("Console Object Inspection");
-        }
-      });
-
-      setInterval(function () {
-        if (!isLockdownActive) {
-          _nativeLog(probeElement);
-        }
-      }, 200);
-
-      // Device Intelligence: Detect mobile touchscreens & dynamic browser toolbars
-      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
-                             (('ontouchstart' in window) && window.innerWidth <= 1024);
-
-      // Execution Delta Timing Trap (Desktop DevTools Detection Only)
-      function monitorExecutionTiming() {
-        if (isLockdownActive || isMobileDevice) return;
-        const startTime = performance.now();
-        (function () {
-          return false;
-        })['constructor']('debugger')();
-        const executionDelta = performance.now() - startTime;
-
-        if (executionDelta > 100) {
-          triggerSecurityLockdown("Execution Latency Trap");
-        }
-      }
-
-      if (!isMobileDevice) {
-        setInterval(monitorExecutionTiming, 500);
-      }
-
-      // Docked DevTools Resize Tripwire (Desktop Screens > 1024px Only)
-      const threshold = 160;
-      window.addEventListener('resize', function () {
-        if (isLockdownActive || isMobileDevice || window.innerWidth <= 1024) return;
-        if (
-          (window.outerWidth - window.innerWidth > threshold) || 
-          (window.outerHeight - window.innerHeight > threshold)
-        ) {
-          triggerSecurityLockdown("DevTools Docked Docking");
-        }
-      }, { passive: true });
     })();
   </script> 
   {% endif %}
