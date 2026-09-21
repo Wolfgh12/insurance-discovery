@@ -188,7 +188,7 @@ class CustomUserAdmin(UserAdmin):
     def reactivate_selected_users(self, request, queryset):
         rows = queryset.update(account_status="ACTIVE", is_active=True, suspension_reason="")
         self.message_user(request, f"{rows} user account(s) have been RE-ACTIVATED and restored.")
-
+ 
 
 @admin.register(InsuranceCompany)
 class InsuranceCompanyAdmin(admin.ModelAdmin):

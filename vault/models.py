@@ -174,7 +174,7 @@ class CustomUser(AbstractUser):
         # Enforce instant session/auth lockout if account status is Suspended or Terminated
         if self.account_status in ['SUSPENDED', 'TERMINATED']:
             self.is_active = False
-
+ 
         super().save(*args, **kwargs)
 
     @property
