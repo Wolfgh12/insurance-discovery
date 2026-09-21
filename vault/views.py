@@ -981,8 +981,13 @@ def security_questions_setup_view(request):
             form.save(user=user)
             messages.success(
                 request,
-                "Security recovery keys configured successfully! Welcome to your sovereign vault dashboard."
+                "Security recovery keys configured successfully!"
             )
+            # Enforce statutory GHS 10 fee settlement immediately after security setup
+            if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
+                messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your vault.")
+                return redirect('vault:login')
+
             return redirect('vault:dashboard')
     else:
         form = SecurityQuestionsSetupForm()
@@ -1591,6 +1596,10 @@ def dashboard_view(request):
             "Security configuration incomplete: Please configure your security recovery keys to enter your vault."
         )
         return redirect('vault:security_questions_setup')
+
+    if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
+        messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your vault.")
+        return redirect('vault:login')
 
     contact_query = request.GET.get('contact_q', '').strip()
     policy_query = request.GET.get('policy_q', '').strip()

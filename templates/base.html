@@ -1934,28 +1934,21 @@
       window.addEventListener('resize', checkDevToolsGeometry, { passive: true });
       setInterval(checkDevToolsGeometry, 250);
 
-      // 2. SYNCHRONOUS PRE-DEBUGGER TRAP: Paints shield BEFORE pausing
+      // 2. PASSIVE DEBUGGER LATENCY TRAP (Zero Flicker & Anti-False-Positive)
       function executeDebuggerTrap() {
         if (isLockdownActive) return;
-
-        if (shield) {
-          shield.style.setProperty('display', 'flex', 'important');
-        }
 
         const startTime = performance.now();
         (function () { return false; })['constructor']('debugger')();
         const delta = performance.now() - startTime;
 
-        if (delta > 100) {
+        // 250ms threshold prevents false positives during page redirects and POST requests
+        if (delta > 250) {
           triggerSecurityLockdown("Debugger Pause Detected");
-        } else {
-          if (shield && !isLockdownActive) {
-            shield.style.setProperty('display', 'none', 'important');
-          }
         }
       }
 
-      setInterval(executeDebuggerTrap, 450);
+      setInterval(executeDebuggerTrap, 600);
 
       // 3. Blindfold console methods
       const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
