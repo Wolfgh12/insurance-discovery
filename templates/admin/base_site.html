@@ -1,0 +1,100 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% if platform_config and platform_config.security_anti_inspect_enabled %}
+    <script>
+        (function() {
+            // 1. Block Context Menu (Right-Click)
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, { capture: true });
+
+            // 2. Block DevTools Shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U)
+            document.addEventListener('keydown', function(e) {
+                // F12
+                if (e.keyCode === 123) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+                if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Ctrl+U (View Source)
+                if (e.ctrlKey && (e.keyCode === 85 || e.key === 'u' || e.key === 'U')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, { capture: true });
+
+            {% if platform_config.security_dom_poisoning_enabled %}
+            // 3. Hardcore DOM Memory Poisoning & Honeypot Trap
+            var poisonDensity = {{ platform_config.security_poison_density|default:30 }};
+            var triggered = false;
+
+            function engageDomPoison() {
+                if (triggered) return;
+                triggered = true;
+
+                // Strip active UI
+                document.body.innerHTML = '';
+                document.body.style.backgroundColor = '#0b0f19';
+                document.body.style.color = '#ef4444';
+                document.body.style.fontFamily = 'monospace';
+                document.body.style.padding = '24px';
+
+                var trapContainer = document.createElement('div');
+                trapContainer.id = 'sys-audit-honeypot-fault';
+                
+                var header = document.createElement('h2');
+                header.innerText = '⚠️ STATUTORY ACCESS BREACH DETECTED - TELEMETRY CAPTURED';
+                header.style.color = '#f87171';
+                trapContainer.appendChild(header);
+
+                // Inject simulated memory corruption traps
+                for (var i = 0; i < poisonDensity; i++) {
+                    var sector = document.createElement('div');
+                    sector.style.fontSize = '11px';
+                    sector.style.lineHeight = '14px';
+                    sector.style.color = (i % 2 === 0) ? '#475569' : '#dc2626';
+                    sector.innerText = '[0x' + Math.random().toString(16).substr(2, 8).toUpperCase() + 
+                                       '] SECTOR_CORRUPT: CRITICAL_FAULT_INSPECT_PROHIBITED :: REGISTER_' + i;
+                    trapContainer.appendChild(sector);
+                }
+
+                document.body.appendChild(trapContainer);
+
+                // Trap debugger loops
+                setInterval(function() {
+                    (function() { return false; }['constructor']('debugger')());
+                }, 50);
+            }
+
+            // Window dimension telemetry check for docked/undocked DevTools
+            var threshold = 160;
+            window.addEventListener('resize', function() {
+                if ((window.outerWidth - window.innerWidth > threshold) || 
+                    (window.outerHeight - window.innerHeight > threshold)) {
+                    engageDomPoison();
+                }
+            });
+
+            // Console probe trigger
+            var element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    engageDomPoison();
+                }
+            });
+            console.log('%c', element);
+            {% endif %}
+        })();
+    </script>
+    {% endif %}
+{% endblock %}
