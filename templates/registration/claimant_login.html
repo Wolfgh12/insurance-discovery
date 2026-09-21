@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Claimant Private Vault Login | LegacyTrace{% endblock %}
+{% block title %}Claimant Private Vault Login | mySikaVault{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -133,7 +133,7 @@
         <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.77rem; color: #CBD5E1; line-height: 1.5;">
           <li>Must have searched and located a policy in the <strong>National Registry</strong>.</li>
           <li>Must have submitted the verified <strong>Next-of-Kin Intake Form</strong>.</li>
-          <li>Must have completed the <strong>GHS 50.00 Unlock Fee</strong> to receive your dedicated Claimant ID and Access Key.</li>
+          <li>Must have completed the <strong>GHS {{ platform_config.unlock_fee|floatformat:2 }} Unlock Fee</strong> to receive your dedicated Claimant ID and Access Key.</li>
         </ul>
       </div>
     </div>
@@ -162,7 +162,7 @@
       </button>
     </form>
 
-<div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.1rem; text-align: center;">
+    <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.1rem; text-align: center;">
       <p style="margin: 0 0 0.5rem; font-size: 0.78rem; color: #94A3B8;">
         Don't have login credentials yet?
       </p>
