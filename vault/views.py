@@ -971,11 +971,8 @@ def security_questions_setup_view(request):
     """
     user = request.user
 
-    # If the user already has recovery answers configured, forward to dashboard or pricing gate
+    # If the user already has recovery answers configured, forward directly to dashboard
     if user.has_security_questions_configured and not request.GET.get('force'):
-        has_sub = hasattr(user, 'subscription') and user.subscription and user.subscription.is_valid
-        if not has_sub and not (user.is_staff or user.is_superuser):
-            return redirect('vault:pricing')
         return redirect('vault:dashboard')
 
     if request.method == 'POST':
@@ -984,18 +981,8 @@ def security_questions_setup_view(request):
             form.save(user=user)
             messages.success(
                 request,
-                "Security recovery keys configured successfully! Your vault is now fully protected."
+                "Security recovery keys configured successfully! Welcome to your sovereign vault dashboard."
             )
-
-            # Payment Gate: Redirect unpaid accounts to plan activation before dashboard entry
-            has_subscription = hasattr(user, 'subscription') and user.subscription and user.subscription.is_valid
-            if not has_subscription and not (user.is_staff or user.is_superuser):
-                messages.info(
-                    request,
-                    "To activate your vault and begin recording estate assets, please select a protection plan."
-                )
-                return redirect('vault:pricing')
-
             return redirect('vault:dashboard')
     else:
         form = SecurityQuestionsSetupForm()
