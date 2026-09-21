@@ -229,9 +229,13 @@ def verify_subscription_view(request):
         resp_data = resp.json()
         data_payload = resp_data.get('data', {})
 
-        if resp_data.get('status') and data_payload.get('status') == 'success':
+        platform_config = PlatformConfiguration.get_solo()
+        expected_pesewas = platform_config.annual_fee_pesewas if billing_cycle == 'ANNUALLY' else platform_config.registration_fee_pesewas
+        paid_pesewas = data_payload.get('amount', 0)
+
+        if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= expected_pesewas:
             payment_verified = True
-            amount_paid = float(data_payload.get('amount', 0)) / 100.0
+            amount_paid = float(paid_pesewas) / 100.0
             customer_code = data_payload.get('customer', {}).get('customer_code', '')
             auth_code = data_payload.get('authorization', {}).get('authorization_code', '')
             plan_obj = data_payload.get('plan_object') or {}
@@ -498,7 +502,7 @@ def verify_unlock_view(request):
 
     reference = data.get('reference')
     record_id = data.get('record_id')
-    claimant_email = data.get('email', 'claimant@legacytrace.gov.gh')
+    claimant_email = data.get('email', 'claimant@mysikavault.com')
     claimant_name = data.get('claimant_name', '').strip()
     relationship = data.get('relationship', '').strip()
     claimant_phone = data.get('claimant_phone', '').strip()
@@ -569,10 +573,23 @@ def verify_unlock_view(request):
             PolicyRecord.objects.select_for_update().select_related('policyholder', 'insurer'), 
             id=record_id
         )
+
+        # TOCTOU Concurrency Guard: Re-verify lock state after external Paystack HTTP roundtrip
+        if policy.is_claim_locked:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'This policy was already locked by another completed transaction.'
+            }, status=400)
+
         policyholder = policy.policyholder
         access_token = secrets.token_urlsafe(24)
 
-        claimant_username = f"claimant_{secrets.token_hex(3)}"
+        # Collision-Proof Unique Username Generation
+        while True:
+            claimant_username = f"claimant_{secrets.token_hex(6)}"
+            if not CustomUser.objects.filter(username=claimant_username).exists():
+                break
+
         temp_password = f"LT-{secrets.token_hex(4).upper()}"
         name_parts = claimant_name.split(' ', 1) if claimant_name else ['Verified', 'Claimant']
         first_name = name_parts[0]
@@ -872,21 +889,21 @@ def signup_view(request):
                     reverse('vault:activate_account', kwargs={'uidb64': uid, 'token': token})
                 )
 
-                email_subject = "LegacyTrace Vault | Confirm Your Registration"
+                email_subject = "mySikaVault | Confirm Your Registration"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
-                    f"Thank you for registering your digital estate vault on LegacyTrace.\n\n"
+                    f"Thank you for registering your digital estate vault on mySikaVault.\n\n"
                     f"Please click the secure statutory link below to activate your account and configure your identity recovery keys:\n"
                     f"{activation_url}\n\n"
                     f"This link is valid for 24 hours. If you did not initiate this registration, please disregard this email.\n\n"
-                    f"LegacyTrace National Registry Desk"
+                    f"mySikaVault National Registry Desk"
                 )
 
                 try:
                     send_mail(
                         subject=email_subject,
                         message=email_message,
-                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
                         recipient_list=[user.email],
                         fail_silently=False,
                     )
@@ -1105,10 +1122,13 @@ def login_view(request):
         }
 
         verified = False
+        platform_config = PlatformConfiguration.get_solo()
         try:
             resp = requests.get(paystack_url, headers=headers, timeout=10)
             resp_data = resp.json()
-            if resp_data.get('status') and resp_data.get('data', {}).get('status') == 'success':
+            data_payload = resp_data.get('data', {})
+            paid_pesewas = data_payload.get('amount', 0)
+            if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= platform_config.registration_fee_pesewas:
                 verified = True
         except Exception:
             # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
@@ -1538,10 +1558,13 @@ def verify_registration_fee_view(request):
     }
 
     verified = False
+    platform_config = PlatformConfiguration.get_solo()
     try:
         resp = requests.get(paystack_url, headers=headers, timeout=10)
         resp_data = resp.json()
-        if resp_data.get('status') and resp_data.get('data', {}).get('status') == 'success':
+        data_payload = resp_data.get('data', {})
+        paid_pesewas = data_payload.get('amount', 0)
+        if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= platform_config.registration_fee_pesewas:
             verified = True
     except Exception:
         # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
@@ -1549,7 +1572,6 @@ def verify_registration_fee_view(request):
             verified = True
         else:
             verified = False
-
     if not verified:
         return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
 
@@ -2661,7 +2683,7 @@ def contact_view(request):
                 status='NEW'
             )
 
-            subject = f"[LegacyTrace Desk] {inquiry.get_category_display()} - {full_name}"
+            subject = f"[mySikaVault Desk] {inquiry.get_category_display()} - {full_name}"
             email_body = (
                 f"A new inquiry has been lodged through the contact portal:\n\n"
                 f"Full Name: {full_name}\n"
@@ -2678,8 +2700,8 @@ def contact_view(request):
                 send_mail(
                     subject=subject,
                     message=email_body,
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@legacytrace.gov.gh'),
-                    recipient_list=['legacytrace442@gmail.com'],
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
+                    recipient_list=['mysikavault@gmail.com'],
                     fail_silently=True,
                 )
             except Exception:
