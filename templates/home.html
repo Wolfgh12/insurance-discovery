@@ -1191,6 +1191,142 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
+  /* ----------------------------------------------------
+     Wolvatarr Active Intercept Cyber Security Showcase
+  ---------------------------------------------------- */
+  .wolvatarr-shield-banner {
+    background: radial-gradient(circle at 15% 50%, #0d1e38 0%, #050d1a 100%);
+    border: 2px solid rgba(6, 182, 212, 0.4);
+    border-radius: 22px;
+    padding: clamp(1.5rem, 3.5vw, 2.25rem);
+    color: #ffffff;
+    box-shadow: 0 16px 45px rgba(2, 12, 27, 0.6), 0 0 35px rgba(6, 182, 212, 0.15);
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wolvatarr-shield-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #06b6d4, #10b981, #38bdf8, #06b6d4);
+    background-size: 200% 100%;
+    animation: cyberScanline 3.5s linear infinite;
+  }
+
+  .wolvatarr-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .wolvatarr-img-frame {
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(10, 25, 47, 0.9) 70%);
+    border: 2px solid #06B6D4;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .wolvatarr-img-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+  }
+
+  .wolvatarr-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10B981;
+    color: #34D399;
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .wolvatarr-pill::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+    animation: livePulse 1.2s infinite;
+  }
+
+  .wolvatarr-title {
+    font-size: clamp(1.35rem, 3vw, 1.85rem);
+    font-weight: 950;
+    color: #ffffff;
+    margin: 0 0 0.45rem;
+    letter-spacing: -0.4px;
+    line-height: 1.25;
+  }
+
+  .wolvatarr-title span {
+    background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .wolvatarr-desc {
+    font-size: 0.88rem;
+    color: #94A3B8;
+    line-height: 1.6;
+    margin: 0 0 1.25rem;
+    max-width: 780px;
+  }
+
+  .wolvatarr-tags-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .wolvatarr-tag {
+    background: rgba(6, 182, 212, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.28);
+    color: #E0F2FE;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @media (max-width: 720px) {
+    .wolvatarr-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 1.25rem;
+      justify-items: center;
+    }
+    .wolvatarr-tags-row {
+      justify-content: center;
+    }
+  }
+
 </style>
 {% endblock %}
 
@@ -1372,6 +1508,32 @@
     <span class="insurer-pill">Hollard Insurance</span>
     <span class="insurer-pill">Vanguard Assurance</span>
     <span class="insurer-pill">and more...</span>
+  </div>
+</div>
+
+<!-- High-Profile Active Intercept Security Shield Showcase -->
+<div class="wolvatarr-shield-banner">
+  <div class="wolvatarr-grid">
+    <div class="wolvatarr-img-frame">
+      <img src="{% static 'images/hacker.png' %}" alt="Protected by Wolvatarr Active Intercept">
+    </div>
+    <div>
+      <div class="wolvatarr-pill">
+        🛡️ Autonomous Threat Neutralization • Active Radar
+      </div>
+      <h2 class="wolvatarr-title">
+        Protected by <span>Wolvatarr Active Intercept™</span>
+      </h2>
+      <p class="wolvatarr-desc">
+        Recognized as <strong>Ghana’s most impenetrable active web defense architecture</strong>. Engineered by Wolvatarr, Active Intercept operates continuous client-side threat detection—instantly deploying honeypot memory traps, DOM poisoning labyrinths, and debugger halts the microsecond hostile tampering or inspection is detected.
+      </p>
+      <div class="wolvatarr-tags-row">
+        <span class="wolvatarr-tag">🇬🇭 Ghana's #1 Active Security Shield</span>
+        <span class="wolvatarr-tag">🔒 Real-Time Client Tamper Lockout</span>
+        <span class="wolvatarr-tag">☠️ Dynamic DOM Memory Poisoning</span>
+        <span class="wolvatarr-tag">⚡ Zero-Latency Penetration Defense</span>
+      </div>
+    </div>
   </div>
 </div>
 
