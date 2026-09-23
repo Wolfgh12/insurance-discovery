@@ -2156,30 +2156,41 @@
         if (tooltip) tooltip.style.display = 'none';
       };
 
-      // If running inside the actual standalone installed app window, always hide
-      if (
-        window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true
-      ) {
-        hideAllInstallButtons();
-      } else if (localStorage.getItem('mysika_vault_installed') === 'true') {
+      // 1. Check if running inside standalone window or marked as installed
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const isMarkedInstalled = localStorage.getItem('mysika_vault_installed') === 'true';
+
+      if (isStandalone || isMarkedInstalled) {
         hideAllInstallButtons();
       }
 
-      // When browser detects the app is NOT installed, clear stale storage and show buttons immediately
+      // 2. Query operating system to verify if desktop PWA exists
+      if ('getInstalledRelatedApps' in navigator) {
+        navigator.getInstalledRelatedApps().then(function (relatedApps) {
+          if (relatedApps && relatedApps.length > 0) {
+            localStorage.setItem('mysika_vault_installed', 'true');
+            hideAllInstallButtons();
+          }
+        }).catch(function () {});
+      }
+
+      // 3. Stash install prompt without erasing saved install memory
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
-        localStorage.removeItem('mysika_vault_installed');
-        showAllInstallButtons();
+
+        // Only show buttons if the user has never installed the app
+        if (localStorage.getItem('mysika_vault_installed') !== 'true' && !isStandalone) {
+          showAllInstallButtons();
+        }
       });
 
-      // 1. Initial on-page click: Opens the reassurance briefing modal FIRST
+      // 4. Initial on-page click: Opens the reassurance briefing modal FIRST
       window.triggerPwaInstall = function () {
         window.openPwaSuccessModal();
       };
 
-      // 2. Modal confirmation click: Closes modal and triggers OS install or iOS tooltip
+      // 5. Modal confirmation click: Closes modal and triggers OS install or iOS tooltip
       window.confirmAndExecuteInstall = function () {
         window.closePwaSuccessModal();
 
@@ -2199,10 +2210,14 @@
         } else if (isIOS) {
           // Launch the visual tooltip pointing directly down to Safari's Share button
           window.openIosInstallTooltip();
+        } else {
+          // Fallback if browser already completed install
+          localStorage.setItem('mysika_vault_installed', 'true');
+          hideAllInstallButtons();
         }
       };
 
-      // Fired automatically by the browser the second installation finishes
+      // 6. Fired automatically by the browser the second installation finishes
       window.addEventListener('appinstalled', function () {
         localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
