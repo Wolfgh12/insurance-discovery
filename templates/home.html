@@ -1256,71 +1256,6 @@
     margin-left: 2px;
   }
 
-  /* ----------------------------------------------------
-     Unmissable Public Disclaimer: No Monetary Payouts
-  ---------------------------------------------------- */
-  .public-notice-strip {
-    background: #0B192C;
-    border: 2px solid #F59E0B;
-    border-radius: 18px;
-    padding: 1.5rem 1.75rem;
-    margin-bottom: 2.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 25px rgba(245, 158, 11, 0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .public-notice-strip::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 6px;
-    height: 100%;
-    background: #F59E0B;
-  }
-
-  .public-notice-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(245, 158, 11, 0.18);
-    border: 1px solid #F59E0B;
-    color: #FCD34D;
-    font-size: 0.72rem;
-    font-weight: 900;
-    padding: 4px 12px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 0.65rem;
-  }
-
-  .public-notice-title {
-    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
-    font-weight: 900;
-    color: #ffffff;
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.3px;
-  }
-
-  .public-notice-title span {
-    color: #F87171;
-    text-decoration: underline;
-    text-decoration-color: #EF4444;
-  }
-
-  .public-notice-desc {
-    font-size: 0.88rem;
-    color: #CBD5E1;
-    line-height: 1.65;
-    margin: 0;
-  }
-
-  .public-notice-desc strong {
-    color: #FDE68A;
-  }
-
 </style>
 {% endblock %}
 
@@ -1398,7 +1333,7 @@
 
           <!-- Privacy & Safety Reassurance Sub-label -->
           <div style="margin-top: 0.5rem; font-size: 0.73rem; color: var(--accent-light-cyan); opacity: 0.9; display: flex; align-items: center; gap: 6px;">
-            <span>🔒 Confidential Information Gateway: We provide verified policy presence and records only. We do not distribute money or underwrite claims.</span>
+            <span>🔒 100% Confidential: Confirms active policy presence without publicly exposing sensitive estate values.</span>
           </div>
         </div>
 
@@ -1482,19 +1417,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Unmissable Public Clearinghouse Disclaimer Banner -->
-<div class="public-notice-strip">
-  <div class="public-notice-badge">
-    📢 STATUTORY PUBLIC NOTICE • PLEASE READ CAREFULLY
-  </div>
-  <h2 class="public-notice-title">
-    mySikaVault Is An Information Clearinghouse — <span>We Do Not Disburse Money, Cash, Or Payouts</span>
-  </h2>
-  <p class="public-notice-desc">
-    Notice to the general public, policyholders, and claimants: <strong>mySikaVault does not hold money, underwrite policies, or pay out financial claims under any circumstance.</strong> We are strictly an encrypted digital registry and information disbursement platform. Our sole function is to archive records and disburse verified information—such as policy numbers, account references, asset documentation, and institutional contacts—to authenticated next-of-kin. <strong>Claimants are solely responsible for taking this verified information directly to the respective insurance companies, banks, or probate courts to pursue and claim whatever benefits they are legally entitled to receive.</strong>
-  </p>
 </div>
 
 <!-- Dynamic Mission Typing Ticker -->
@@ -1631,6 +1553,13 @@
             <li>The citizen has not yet deposited an active policy into their vault profile.</li>
             <li>Double-check the digits entered to eliminate typographical mistakes.</li>
           </ul>
+        </div>
+
+        <!-- Audio Replay Control -->
+        <div style="margin-bottom: 1.1rem;">
+          <button type="button" onclick="playNoPolicyAudio()" style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.4); color: #38BDF8; font-size: 0.82rem; font-weight: 800; padding: 6px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;">
+            🔊 Replay Voice Notice
+          </button>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -2804,56 +2733,29 @@
     }
 
     // ----------------------------------------------------
-    // Deep, Clear Male Voice Engine (For Unmatched Searches)
+    // Localized Neural Voice Prompt (No Active Policy Located)
     // ----------------------------------------------------
-    function speakMaleVoice(text, onCompleteCallback) {
-      if (!('speechSynthesis' in window)) {
-        if (onCompleteCallback) onCompleteCallback();
-        return;
-      }
+    const noPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
 
+    window.playNoPolicyAudio = function () {
       try {
-        window.speechSynthesis.cancel();
-        if (window.speechSynthesis.paused) {
-          window.speechSynthesis.resume();
-        }
-      } catch (err) {}
-
-      const executeSpeech = () => {
-        if (availableVoices.length === 0) {
-          availableVoices = window.speechSynthesis.getVoices();
-        }
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.88;
-        utterance.pitch = 0.82; // Authoritative male frequency
-
-        const maleVoice = availableVoices.find(v =>
-          /male|david|george|james|daniel|alex|fred|guy|google uk english male|microsoft david/i.test(v.name)
-        ) || availableVoices.find(v => v.lang && v.lang.startsWith('en')) || availableVoices[0];
-
-        if (maleVoice) {
-          utterance.voice = maleVoice;
-        }
-
-        if (onCompleteCallback) {
-          utterance.onend = onCompleteCallback;
-        }
-
-        window.speechSynthesis.speak(utterance);
-      };
-
-      if (availableVoices.length === 0) {
-        setTimeout(executeSpeech, 250);
-      } else {
-        executeSpeech();
-      }
-    }
+        noPolicyAudio.currentTime = 0;
+        noPolicyAudio.play().catch(function (err) {
+          console.log("Autoplay waiting for user interaction:", err);
+        });
+      } catch (e) {}
+    };
 
     window.closeNoPolicyModal = function () {
       const modal = document.getElementById('no-policy-modal-backdrop');
       if (modal) modal.style.display = 'none';
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+      // Immediately silence the audio if modal is dismissed
+      try {
+        noPolicyAudio.pause();
+        noPolicyAudio.currentTime = 0;
+      } catch (e) {}
+
       const input = document.getElementById('registry-search-input');
       if (input) {
         input.focus();
@@ -2861,12 +2763,12 @@
       }
     };
 
-    // Auto-announce with male voice when no-policy modal is loaded
+    // Auto-play the West African neural prompt when the no-policy modal appears
     const noPolicyModal = document.getElementById('no-policy-modal-backdrop');
     if (noPolicyModal) {
       setTimeout(() => {
-        speakMaleVoice('No active policy record was located in the registry for this Ghana Card ID. Please verify the ID number or ensure an active policy has been registered.');
-      }, 400);
+        window.playNoPolicyAudio();
+      }, 350);
     }
 
     // ----------------------------------------------------
@@ -3322,32 +3224,47 @@
         }
       }
 
-      // Safety fallback: unlock after 10s if audio autoplay is disabled by user's browser
-      const voiceFallbackTimer = setTimeout(unlockConsentButtons, 10500);
+      // Localized neural audio prompt for matched policy record
+      const policyFoundAudio = new Audio("{% static 'audio/policy_found_consent.mp3' %}");
+
+      // Unlock buttons when voice prompt finishes playing
+      policyFoundAudio.addEventListener('ended', function () {
+        clearTimeout(voiceFallbackTimer);
+        unlockConsentButtons();
+      });
+
+      // Safety fallback: unlock after 10s if autoplay policy restricts sound
+      const voiceFallbackTimer = setTimeout(unlockConsentButtons, 10000);
 
       setTimeout(() => {
-        speakFemaleVoice(
-          'A verified policy record has been located in the registry. Under statutory estate protection laws, access requires a three-angle facial calibration. Please confirm to proceed.',
-          function () {
-            clearTimeout(voiceFallbackTimer);
-            unlockConsentButtons();
-          }
-        );
-      }, 300);
+        policyFoundAudio.play().catch(function () {
+          // If browser policy prevents unprompted playback, unlock buttons immediately
+          clearTimeout(voiceFallbackTimer);
+          unlockConsentButtons();
+        });
+      }, 350);
     }
 
-    // User Declines -> Reset view
+    // User Declines -> Stop audio & reset view
     if (btnDeclineConsent) {
       btnDeclineConsent.addEventListener('click', function () {
         if (consentModal) consentModal.style.display = 'none';
+        try {
+          policyFoundAudio.pause();
+          policyFoundAudio.currentTime = 0;
+        } catch (e) {}
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         window.location.href = '/';
       });
     }
 
-    // User Agrees -> Opens Biometric Camera Modal & Starts 3-Angle Calibration
+    // User Agrees -> Stop audio, open Biometric Camera Modal & start 3-Angle Calibration
     if (btnAgreeConsent) {
       btnAgreeConsent.addEventListener('click', function () {
+        try {
+          policyFoundAudio.pause();
+          policyFoundAudio.currentTime = 0;
+        } catch (e) {}
         if (consentModal) consentModal.style.display = 'none';
         if (biometricModal) biometricModal.style.display = 'flex';
         start3AngleScanSequence();

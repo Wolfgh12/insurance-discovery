@@ -2167,6 +2167,9 @@
         }
       });
 
+      // Voice prompt audio controller
+      const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}");
+
       // 3. Pre-package assets and transition to ready state
       async function runPrePackagingAnimation() {
         const progressBar = document.getElementById('pwa-progress-bar');
@@ -2178,6 +2181,7 @@
         const packageItems = [
           { label: "App Manifest", url: "{% static 'manifest.json' %}?v=2026.9" },
           { label: "Core Stylesheet", url: "{% static 'css/theme.css' %}" },
+          { label: "Voice Engine", url: "{% static 'audio/install_prompt.mp3' %}" },
           { label: "Security Emblems", url: "{% static 'images/download.png' %}?v=8" },
           { label: "Offline Shell", url: "{% static 'images/hacker.png' %}" }
         ];
@@ -2234,7 +2238,26 @@
         if (modal) {
           modal.style.display = 'flex';
           runPrePackagingAnimation();
+
+          // Play localized voice prompt
+          try {
+            installVoiceAudio.currentTime = 0;
+            installVoiceAudio.play().catch(function () {
+              // Gracefully catches browser policies if muted
+            });
+          } catch (e) {}
         }
+      };
+
+      window.closePwaSuccessModal = function () {
+        const modal = document.getElementById('pwa-install-success-modal');
+        if (modal) modal.style.display = 'none';
+
+        // Stop audio playback if user closes early
+        try {
+          installVoiceAudio.pause();
+          installVoiceAudio.currentTime = 0;
+        } catch (e) {}
       };
 
       window.closePwaSuccessModal = function () {
