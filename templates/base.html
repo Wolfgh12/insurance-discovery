@@ -1905,50 +1905,54 @@
         }, 50);
       }
 
-      // 1. DOCKED DEVTOOLS & DEVICE TOOLBAR EMULATION DETECTOR
-      function checkDevToolsGeometry() {
-        if (isLockdownActive) return;
+      // 1. DOCKED DEVTOOLS & GEOMETRY VERIFICATION (Hardened Against Windows Scaling & Lag)
+      let pageFullySettled = false;
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          pageFullySettled = true;
+        }, 1200);
+      });
 
-        // Desktop OS detection (Windows, Mac, Linux)
+      function checkDevToolsGeometry() {
+        if (isLockdownActive || !pageFullySettled) return;
+
         const isDesktopOS = /Windows NT|Macintosh|Linux x86_64/i.test(navigator.userAgent);
 
         if (isDesktopOS) {
-          // On PC, a browser window is never 400px wide unless DevTools Device Toolbar is emulating a phone
-          if (window.innerWidth < 650) {
-            triggerSecurityLockdown("Device Toolbar Emulation on PC");
-            return;
-          }
-
-          // Catches side-docked or bottom-docked inspection panels on PC
           const widthDelta = Math.abs(window.outerWidth - window.innerWidth);
           const heightDelta = Math.abs(window.outerHeight - window.innerHeight);
 
-          if (widthDelta > 160 || heightDelta > 180) {
+          // Requires significant deviation (280px+) to avoid false triggers from Windows 125%/150% DPI scaling
+          if (widthDelta > 280 || heightDelta > 300) {
             triggerSecurityLockdown("Docked DevTools on PC");
-            return;
           }
         }
       }
 
-      checkDevToolsGeometry();
       window.addEventListener('resize', checkDevToolsGeometry, { passive: true });
-      setInterval(checkDevToolsGeometry, 250);
+      setInterval(checkDevToolsGeometry, 1000);
 
-      // 2. PASSIVE DEBUGGER LATENCY TRAP (Zero Flicker & Anti-False-Positive)
+      // 2. PASSIVE DEBUGGER LATENCY TRAP (Consecutive Confirmation Guard)
+      let consecutiveDelayCount = 0;
       function executeDebuggerTrap() {
-        if (isLockdownActive) return;
+        if (isLockdownActive || !pageFullySettled) return;
 
         const startTime = performance.now();
         (function () { return false; })['constructor']('debugger')();
         const delta = performance.now() - startTime;
 
-        // 250ms threshold prevents false positives during page redirects and POST requests
-        if (delta > 250) {
-          triggerSecurityLockdown("Debugger Pause Detected");
+        // High threshold + double verification eliminates false alarms from TensorFlow & image compilation
+        if (delta > 500) {
+          consecutiveDelayCount++;
+          if (consecutiveDelayCount >= 2) {
+            triggerSecurityLockdown("Debugger Pause Detected");
+          }
+        } else {
+          consecutiveDelayCount = 0;
         }
       }
-
-      setInterval(executeDebuggerTrap, 600);
+ 
+      setInterval(executeDebuggerTrap, 1200);
 
       // 3. Blindfold console methods
       const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
