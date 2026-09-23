@@ -2181,13 +2181,15 @@
         window.openPwaSuccessModal();
       };
 
-      // 4. Modal confirmation click: Triggers the native installation prompt
+      // 4. Modal confirmation click: Triggers prompt customized for Mobile & Desktop
       window.confirmAndExecuteInstall = function () {
         window.closePwaSuccessModal();
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         if (deferredInstallPrompt) {
+          // Triggers native mobile bottom sheet or desktop dialog directly
           deferredInstallPrompt.prompt();
           deferredInstallPrompt.userChoice.then(function (choiceResult) {
             if (choiceResult.outcome === 'accepted') {
@@ -2197,10 +2199,14 @@
             deferredInstallPrompt = null;
           });
         } else if (isIOS) {
+          // iOS Safari requires manual Share -> Add to Home Screen
           window.openIosInstallTooltip();
+        } else if (isMobileDevice) {
+          // Mobile fallback for Android / Samsung Internet / mobile browsers
+          alert("To add the app to your phone: tap your browser's menu (⋮ or ≡) at the top or bottom corner, then tap 'Install app' or 'Add to Home screen'.");
         } else {
-          // If browser has already delegated installation to the URL bar icon
-          alert("To install, please click the Install icon (⊕) located on the right side of your browser's address bar, or open the browser menu (⋮) and select 'Install mySikaVault'.");
+          // Desktop fallback (Chrome / Edge / Brave on PC)
+          alert("To install on your desktop, click the Install icon (⊕) on the right side of your browser's address bar, or open the menu (⋮) and select 'Install mySikaVault'.");
         }
       };
 
