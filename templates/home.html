@@ -1192,164 +1192,55 @@
   }
 
   /* ----------------------------------------------------
-     Wolvatarr Active Intercept Intimidating Red Defense (Intense Red Glow)
+     Wolvatarr Active Intercept Minimal Footer Shield
   ---------------------------------------------------- */
-  .wolvatarr-shield-banner {
-    background: radial-gradient(circle at 50% 30%, #3d0505 0%, #1c0202 55%, #080000 100%);
-    border: 2px solid #EF4444;
-    border-radius: 22px;
-    padding: clamp(1.75rem, 4vw, 2.5rem);
-    color: #ffffff;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95),
-                0 0 65px rgba(239, 68, 68, 0.7),
-                0 0 130px rgba(220, 38, 38, 0.4),
-                inset 0 0 45px rgba(239, 68, 68, 0.35);
-    margin-bottom: 3rem;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    animation: intimidatingRedPulse 3.5s ease-in-out infinite alternate;
-  }
-
-  @keyframes intimidatingRedPulse {
-    0% {
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95),
-                  0 0 50px rgba(239, 68, 68, 0.55),
-                  0 0 90px rgba(185, 28, 28, 0.3),
-                  inset 0 0 35px rgba(239, 68, 68, 0.25);
-      border-color: rgba(239, 68, 68, 0.75);
-    }
-    100% {
-      box-shadow: 0 25px 75px rgba(0, 0, 0, 1),
-                  0 0 90px rgba(239, 68, 68, 0.9),
-                  0 0 170px rgba(220, 38, 38, 0.6),
-                  inset 0 0 60px rgba(239, 68, 68, 0.5);
-      border-color: #ff3333;
-    }
-  }
-
-  .wolvatarr-shield-banner::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #991b1b, #ef4444, #fecaca, #ef4444, #991b1b);
-    background-size: 200% 100%;
-    box-shadow: 0 0 18px #ef4444;
-    animation: cyberScanline 2.2s linear infinite;
-  }
-
-  .wolvatarr-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 1.25rem;
-    max-width: 860px;
-    margin: 0 auto;
-  }
-
-  .wolvatarr-img-frame {
-    width: 130px;
-    height: 130px;
-    border-radius: 20px;
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(45, 4, 4, 0.98) 75%);
-    border: 2px solid #ff3333;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 45px rgba(239, 68, 68, 0.85),
-                0 0 90px rgba(220, 38, 38, 0.5),
-                inset 0 0 25px rgba(239, 68, 68, 0.45);
-    position: relative;
-    margin: 0 auto;
-  }
-
-  .wolvatarr-img-frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.9));
-  }
-
-  .wolvatarr-pill {
+  .wolvatarr-footer-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid #EF4444;
-    color: #FCA5A5;
-    font-size: 0.72rem;
-    font-weight: 900;
-    padding: 4px 14px;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin: 0 auto 0.75rem auto;
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
-  }
-
-  .wolvatarr-pill::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #EF4444;
-    box-shadow: 0 0 10px #EF4444;
-    animation: livePulse 1s infinite;
-  }
-
-  .wolvatarr-title {
-    font-size: clamp(1.4rem, 3.2vw, 2rem);
-    font-weight: 950;
-    color: #ffffff;
-    margin: 0 auto 0.5rem auto;
-    letter-spacing: -0.4px;
-    line-height: 1.25;
-    text-align: center;
-  }
-
-  .wolvatarr-title span {
-    background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 50%, #B91C1C 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.5));
-  }
-
-  .wolvatarr-desc {
-    font-size: 0.9rem;
-    color: #CBD5E1;
-    line-height: 1.65;
-    margin: 0 auto 1.35rem auto;
-    max-width: 760px;
-    text-align: center;
-  }
-
-  .wolvatarr-tags-row {
-    display: flex;
     gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    background: rgba(10, 25, 47, 0.75);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    padding: 6px 16px 6px 8px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), 0 0 12px rgba(239, 68, 68, 0.15);
+    transition: all 0.25s ease;
   }
 
-  .wolvatarr-tag {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #FEE2E2;
-    font-size: 0.76rem;
-    font-weight: 800;
-    padding: 6px 14px;
-    border-radius: 8px;
-    display: inline-flex;
+  .wolvatarr-footer-badge:hover {
+    border-color: #EF4444;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
+  }
+
+  .wolvatarr-circle-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3d0505 0%, #150202 100%);
+    border: 1.5px solid #EF4444;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    flex-shrink: 0;
+  }
+
+  .wolvatarr-circle-logo img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+  }
+
+  .wolvatarr-badge-text {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #E2E8F0;
+    letter-spacing: 0.2px;
+  }
+
+  .wolvatarr-badge-text span {
+    color: #F87171;
+    font-weight: 900;
   }
 
 </style>
@@ -1536,31 +1427,16 @@
   </div>
 </div>
 
-<!-- High-Profile Active Intercept Security Shield Showcase (Centered Defense Hub) -->
-<div class="wolvatarr-shield-banner">
-  <div class="wolvatarr-grid">
-    <div class="wolvatarr-img-frame">
-      <img src="{% static 'images/hacker.png' %}" alt="Protected by Wolvatarr Active Intercept">
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-      <div class="wolvatarr-pill">
-        🛡️ Active Threat Interception • Zero-Tolerance Perimeter
-      </div>
-      <h2 class="wolvatarr-title">
-        Protected by <span>Wolvatarr Active Intercept™</span>
-      </h2>
-      <p class="wolvatarr-desc">
-        Recognized as <strong>Ghana’s most formidable active web defense architecture</strong>. Engineered exclusively by Wolvatarr, Active Intercept runs continuous, autonomous countermeasures across every session. The system operates silent perimeter surveillance—instantly terminating hostile probing, unauthorized extraction, and illicit telemetry before intrusion can materialize.
-      </p>
-      <div class="wolvatarr-tags-row">
-        <span class="wolvatarr-tag">🇬🇭 Ghana's Premier Active Web Defense</span>
-        <span class="wolvatarr-tag">⚡ Autonomous Breach Neutralization</span>
-        <span class="wolvatarr-tag">🔒 Proprietary Zero-Trust Shield</span>
-        <span class="wolvatarr-tag">⛔ Instant Intrusion Lockout</span>
-      </div>
-    </div>
+<div class="faq-item">
+      <div class="faq-q">How are Group Policies managed?</div>
+      <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
+    </div>   
   </div>
-</div> 
+</div>
+
+<!-- ====================================================
+     Statutory Modals (Centered Fixed Overlays)
+==================================================== -->
 
 <!-- Zero Data Leakage Search Signal & Policy Status Shield -->
 {% if has_searched %}
