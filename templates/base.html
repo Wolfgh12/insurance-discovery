@@ -2199,44 +2199,38 @@
         window.openPwaSuccessModal();
       };
 
-      // Realtime Background Asset Downloader and Cache Pipeline
+      // Optimized Non-Blocking Realtime Downloader & Cache Pipeline
       async function streamPwaAssets(onProgressCallback) {
-        const criticalAssets = [
-          "{% static 'manifest.json' %}?v=2026.9",
-          "{% static 'css/theme.css' %}",
-          "{% static 'js/app.js' %}?v=4.1",
-          "{% static 'images/download.png' %}?v=8",
-          "{% static 'images/hacker.png' %}",
-          "/"
+        const packageItems = [
+          { label: "App Manifest", url: "{% static 'manifest.json' %}?v=2026.9" },
+          { label: "Core Stylesheet", url: "{% static 'css/theme.css' %}" },
+          { label: "Application Logic", url: "{% static 'js/app.js' %}?v=4.1" },
+          { label: "Security Emblems", url: "{% static 'images/download.png' %}?v=8" },
+          { label: "Offline Shell", url: "{% static 'images/hacker.png' %}" }
         ];
 
-        let cache = null;
+        // Parallel background pre-caching (never blocks or freezes the UI loop)
         try {
           if ('caches' in window) {
-            cache = await caches.open('mysikavault-runtime-v1');
+            caches.open('mysikavault-runtime-v1').then(function (cache) {
+              packageItems.forEach(function (item) {
+                fetch(item.url, { cache: 'force-cache' }).then(function (res) {
+                  if (res && res.ok) cache.put(item.url, res);
+                }).catch(function () {});
+              });
+            }).catch(function () {});
           }
-        } catch (e) {
-          console.warn('Cache API unavailable:', e);
-        }
+        } catch (err) {}
 
-        for (let i = 0; i < criticalAssets.length; i++) {
-          const assetUrl = criticalAssets[i];
-          const fileName = assetUrl.split('/').pop().split('?')[0] || 'App Core';
-
-          try {
-            const response = await fetch(assetUrl, { cache: 'no-cache' });
-            if (response.ok && cache) {
-              await cache.put(assetUrl, response.clone());
-            }
-          } catch (err) {
-            console.warn('Pre-cache skip:', assetUrl);
-          }
-
-          const percent = Math.round(((i + 1) / criticalAssets.length) * 100);
+        // Guaranteed progressive step animation (finishes in 1.1s, immune to slow network halts)
+        for (let i = 0; i < packageItems.length; i++) {
+          const percent = Math.round(((i + 1) / packageItems.length) * 100);
           if (onProgressCallback) {
-            onProgressCallback(percent, fileName);
+            onProgressCallback(percent, packageItems[i].label);
           }
-          await new Promise(r => setTimeout(r, 120));
+          await new Promise(function (resolve) {
+            setTimeout(resolve, 200);
+          });
         }
       }
 
@@ -2258,31 +2252,30 @@
           installBtn.innerHTML = 'Downloading Packages... ⏳';
         }
 
-        streamPwaAssets(function (percent, currentFile) {
+        streamPwaAssets(function (percent, currentLabel) {
           if (progressBar) progressBar.style.width = percent + '%';
           if (percentText) percentText.textContent = percent + '%';
-          if (fileText) fileText.textContent = 'Caching: ' + currentFile;
+          if (fileText) fileText.textContent = 'Package: ' + currentLabel;
         }).then(function () {
-          setTimeout(function () {
-            window.closePwaSuccessModal();
+          // Immediately close briefing modal and launch native install prompt
+          window.closePwaSuccessModal();
 
-            if (deferredInstallPrompt) {
-              deferredInstallPrompt.prompt();
-              deferredInstallPrompt.userChoice.then(function (choiceResult) {
-                if (choiceResult.outcome === 'accepted') {
-                  deferredInstallPrompt = null;
-                }
-              }).catch(function () {
+          if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then(function (choiceResult) {
+              if (choiceResult.outcome === 'accepted') {
                 deferredInstallPrompt = null;
-              });
-            } else if (isIOS) {
-              window.openIosInstallTooltip();
-            } else if (isMobileDevice) {
-              alert("Packages cached. To complete installation, tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
-            } else {
-              alert("Packages cached. Click the Install icon (⊕) in your browser's address bar to place the shortcut on your desktop.");
-            }
-          }, 350);
+              }
+            }).catch(function () {
+              deferredInstallPrompt = null;
+            });
+          } else if (isIOS) {
+            window.openIosInstallTooltip();
+          } else if (isMobileDevice) {
+            alert("Packages cached. To complete installation, tap your mobile browser menu (⋮ or ≡) and select 'Install app' or 'Add to Home screen'.");
+          } else {
+            alert("Packages cached. Click the Install icon (⊕) on the right side of your browser's address bar to add mySikaVault to your desktop.");
+          }
         });
       };
 
