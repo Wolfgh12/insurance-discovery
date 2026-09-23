@@ -1192,55 +1192,68 @@
   }
 
   /* ----------------------------------------------------
-     Wolvatarr Active Intercept Minimal Footer Shield
+     Wolvatarr Active Intercept Intimidating Red Footer Shield
   ---------------------------------------------------- */
-  .wolvatarr-footer-badge {
+  .wolvatarr-footer-shield {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(10, 25, 47, 0.75);
-    border: 1px solid rgba(239, 68, 68, 0.35);
-    padding: 6px 16px 6px 8px;
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), 0 0 12px rgba(239, 68, 68, 0.15);
-    transition: all 0.25s ease;
-  }
-
-  .wolvatarr-footer-badge:hover {
-    border-color: #EF4444;
-    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
-  }
-
-  .wolvatarr-circle-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #3d0505 0%, #150202 100%);
+    gap: 12px;
+    background: radial-gradient(circle at 20% 50%, #2f0404 0%, #140202 60%, #050000 100%);
     border: 1.5px solid #EF4444;
+    padding: 6px 20px 6px 8px;
+    border-radius: 999px;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.45), 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 14px rgba(239, 68, 68, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .wolvatarr-footer-shield:hover {
+    border-color: #ff3333;
+    box-shadow: 0 0 35px rgba(239, 68, 68, 0.75), inset 0 0 18px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .wolvatarr-round-frame {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #540808 0%, #1c0202 75%);
+    border: 2px solid #EF4444;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.75);
     flex-shrink: 0;
   }
 
-  .wolvatarr-circle-logo img {
-    width: 70%;
-    height: 70%;
+  .wolvatarr-round-frame img {
+    width: 72%;
+    height: 72%;
     object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.9));
   }
 
-  .wolvatarr-badge-text {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #E2E8F0;
-    letter-spacing: 0.2px;
-  }
-
-  .wolvatarr-badge-text span {
-    color: #F87171;
+  .wolvatarr-shield-text {
+    font-size: 0.86rem;
     font-weight: 900;
+    color: #FEE2E2;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.55);
+  }
+
+  .wolvatarr-shield-text span {
+    background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 60%, #DC2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 950;
+  }
+
+  .wolvatarr-tm {
+    font-size: 0.65rem;
+    color: #EF4444;
+    font-weight: 900;
+    vertical-align: super;
+    margin-left: 2px;
   }
 
 </style>
@@ -1426,17 +1439,6 @@
     <span class="insurer-pill">and more...</span>
   </div>
 </div>
-
-<div class="faq-item">
-      <div class="faq-q">How are Group Policies managed?</div>
-      <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
-    </div>   
-  </div>
-</div>
-
-<!-- ====================================================
-     Statutory Modals (Centered Fixed Overlays)
-==================================================== -->
 
 <!-- Zero Data Leakage Search Signal & Policy Status Shield -->
 {% if has_searched %}
@@ -2395,6 +2397,18 @@
       <div class="faq-q">How are Group Policies managed?</div>
       <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
     </div>   
+  </div>
+
+  <!-- Wolvatarr Active Intercept Intimidating Red Footer Shield -->
+  <div style="text-align: center; margin: 3rem 0 1.5rem 0;">
+    <div class="wolvatarr-footer-shield">
+      <div class="wolvatarr-round-frame">
+        <img src="{% static 'images/hacker.png' %}" alt="Wolvatarr Active Intercept Shield">
+      </div>
+      <div class="wolvatarr-shield-text">
+        Protected by <span>Wolvatarr Active Intercept</span><span class="wolvatarr-tm">™</span>
+      </div>
+    </div>
   </div>
 </div>
 
