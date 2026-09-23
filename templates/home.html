@@ -1256,6 +1256,71 @@
     margin-left: 2px;
   }
 
+  /* ----------------------------------------------------
+     Unmissable Public Disclaimer: No Monetary Payouts
+  ---------------------------------------------------- */
+  .public-notice-strip {
+    background: #0B192C;
+    border: 2px solid #F59E0B;
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 25px rgba(245, 158, 11, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .public-notice-strip::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: #F59E0B;
+  }
+
+  .public-notice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid #F59E0B;
+    color: #FCD34D;
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.65rem;
+  }
+
+  .public-notice-title {
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.3px;
+  }
+
+  .public-notice-title span {
+    color: #F87171;
+    text-decoration: underline;
+    text-decoration-color: #EF4444;
+  }
+
+  .public-notice-desc {
+    font-size: 0.88rem;
+    color: #CBD5E1;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .public-notice-desc strong {
+    color: #FDE68A;
+  }
+
 </style>
 {% endblock %}
 
@@ -1417,6 +1482,19 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Unmissable Public Clearinghouse Disclaimer Banner -->
+<div class="public-notice-strip">
+  <div class="public-notice-badge">
+    📢 STATUTORY PUBLIC NOTICE • PLEASE READ CAREFULLY
+  </div>
+  <h2 class="public-notice-title">
+    mySikaVault Is An Information Clearinghouse — <span>We Do Not Disburse Money, Cash, Or Payouts</span>
+  </h2>
+  <p class="public-notice-desc">
+    Notice to the general public, policyholders, and claimants: <strong>mySikaVault does not hold money, underwrite policies, or pay out financial claims under any circumstance.</strong> We are strictly an encrypted digital registry and information disbursement platform. Our sole function is to archive records and disburse verified information—such as policy numbers, account references, asset documentation, and institutional contacts—to authenticated next-of-kin. <strong>Claimants are solely responsible for taking this verified information directly to the respective insurance companies, banks, or probate courts to pursue and claim whatever benefits they are legally entitled to receive.</strong>
+  </p>
 </div>
 
 <!-- Dynamic Mission Typing Ticker -->
