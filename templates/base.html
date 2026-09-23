@@ -2022,7 +2022,7 @@
   </script>
   {% endif %}
 
-  <!-- Centered PWA Installation Guidance & Trust Modal (Opens FIRST) -->
+  <!-- Centered PWA Installation Guidance & Trust Modal with Realtime Downloader -->
   <div id="pwa-install-success-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
     <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 450px; width: 100%; max-height: 92vh; overflow-y: auto; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
       
@@ -2031,7 +2031,7 @@
       </div>
 
       <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.65rem;">
-        🛡️ Sovereign App Installation
+        🛡️ Direct Device Installation
       </div>
 
       <h3 style="margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.3px;">
@@ -2039,11 +2039,23 @@
       </h3>
 
       <p style="margin: 0 0 1.25rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        mySikaVault will install directly to your device launcher. Once confirmed, the sovereign gold shield emblem will appear on your home screen in about 2 minutes max.
+        mySikaVault will install directly to your device launcher. Tap below to capture offline application packages and trigger the system prompt.
       </p>
 
+      <!-- Realtime Background Asset Download Progress Bar -->
+      <div id="pwa-download-box" style="display: none; background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(6, 182, 212, 0.35); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.25rem; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span id="pwa-download-status" style="font-size: 0.76rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px;">Capturing Packages...</span>
+          <span id="pwa-download-percent" style="font-size: 0.82rem; font-weight: 900; color: #34D399; font-family: monospace;">0%</span>
+        </div>
+        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+          <div id="pwa-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #06B6D4, #10B981); border-radius: 10px; transition: width 0.15s ease;"></div>
+        </div>
+        <div id="pwa-download-file" style="margin-top: 6px; font-size: 0.7rem; color: #94A3B8; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Starting package download...</div>
+      </div>
+
       <!-- Trust & Verification Guidance Pill: Samsung, Tecno, Infinix & All Android Devices -->
-      <div style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.45); border-radius: 14px; padding: 1rem; margin-bottom: 1.4rem; text-align: left;">
+      <div id="pwa-guidance-pill" style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.45); border-radius: 14px; padding: 1rem; margin-bottom: 1.4rem; text-align: left;">
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #38BDF8; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;">
           <span>🛡️ Android, Samsung, Tecno &amp; Infinix Safety Notice</span>
         </div>
@@ -2055,6 +2067,7 @@
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <button 
           type="button" 
+          id="btn-execute-pwa-install"
           onclick="confirmAndExecuteInstall()" 
           style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4); font-family: inherit; transition: transform 0.15s ease;"
         >
@@ -2118,7 +2131,6 @@
     (function () {
       let deferredInstallPrompt = null;
 
-      // Function to hide all install elements across the entire page
       function hideAllInstallButtons() {
         document.documentElement.classList.add('app-is-installed');
         if (document.body) document.body.classList.add('app-is-installed');
@@ -2127,7 +2139,6 @@
         });
       }
 
-      // Function to restore install elements when app is uninstalled or eligible
       function showAllInstallButtons() {
         document.documentElement.classList.remove('app-is-installed');
         if (document.body) document.body.classList.remove('app-is-installed');
@@ -2138,6 +2149,17 @@
 
       window.openPwaSuccessModal = function () {
         const modal = document.getElementById('pwa-install-success-modal');
+        const downloadBox = document.getElementById('pwa-download-box');
+        const guidancePill = document.getElementById('pwa-guidance-pill');
+        const installBtn = document.getElementById('btn-execute-pwa-install');
+
+        if (downloadBox) downloadBox.style.display = 'none';
+        if (guidancePill) guidancePill.style.display = 'block';
+        if (installBtn) {
+          installBtn.disabled = false;
+          installBtn.innerHTML = 'Proceed to Install ➔';
+        }
+
         if (modal) modal.style.display = 'flex';
       };
 
@@ -2156,18 +2178,15 @@
         if (tooltip) tooltip.style.display = 'none';
       };
 
-      // 1. Hide buttons ONLY when actively inside the installed standalone window
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
       if (isStandalone) {
         hideAllInstallButtons();
       } else {
-        // Reset any previously corrupted lock flag so buttons stay accessible in browser tabs
         localStorage.removeItem('mysika_vault_installed');
         showAllInstallButtons();
       }
 
-      // 2. Intercept and capture the browser's native install dialog
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
@@ -2176,41 +2195,97 @@
         }
       });
 
-      // 3. Initial on-page click: Opens the installation modal
       window.triggerPwaInstall = function () {
         window.openPwaSuccessModal();
       };
 
-      // 4. Modal confirmation click: Triggers prompt customized for Mobile & Desktop
-      window.confirmAndExecuteInstall = function () {
-        window.closePwaSuccessModal();
+      // Realtime Background Asset Downloader and Cache Pipeline
+      async function streamPwaAssets(onProgressCallback) {
+        const criticalAssets = [
+          "{% static 'manifest.json' %}?v=2026.9",
+          "{% static 'css/theme.css' %}",
+          "{% static 'js/app.js' %}?v=4.1",
+          "{% static 'images/download.png' %}?v=8",
+          "{% static 'images/hacker.png' %}",
+          "/"
+        ];
 
+        let cache = null;
+        try {
+          if ('caches' in window) {
+            cache = await caches.open('mysikavault-runtime-v1');
+          }
+        } catch (e) {
+          console.warn('Cache API unavailable:', e);
+        }
+
+        for (let i = 0; i < criticalAssets.length; i++) {
+          const assetUrl = criticalAssets[i];
+          const fileName = assetUrl.split('/').pop().split('?')[0] || 'App Core';
+
+          try {
+            const response = await fetch(assetUrl, { cache: 'no-cache' });
+            if (response.ok && cache) {
+              await cache.put(assetUrl, response.clone());
+            }
+          } catch (err) {
+            console.warn('Pre-cache skip:', assetUrl);
+          }
+
+          const percent = Math.round(((i + 1) / criticalAssets.length) * 100);
+          if (onProgressCallback) {
+            onProgressCallback(percent, fileName);
+          }
+          await new Promise(r => setTimeout(r, 120));
+        }
+      }
+
+      window.confirmAndExecuteInstall = function () {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        if (deferredInstallPrompt) {
-          // Triggers native mobile bottom sheet or desktop dialog directly
-          deferredInstallPrompt.prompt();
-          deferredInstallPrompt.userChoice.then(function (choiceResult) {
-            if (choiceResult.outcome === 'accepted') {
-              deferredInstallPrompt = null;
-            }
-          }).catch(function () {
-            deferredInstallPrompt = null;
-          });
-        } else if (isIOS) {
-          // iOS Safari requires manual Share -> Add to Home Screen
-          window.openIosInstallTooltip();
-        } else if (isMobileDevice) {
-          // Mobile fallback for Android / Samsung Internet / mobile browsers
-          alert("To add the app to your phone: tap your browser's menu (⋮ or ≡) at the top or bottom corner, then tap 'Install app' or 'Add to Home screen'.");
-        } else {
-          // Desktop fallback (Chrome / Edge / Brave on PC)
-          alert("To install on your desktop, click the Install icon (⊕) on the right side of your browser's address bar, or open the menu (⋮) and select 'Install mySikaVault'.");
+        const downloadBox = document.getElementById('pwa-download-box');
+        const progressBar = document.getElementById('pwa-progress-bar');
+        const percentText = document.getElementById('pwa-download-percent');
+        const fileText = document.getElementById('pwa-download-file');
+        const guidancePill = document.getElementById('pwa-guidance-pill');
+        const installBtn = document.getElementById('btn-execute-pwa-install');
+
+        if (downloadBox) downloadBox.style.display = 'block';
+        if (guidancePill) guidancePill.style.display = 'none';
+        if (installBtn) {
+          installBtn.disabled = true;
+          installBtn.innerHTML = 'Downloading Packages... ⏳';
         }
+
+        streamPwaAssets(function (percent, currentFile) {
+          if (progressBar) progressBar.style.width = percent + '%';
+          if (percentText) percentText.textContent = percent + '%';
+          if (fileText) fileText.textContent = 'Caching: ' + currentFile;
+        }).then(function () {
+          setTimeout(function () {
+            window.closePwaSuccessModal();
+
+            if (deferredInstallPrompt) {
+              deferredInstallPrompt.prompt();
+              deferredInstallPrompt.userChoice.then(function (choiceResult) {
+                if (choiceResult.outcome === 'accepted') {
+                  deferredInstallPrompt = null;
+                }
+              }).catch(function () {
+                deferredInstallPrompt = null;
+              });
+            } else if (isIOS) {
+              window.openIosInstallTooltip();
+            } else if (isMobileDevice) {
+              alert("Packages cached. To complete installation, tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
+            } else {
+              alert("Packages cached. Click the Install icon (⊕) in your browser's address bar to place the shortcut on your desktop.");
+            }
+          }, 350);
+        });
       };
 
-      // 5. Automatically hide buttons only after the OS confirms installation has completed
       window.addEventListener('appinstalled', function () {
         hideAllInstallButtons();
         window.closeIosInstallTooltip();
