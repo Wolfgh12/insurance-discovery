@@ -2156,41 +2156,32 @@
         if (tooltip) tooltip.style.display = 'none';
       };
 
-      // 1. Check if running inside standalone window or marked as installed
+      // 1. Hide buttons ONLY when actively inside the installed standalone window
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      const isMarkedInstalled = localStorage.getItem('mysika_vault_installed') === 'true';
 
-      if (isStandalone || isMarkedInstalled) {
+      if (isStandalone) {
         hideAllInstallButtons();
+      } else {
+        // Reset any previously corrupted lock flag so buttons stay accessible in browser tabs
+        localStorage.removeItem('mysika_vault_installed');
+        showAllInstallButtons();
       }
 
-      // 2. Query operating system to verify if desktop PWA exists
-      if ('getInstalledRelatedApps' in navigator) {
-        navigator.getInstalledRelatedApps().then(function (relatedApps) {
-          if (relatedApps && relatedApps.length > 0) {
-            localStorage.setItem('mysika_vault_installed', 'true');
-            hideAllInstallButtons();
-          }
-        }).catch(function () {});
-      }
-
-      // 3. Stash install prompt without erasing saved install memory
+      // 2. Intercept and capture the browser's native install dialog
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
-
-        // Only show buttons if the user has never installed the app
-        if (localStorage.getItem('mysika_vault_installed') !== 'true' && !isStandalone) {
+        if (!isStandalone) {
           showAllInstallButtons();
         }
       });
 
-      // 4. Initial on-page click: Opens the reassurance briefing modal FIRST
+      // 3. Initial on-page click: Opens the installation modal
       window.triggerPwaInstall = function () {
         window.openPwaSuccessModal();
       };
 
-      // 5. Modal confirmation click: Closes modal and triggers OS install or iOS tooltip
+      // 4. Modal confirmation click: Triggers the native installation prompt
       window.confirmAndExecuteInstall = function () {
         window.closePwaSuccessModal();
 
@@ -2200,26 +2191,21 @@
           deferredInstallPrompt.prompt();
           deferredInstallPrompt.userChoice.then(function (choiceResult) {
             if (choiceResult.outcome === 'accepted') {
-              localStorage.setItem('mysika_vault_installed', 'true');
-              hideAllInstallButtons();
+              deferredInstallPrompt = null;
             }
-            deferredInstallPrompt = null;
           }).catch(function () {
             deferredInstallPrompt = null;
           });
         } else if (isIOS) {
-          // Launch the visual tooltip pointing directly down to Safari's Share button
           window.openIosInstallTooltip();
         } else {
-          // Fallback if browser already completed install
-          localStorage.setItem('mysika_vault_installed', 'true');
-          hideAllInstallButtons();
+          // If browser has already delegated installation to the URL bar icon
+          alert("To install, please click the Install icon (⊕) located on the right side of your browser's address bar, or open the browser menu (⋮) and select 'Install mySikaVault'.");
         }
       };
 
-      // 6. Fired automatically by the browser the second installation finishes
+      // 5. Automatically hide buttons only after the OS confirms installation has completed
       window.addEventListener('appinstalled', function () {
-        localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
         window.closeIosInstallTooltip();
         deferredInstallPrompt = null;
