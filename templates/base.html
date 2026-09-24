@@ -2253,17 +2253,12 @@
         const modal = document.getElementById('pwa-install-success-modal');
         if (modal) modal.style.display = 'none';
 
-        // Stop audio playback if user closes early
+        // Immediately kill and rewind voice audio when user dismisses or clicks Maybe Later
         try {
           installVoiceAudio.pause();
           installVoiceAudio.currentTime = 0;
-        } catch (e) {}
-      };
-
-      window.closePwaSuccessModal = function () {
-        const modal = document.getElementById('pwa-install-success-modal');
-        if (modal) modal.style.display = 'none';
-      };
+        } catch (e) {}   
+      };   
 
       window.openIosInstallTooltip = function () {
         const tooltip = document.getElementById('ios-install-tooltip');
