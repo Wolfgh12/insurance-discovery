@@ -2114,6 +2114,40 @@
     </div>
   </div>
 
+  <!-- Smart "Already Active on Device" Modal -->
+  <div id="pwa-already-installed-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 2px solid #F59E0B; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.25);">
+      
+      <!-- Glowing Gold Vault Emblem -->
+      <div style="width: 72px; height: 72px; margin: 0 auto 1.2rem; border-radius: 20px; overflow: hidden; border: 2.5px solid rgba(245, 158, 11, 0.9); box-shadow: 0 0 25px rgba(245, 158, 11, 0.45); animation: vaultIconGlow 2.2s ease-in-out infinite;">
+        <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Active Shield" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      </div>
+
+      <div style="background: rgba(245, 158, 11, 0.18); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem;">
+        🛡️ Vault Already Installed
+      </div>
+
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px; color: #ffffff;">
+        mySikaVault Is Active
+      </h3>
+
+      <p style="margin: 0 0 1.5rem; font-size: 0.86rem; color: #CBD5E1; line-height: 1.6;">
+        The gold mySikaVault shield is already installed on this phone. Look for the emblem on your home screen or app launcher to access your private vault directly.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button 
+          type="button" 
+          onclick="closePwaAlreadyInstalledModal()" 
+          style="width: 100%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4); font-family: inherit;"
+        >
+          Understood ✕
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <style>
     @keyframes iosBounceArrow {
       0%, 100% { transform: translateY(0); }
@@ -2148,14 +2182,31 @@
         });
       }
 
-      // 1. Reset installation states
+      // 1. Check installation state
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
       if (isStandalone) {
+        localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
       } else {
-        localStorage.removeItem('mysika_vault_installed');
         showAllInstallButtons();
+      }
+
+      // Async checker for installed status (covers Android Chromium & iOS Safari)
+      async function isAppAlreadyInstalledOnDevice() {
+        if (localStorage.getItem('mysika_vault_installed') === 'true') {
+          return true;
+        }
+        if ('getInstalledRelatedApps' in navigator) {
+          try {
+            const relatedApps = await navigator.getInstalledRelatedApps();
+            if (relatedApps && relatedApps.length > 0) {
+              localStorage.setItem('mysika_vault_installed', 'true');
+              return true;
+            }
+          } catch (err) {}
+        }
+        return false;
       }
 
       // 2. Capture the install prompt token
@@ -2167,8 +2218,29 @@
         }
       });
 
-      // Voice prompt audio controller
+      // Voice prompt controllers (Male for first download, Female for already installed)
       const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}");
+      const alreadyInstalledAudio = new Audio("{% static 'audio/app_already_installed.mp3' %}");
+
+      window.openPwaAlreadyInstalledModal = function () {
+        const modal = document.getElementById('pwa-already-installed-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+          try {
+            alreadyInstalledAudio.currentTime = 0;
+            alreadyInstalledAudio.play().catch(function () {});
+          } catch (e) {}
+        }
+      };
+
+      window.closePwaAlreadyInstalledModal = function () {
+        const modal = document.getElementById('pwa-already-installed-modal');
+        if (modal) modal.style.display = 'none';
+        try {
+          alreadyInstalledAudio.pause();
+          alreadyInstalledAudio.currentTime = 0;
+        } catch (e) {}
+      };
 
       // 3. Pre-package assets and transition to ready state
       async function runPrePackagingAnimation() {
@@ -2275,7 +2347,12 @@
         if (tooltip) tooltip.style.display = 'none';
       };
 
-      window.triggerPwaInstall = function () {
+      window.triggerPwaInstall = async function () {
+        const alreadyInstalled = await isAppAlreadyInstalledOnDevice();
+        if (alreadyInstalled) {
+          window.openPwaAlreadyInstalledModal();
+          return;
+        }
         window.openPwaSuccessModal();
       };
 
@@ -2290,23 +2367,28 @@
           deferredInstallPrompt.prompt();
           deferredInstallPrompt.userChoice.then(function (choiceResult) {
             if (choiceResult.outcome === 'accepted') {
+              localStorage.setItem('mysika_vault_installed', 'true');
               deferredInstallPrompt = null;
             }
           }).catch(function () {
             deferredInstallPrompt = null;
           });
         } else if (isIOS) {
+          // If iOS user triggers instructions, store mark so future clicks detect it
+          localStorage.setItem('mysika_vault_installed', 'true');
           window.openIosInstallTooltip();
         } else if (isMobileDevice) {
           alert("To add the app to your home screen: tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
         } else {
           alert("To add the app to your desktop: click the Install icon (⊕) on the right side of the address bar or select 'Install mySikaVault' in the browser menu (⋮).");
         }
-      };
+      };  
 
       window.addEventListener('appinstalled', function () {
+        localStorage.setItem('mysika_vault_installed', 'true');
         hideAllInstallButtons();
         window.closeIosInstallTooltip();
+        window.closePwaSuccessModal();
         deferredInstallPrompt = null;
       });
     })();
