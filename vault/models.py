@@ -1041,7 +1041,7 @@ class PlatformConfiguration(models.Model):
                 'module_wills_enabled': False,
             }
         )
-        return config
+        return config 
 
     def __str__(self):
         return f"Global Configuration (Unlock: GHS {self.unlock_fee}, Registration: GHS {self.registration_fee})"
