@@ -707,6 +707,10 @@ def claimant_dashboard_view(request):
             request.session['active_claimant_token'] = grant.access_token
             return redirect('vault:claimant_vault', access_token=grant.access_token)
 
+        # Break the loop: If authenticated but holding no claimant grant, return to citizen dashboard
+        messages.info(request, "You are logged in as a citizen vault owner. Redirected to your personal dashboard.")
+        return redirect('vault:dashboard')
+
     return redirect('vault:claimant_login')
 
 
@@ -714,8 +718,13 @@ def claimant_login_view(request):
     """
     Dedicated login page for claimants to enter their system-generated credentials.
     """
+    # If already logged in, verify if they actually own an active claimant grant
     if request.user.is_authenticated:
-        return redirect('vault:claimant_dashboard')
+        has_grant = ClaimantAccessGrant.objects.filter(claimant_user=request.user, is_active=True).exists()
+        if has_grant:
+            return redirect('vault:claimant_dashboard')
+        # If logged in as a normal citizen/vault holder, send them to their citizen dashboard
+        return redirect('vault:dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -723,25 +732,35 @@ def claimant_login_view(request):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            # Enforce check: Does this user actually hold a verified claimant dossier?
             grant = ClaimantAccessGrant.objects.filter(claimant_user=user, is_active=True).first()
-            if grant:
-                request.session[f'claimant_vault_{grant.access_token}'] = {
-                    'grant_id': grant.id,
-                    'policyholder_id': grant.policyholder_id,
-                    'policy_id': grant.policy_id,
-                    'reference': grant.payment_reference,
-                    'claimant_username': user.username,
-                    'claimant_name': grant.claimant_name,
-                    'relationship': grant.relationship_to_deceased,
-                    'claimant_phone': grant.claimant_phone,
-                    'claimant_ghana_card': grant.claimant_ghana_card,
-                    'permanent_address': grant.permanent_address,
-                    'claimant_email': grant.claimant_email,
-                }
-                request.session['active_claimant_token'] = grant.access_token
-                return redirect('vault:claimant_vault', access_token=grant.access_token)
-            return redirect('vault:claimant_dashboard')
+            
+            if not grant:
+                # Do NOT log them in. Warn them clearly that this portal is only for next-of-kin claimants
+                messages.error(
+                    request, 
+                    "No active claimant docket found for these credentials. "
+                    "If you are a citizen vault owner, please sign in via the Citizen Portal."
+                )
+                return render(request, 'registration/claimant_login.html')
+
+            # Only log in once claimant grant validity is guaranteed
+            login(request, user)
+            request.session[f'claimant_vault_{grant.access_token}'] = {
+                'grant_id': grant.id,
+                'policyholder_id': grant.policyholder_id,
+                'policy_id': grant.policy_id,
+                'reference': grant.payment_reference,
+                'claimant_username': user.username,
+                'claimant_name': grant.claimant_name,
+                'relationship': grant.relationship_to_deceased,
+                'claimant_phone': grant.claimant_phone,
+                'claimant_ghana_card': grant.claimant_ghana_card,
+                'permanent_address': grant.permanent_address,
+                'claimant_email': grant.claimant_email,
+            }
+            request.session['active_claimant_token'] = grant.access_token
+            return redirect('vault:claimant_vault', access_token=grant.access_token)
         else:
             messages.error(request, "Invalid Claimant ID or Access Key. Please check your credentials.")
 
