@@ -2813,12 +2813,16 @@
     // ----------------------------------------------------
     // Localized Neural Voice Prompt (No Active Policy Located)
     // ----------------------------------------------------
-    const noPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
+    if (!window.mySikaNoPolicyAudio) {
+      window.mySikaNoPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
+      window.mySikaNoPolicyAudio.preload = "auto";
+    }
+    const noPolicyAudio = window.mySikaNoPolicyAudio;
 
     window.playNoPolicyAudio = function () {
       try {
-        noPolicyAudio.currentTime = 0;
-        noPolicyAudio.play().catch(function (err) {
+        window.mySikaNoPolicyAudio.currentTime = 0;
+        window.mySikaNoPolicyAudio.play().catch(function (err) {
           console.log("Autoplay waiting for user interaction:", err);
         });
       } catch (e) {}
@@ -2830,8 +2834,8 @@
 
       // Immediately silence the audio if modal is dismissed
       try {
-        noPolicyAudio.pause();
-        noPolicyAudio.currentTime = 0;
+        window.mySikaNoPolicyAudio.pause();
+        window.mySikaNoPolicyAudio.currentTime = 0;
       } catch (e) {}
 
       const input = document.getElementById('registry-search-input');
