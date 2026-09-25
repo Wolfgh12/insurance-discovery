@@ -3,6 +3,7 @@ import re
 import secrets
 import uuid
 from datetime import timedelta
+import requests
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password, check_password
@@ -1042,6 +1043,68 @@ class PlatformConfiguration(models.Model):
             }
         )
         return config 
+
+    def save(self, *args, **kwargs):
+        # Automated Push Sync to Paystack (Fires from both Django Admin and Lead Admin)
+        secret_key = (
+            getattr(settings, "PAYSTACK_SECRET_KEY", None)
+            or os.environ.get("PAYSTACK_SECRET_KEY", "")
+            or ""
+        ).strip()
+
+        if secret_key and self.annual_subscription_fee:
+            amount_pesewas = int(float(self.annual_subscription_fee) * 100)
+            headers = {
+                "Authorization": f"Bearer {secret_key}",
+                "Content-Type": "application/json",
+            }
+            plan_code = (self.paystack_annual_plan_code or "").strip()
+            synced = False
+
+            # 1. Attempt to update existing plan on Paystack
+            if plan_code:
+                try:
+                    resp = requests.put(
+                        f"https://api.paystack.co/plan/{plan_code}",
+                        headers=headers,
+                        json={
+                            "name": f"Annual Vault Protection - GHS {self.annual_subscription_fee:.2f}",
+                            "amount": amount_pesewas,
+                            "interval": "annually",
+                            "currency": "GHS",
+                            "update_existing_subscriptions": True,
+                        },
+                        timeout=8,
+                    )
+                    data = resp.json()
+                    if resp.status_code == 200 and data.get("status"):
+                        synced = True
+                except Exception:
+                    pass
+
+            # 2. If update is rejected (e.g. locked by existing charges) or code is blank, auto-create a new plan
+            if not synced:
+                try:
+                    create_resp = requests.post(
+                        "https://api.paystack.co/plan",
+                        headers=headers,
+                        json={
+                            "name": f"Annual Vault Protection - GHS {self.annual_subscription_fee:.2f}",
+                            "amount": amount_pesewas,
+                            "interval": "annually",
+                            "currency": "GHS",
+                        },
+                        timeout=8,
+                    )
+                    create_data = create_resp.json()
+                    if create_resp.status_code in [200, 201] and create_data.get("status"):
+                        new_code = create_data.get("data", {}).get("plan_code")
+                        if new_code:
+                            self.paystack_annual_plan_code = new_code
+                except Exception:
+                    pass
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Global Configuration (Unlock: GHS {self.unlock_fee}, Registration: GHS {self.registration_fee})"
