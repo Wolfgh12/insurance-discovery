@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import hmac
 import json
 import random
 import re
@@ -2752,3 +2754,59 @@ def terms_view(request):
     Public statutory Terms of Service and Platform Governance Agreement.
     """
     return render(request, 'terms.html')
+
+
+@csrf_exempt
+def paystack_webhook_view(request):
+    """
+    Cryptographically authenticated Paystack webhook listener.
+    Enforces HMAC-SHA512 signature validation and performs live reverse
+    synchronization when plan pricing or subscription statuses are modified on Paystack.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    paystack_signature = request.META.get('HTTP_X_PAYSTACK_SIGNATURE', '')
+    secret_key = (getattr(settings, 'PAYSTACK_SECRET_KEY', None) or PAYSTACK_SECRET_KEY or '').strip()
+
+    if not paystack_signature or not secret_key:
+        return JsonResponse({'status': 'error', 'message': 'Missing signature or secret key.'}, status=400)
+
+    # Compute HMAC-SHA512 over the raw request payload
+    computed_signature = hmac.new(
+        secret_key.encode('utf-8'),
+        request.body,
+        hashlib.sha512
+    ).hexdigest()
+
+    if not hmac.compare_digest(computed_signature, paystack_signature):
+        return JsonResponse({'status': 'error', 'message': 'Invalid signature.'}, status=400)
+
+    try:
+        payload = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON payload.'}, status=400)
+
+    event = payload.get('event')
+    data = payload.get('data', {}) or {}
+
+    # 1. Reverse Plan Synchronization (Paystack Dashboard -> Django PlatformConfiguration)
+    if event in ['plan.update', 'plan.create']:
+        plan_code = data.get('plan_code', '').strip()
+        amount_pesewas = data.get('amount')
+
+        if plan_code and amount_pesewas is not None:
+            platform_config = PlatformConfiguration.get_solo()
+            if platform_config.paystack_annual_plan_code == plan_code:
+                platform_config.annual_subscription_fee = float(amount_pesewas) / 100.0
+                platform_config.save(update_fields=['annual_subscription_fee'])
+
+    # 2. Subscription Lifecycle Synchronization
+    elif event == 'subscription.disable':
+        sub_code = data.get('subscription_code')
+        if sub_code:
+            UserSubscription.objects.filter(
+                paystack_subscription_code=sub_code
+            ).update(status='CANCELLED', auto_renew=False)
+
+    return JsonResponse({'status': 'success', 'message': 'Webhook processed successfully.'})

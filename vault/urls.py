@@ -26,10 +26,11 @@ urlpatterns = [
     # Pre-payment identity validation & forensic telemetry logging
     path('api/check-claimant-match/', views.check_claimant_match_view, name='check_claimant_match'),
     
-    # Paystack payment verifications
+    # Paystack payment verifications & automated webhook sync
     path('api/verify-unlock/', views.verify_unlock_view, name='verify_unlock'),
     path('api/verify-subscription/', views.verify_subscription_view, name='verify_subscription'),
     path('api/verify-registration-fee/', views.verify_registration_fee_view, name='verify_registration_fee'),
+    path('api/paystack-webhook/', views.paystack_webhook_view, name='paystack_webhook'),
     
     # Claimant Dashboard & Authentication Portal
     path('claimant/dashboard/', views.claimant_dashboard_view, name='claimant_dashboard'),
