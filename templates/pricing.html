@@ -345,9 +345,10 @@
 {% block extra_js %}
 <script>
   const currentBilling = 'ANNUALLY';
-  const annualFee = parseFloat("{{ platform_config.annual_subscription_fee|default:'120' }}") || 120;
-  const annualFeePesewas = parseInt("{{ platform_config.annual_fee_pesewas|default:'12000' }}", 10) || 12000;
-  const annualPlanCode = "{{ platform_config.paystack_annual_plan_code }}";
+  const annualFee = parseFloat("{{ platform_config.annual_subscription_fee|default:'1200' }}") || 1200;
+  // Calculate directly from annualFee to guarantee exact 100x pesewas conversion matching the UI
+  const annualFeePesewas = parseInt("{{ platform_config.annual_fee_pesewas|default:'' }}", 10) || Math.round(annualFee * 100);
+  const annualPlanCode = "{{ platform_config.paystack_annual_plan_code|default:'' }}".trim();
 
   const selectedPlan = {
     price: annualFee.toLocaleString('en-US', { minimumFractionDigits: 2 }),
@@ -479,13 +480,12 @@
       return;
     }
 
-    const handler = PaystackPop.setup({
+    const paystackOptions = {
       key: pKey,
       email: userEmail,
       amount: selectedPlan.pesewas,
       currency: "GHS",
       channels: ['card', 'mobile_money'],
-      plan: selectedPlan.planCode,
       ref: "SUB-" + Math.floor((Math.random() * 1000000000) + 1),
       callback: function(response) {
         fetch("{% url 'vault:verify_subscription' %}", {
@@ -497,7 +497,7 @@
           },
           body: JSON.stringify({
             reference: response.reference,
-            plan_code: selectedPlan.planCode,
+            plan_code: selectedPlan.planCode || '',
             billing_cycle: currentBilling
           })
         })
@@ -517,8 +517,14 @@
       onClose: function() {
         console.log('Paystack subscription window closed.');
       }
-    });
+    };
 
+    // Only attach the plan parameter if a valid, non-empty plan code actually exists
+    if (selectedPlan.planCode && selectedPlan.planCode.length > 0) {
+      paystackOptions.plan = selectedPlan.planCode;
+    }
+
+    const handler = PaystackPop.setup(paystackOptions);
     handler.openIframe();
   }
 </script>

@@ -212,28 +212,42 @@ def verify_subscription_view(request):
     if not reference:
         return JsonResponse({'status': 'error', 'message': 'Payment reference required.'}, status=400)
 
+    secret_key = (getattr(settings, 'PAYSTACK_SECRET_KEY', None) or PAYSTACK_SECRET_KEY or '').strip()
+    if not secret_key:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Gateway configuration error: PAYSTACK_SECRET_KEY is missing on the server.'
+        }, status=500)
+
     paystack_url = f"https://api.paystack.co/transaction/verify/{reference}"
     headers = {
-        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Authorization": f"Bearer {secret_key}",
         "Content-Type": "application/json",
     }
 
     payment_verified = False
+    failure_detail = 'Payment verification failed.'
     amount_paid = 0.00
     customer_code = ''
     auth_code = ''
     subscription_code = ''
 
     try:
-        resp = requests.get(paystack_url, headers=headers, timeout=10)
+        resp = requests.get(paystack_url, headers=headers, timeout=12)
         resp_data = resp.json()
-        data_payload = resp_data.get('data', {})
+        data_payload = resp_data.get('data', {}) or {}
 
         platform_config = PlatformConfiguration.get_solo()
         expected_pesewas = platform_config.annual_fee_pesewas if billing_cycle == 'ANNUALLY' else platform_config.registration_fee_pesewas
         paid_pesewas = data_payload.get('amount', 0)
 
-        if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= expected_pesewas:
+        if resp.status_code != 200 or not resp_data.get('status'):
+            failure_detail = resp_data.get('message', 'Paystack rejected authorization key or reference.')
+        elif data_payload.get('status') != 'success':
+            failure_detail = f"Transaction state is {data_payload.get('status', 'unknown')}."
+        elif int(paid_pesewas) < expected_pesewas:
+            failure_detail = f"Amount mismatch: received GHS {int(paid_pesewas)/100:.2f}, expected GHS {expected_pesewas/100:.2f}."
+        else:
             payment_verified = True
             amount_paid = float(paid_pesewas) / 100.0
             customer_code = data_payload.get('customer', {}).get('customer_code', '')
@@ -242,16 +256,16 @@ def verify_subscription_view(request):
             subscriptions_list = plan_obj.get('subscriptions', [])
             if subscriptions_list:
                 subscription_code = subscriptions_list[0].get('subscription_code', '')
-    except Exception:
-        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
+    except Exception as exc:
         if settings.DEBUG and reference.startswith('SUB-'):
             payment_verified = True
             amount_paid = 1200.00 if billing_cycle == 'ANNUALLY' else 450.00
         else:
             payment_verified = False
+            failure_detail = f"Verification network error: {str(exc)}"
 
     if not payment_verified:
-        return JsonResponse({'status': 'error', 'message': 'Payment verification failed.'}, status=400)
+        return JsonResponse({'status': 'error', 'message': failure_detail}, status=400)
 
     start_date = timezone.now()
     if billing_cycle == 'QUARTERLY':

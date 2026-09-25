@@ -921,7 +921,7 @@ class PlatformConfiguration(models.Model):
     annual_subscription_fee = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=120.00,
+        default=1200.00,
         help_text="Annual digital estate vault retainer fee (GHS)"
     )
     paystack_annual_plan_code = models.CharField(
@@ -1026,7 +1026,7 @@ class PlatformConfiguration(models.Model):
             defaults={
                 'unlock_fee': 50.00,
                 'registration_fee': 10.00,
-                'annual_subscription_fee': 120.00,
+                'annual_subscription_fee': 1200.00,
                 'paystack_annual_plan_code': 'PLN_14xz26jx9j3gakp',
                 'required_security_questions': 3,
                 'security_anti_inspect_enabled': True,
