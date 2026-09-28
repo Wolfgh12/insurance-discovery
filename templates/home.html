@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}mySikaVault | Insurance & Estate Discovery Vault{% endblock %}
+{% block title %}InheritanceBox | Insurance & Estate Discovery My i-Box{% endblock %}
 {% block extra_css %}
 <style>
   /* ----------------------------------------------------
@@ -49,40 +49,34 @@
     margin-bottom: 1rem;
   }
 
-  /* Eye-Catching mySikaVault Dual-Tone Typography */
-  .brand-mysikavault {
-    display: inline-flex;
-    align-items: baseline;
-    font-weight: 900;
-    letter-spacing: -0.4px;
-    text-transform: none;
+  
+  /* Exact InheritanceBox Dual-Tone Typography */
+  .brand-inheritancebox, .brand-mysikavault {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.4px !important;
+    text-transform: none !important;
   }
 
-  .brand-mysikavault .p-my {
-    color: #E0F2FE;
-    font-weight: 700;
-    font-size: 0.94em;
-    opacity: 0.95;
-  }
-
+  .brand-inheritancebox .p-inheritance,
+  .brand-mysikavault .p-my,
   .brand-mysikavault .p-sika {
-    background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 55%, #D97706 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 950;
-    padding: 0 1px;
-    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45));
+    color: #00B4E6 !important;
+    -webkit-text-fill-color: #00B4E6 !important;
+    font-weight: 900 !important;
+    font-size: 0.96em !important;
+    letter-spacing: -0.3px !important;
   }
 
+  .brand-inheritancebox .p-box,
   .brand-mysikavault .p-vault {
-    background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 950;
-  }
-
-  .brand-mysikavault.dark-contrast .p-my {
-    color: #0A192F;
+    background: linear-gradient(135deg, #FFC107 0%, #FF9800 50%, #F57C00 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-weight: 950 !important;
+    padding-left: 1px !important;
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45)) !important;
   }
 
   .hero-headline {
@@ -1329,13 +1323,13 @@
 <div class="hero-showcase">
   <div class="hero-grid">
     <div>
-      <!-- Branded Gold Vault App Icon & Badge -->
+      <!-- Branded Gold My i-Box App Icon & Badge -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
         <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(10, 25, 47, 0.95); border: 2px solid rgba(212, 175, 55, 0.6); padding: 0; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(212, 175, 55, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-pill" style="margin-bottom: 0;">
-          <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> • Encrypted Vault
+          <span class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> • Encrypted My i-Box
         </div>
       </div>  
 
@@ -1354,11 +1348,11 @@
             Enter Operations Desk 🏛️
           </a>
         {% elif request.session.active_claimant_token or request.user.received_vault_grants.exists %}
-          <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary">Open Private Vault 🔐</a>
+          <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary">Open Private My i-Box 🔐</a>
         {% elif user.is_authenticated %}
           <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Go to Dashboard ⚡</a>
         {% else %}
-          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your Vault 🔐</a>
+          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your My i-Box 🔐</a>
         {% endif %}
         <button type="button" onclick="triggerPwaInstall()" class="btn-vault-primary no-loader pwa-install-element" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.4); color: #38BDF8; cursor: pointer; font-family: inherit;">
           📲 Download App
@@ -1417,7 +1411,7 @@
                 </span>
               </div>
               <div style="font-size: 0.75rem; color: #94A3B8; margin-top: 2px;">
-                Administrative desks records. To hold personal family policies, open a separate citizen vault.
+                Administrative desks records. To hold personal family policies, open a separate citizen my i-box.
               </div>
             </div>
           </div>
@@ -1432,7 +1426,7 @@
                 onmouseover="this.style.background='rgba(6, 182, 212, 0.2)'; this.style.color='#ffffff';"
                 onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#38BDF8';"
               >
-                Register Citizen Vault ➔
+                Register Citizen My i-Box ➔
               </button>
             </form>
           </div>
@@ -1455,7 +1449,7 @@
           </div>
           {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
             <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; min-height: unset; flex: 0 1 auto;">
-              Open Private Vault ➔
+              Open Private My i-Box ➔
             </a>
           {% endif %}
         </div>
@@ -1472,7 +1466,7 @@
         >
         <div class="visual-overlay-tag">
           <div class="visual-tag-icon" style="width: 32px; height: 32px; padding: 0; overflow: hidden; border-radius: 8px; border: 1.5px solid rgba(212, 175, 55, 0.6); display: flex; align-items: center; justify-content: center;">
-            <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Emblem" style="width: 100%; height: 100%; object-fit: cover; display: block;">
           </div>
           <div>
             <div class="visual-tag-text">Peace of Mind for Loved Ones</div>
@@ -1490,10 +1484,10 @@
     📢 STATUTORY PUBLIC NOTICE • PLEASE READ CAREFULLY
   </div>
   <h2 class="public-notice-title">
-    mySikaVault Is An Information Clearinghouse — <span>We Do Not Disburse Money, Cash, Or Payouts</span>
+    InheritanceBox Is An Information Clearinghouse — <span>We Do Not Disburse Money, Cash, Or Payouts</span>
   </h2>
   <p class="public-notice-desc">
-    Notice to the general public, policyholders, and claimants: <strong>mySikaVault does not hold money, underwrite policies, or pay out financial claims under any circumstance.</strong> We are strictly an encrypted digital registry and information disbursement platform. Our sole function is to archive records and disburse verified information—such as policy numbers, account references, asset documentation, and institutional contacts—to authenticated next-of-kin. <strong>Claimants are solely responsible for taking this verified information directly to the respective insurance companies, banks, or probate courts to pursue and claim whatever benefits they are legally entitled to receive.</strong>
+    Notice to the general public, policyholders, and claimants: <strong>InheritanceBox does not hold money, underwrite policies, or pay out financial claims under any circumstance.</strong> We are strictly an encrypted digital registry and information disbursement platform. Our sole function is to archive records and disburse verified information—such as policy numbers, account references, asset documentation, and institutional contacts—to authenticated next-of-kin. <strong>Claimants are solely responsible for taking this verified information directly to the respective insurance companies, banks, or probate courts to pursue and claim whatever benefits they are legally entitled to receive.</strong>
   </p>
 </div>
 
@@ -1533,7 +1527,7 @@
               Policy Closed — Benefit Already Disbursed
             </h3>
             <p style="font-size: 0.88rem; color: #64748B; line-height: 1.6; margin: 0 auto 1.5rem; max-width: 520px;">
-              Our registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This vault entry is permanently closed and no further claim filings can be accepted.
+              Our registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This my i-box entry is permanently closed and no further claim filings can be accepted.
             </p>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
@@ -1628,7 +1622,7 @@
         <div style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.78rem; color: #CBD5E1; line-height: 1.5;">
           <strong style="color: #38BDF8;">💡 Verification Notes:</strong>
           <ul style="margin: 6px 0 0; padding-left: 18px; color: #94A3B8;">
-            <li>The citizen has not yet deposited an active policy into their vault profile.</li>
+            <li>The citizen has not yet deposited an active policy into their my i-box profile.</li>
             <li>Double-check the digits entered to eliminate typographical mistakes.</li>
           </ul>
         </div>
@@ -1684,7 +1678,7 @@
         <div class="satellite-icon">🔐</div>
         <div>
           <div class="satellite-title">Private Lifetime Estate Registry</div>
-          <p class="satellite-desc">A 256-bit encrypted vault for life policies, land indenture deeds, and certified digital wills that remains strictly confidential until verified next-of-kin audit.</p>
+          <p class="satellite-desc">A 256-bit encrypted my i-box for life policies, land indenture deeds, and certified digital wills that remains strictly confidential until verified next-of-kin audit.</p>
         </div>
       </div>
     </div>
@@ -1692,14 +1686,14 @@
     <!-- Center Hub: Command Module -->
     <div class="orbital-core-hub">
       <span class="orbital-badge">🇬🇭 Estate Information Clearinghouse</span>
-      <h2 class="orbital-title">What is <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>?</h2>
+      <h2 class="orbital-title">What is <span class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span>?</h2>
       <p class="orbital-desc">
-        <strong class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></strong> is an encrypted legacy registry and estate information disbursement platform. We do not underwrite insurance policies or hold funds directly. Instead, we operate as an encrypted informational repository: policyholders catalog their assets and policy numbers during life, and our protocol disburses verified discovery dossiers to authenticated next-of-kin so families never leave rightful wealth forgotten or unclaimed.
+        <strong class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></strong> is an encrypted legacy registry and estate information disbursement platform. We do not underwrite insurance policies or hold funds directly. Instead, we operate as an encrypted informational repository: policyholders catalog their assets and policy numbers during life, and our protocol disburses verified discovery dossiers to authenticated next-of-kin so families never leave rightful wealth forgotten or unclaimed.
       </p>
       <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
         {% if not user.is_authenticated and not request.session.active_claimant_token %}
           <a href="{% url 'vault:signup' %}" class="btn-vault-primary" style="flex: 0 1 auto; padding: 0.85rem 1.6rem; font-size: 0.88rem;">
-            Register Your Vault 🛡️
+            Register Your My i-Box 🛡️
           </a>
         {% endif %}
         <button type="button" onclick="triggerPwaInstall()" class="no-loader pwa-install-element" style="background: rgba(6, 182, 212, 0.12); border: 1.5px solid rgba(6, 182, 212, 0.45); color: #38BDF8; font-weight: 800; font-size: 0.84rem; padding: 0.8rem 1.4rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
@@ -1908,7 +1902,7 @@
       </div>
       <div>
         <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary-deep-navy); letter-spacing: -0.3px;">
-          Your Modular Vault
+          Your Modular My i-Box
         </div>
         <div style="font-size: 0.85rem; color: var(--secondary-sea-blue); font-weight: 600;">
           7 core folders keeping family policies, heritage, property, and estate continuity in one place
@@ -1917,7 +1911,7 @@
     </div>
     <span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; font-weight: 800; font-size: 0.78rem; padding: 6px 14px; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px;">
       <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
-       256-Bit Vault
+       256-Bit My i-Box
     </span>
   </div>
 
@@ -2353,7 +2347,7 @@
       <span style="font-size: 1.8rem;">📱</span>
       <div>
         <div style="font-size: 0.95rem; font-weight: 800; color: #0A192F;">Keep Emergency Access in Your Pocket</div>
-        <div style="font-size: 0.8rem; color: #64748B;">Add mySikaVault to your home screen for rapid biometric authentication and family policy lookup.</div>
+        <div style="font-size: 0.8rem; color: #64748B;">Add InheritanceBox to your home screen for rapid biometric authentication and family policy lookup.</div>
       </div>
     </div>
     <button type="button" onclick="triggerPwaInstall()" class="no-loader" style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; font-weight: 800; font-size: 0.84rem; padding: 0.75rem 1.4rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);">
@@ -2393,7 +2387,7 @@
   <div class="sec-item">
     <div class="sec-icon">🔒</div>
     <div>
-      <div class="sec-head">AES-256 Vault Encryption</div>
+      <div class="sec-head">AES-256 My i-Box Encryption</div>
       <div class="sec-desc">All wills, land indentures, and asset documentation are encrypted at rest with multi-layer key derivation.</div>
     </div>
   </div>
@@ -2424,11 +2418,11 @@
 <div class="pwa-chip-banner pwa-install-element">
   <div style="display: flex; align-items: center; gap: 14px;">
     <div style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); flex-shrink: 0; background: #0A192F;">
-      <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
     </div> 
     <div>
-      <div class="pwa-chip-title">Install mySikaVault on Your Phone</div>
-      <div class="pwa-chip-sub">Add to your home screen for rapid biometric access, offline vault viewing, and estate management.</div>
+      <div class="pwa-chip-title">Install InheritanceBox on Your Phone</div>
+      <div class="pwa-chip-sub">Add to your home screen for rapid biometric access, offline my i-box viewing, and estate management.</div>
     </div>
   </div>
   <button type="button" onclick="triggerPwaInstall()" class="badge-appstore no-loader" style="cursor: pointer; border: 1px solid rgba(6, 182, 212, 0.4); background: #0A192F; color: #38BDF8; font-weight: 800; font-size: 0.85rem; padding: 10px 18px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
@@ -2443,14 +2437,14 @@
     <span class="section-tagline" style="display: inline-flex; justify-content: center; margin-bottom: 0.85rem;">Got Questions?</span>
     <h2 class="section-headline" style="text-align: center; margin: 0 0 0.85rem;">Frequently Asked Questions</h2>
     <p class="section-description" style="text-align: center; margin: 0 auto; max-width: 600px;">
-      Clear answers on how <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> protects policyholders and simplifies family inheritance.
+      Clear answers on how <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> protects policyholders and simplifies family inheritance.
     </p>
   </div>
 
   <div class="faq-container">
     <div class="faq-item">
       <div class="faq-q">Can a policyholder hold policies from different insurance companies on one profile?</div>
-      <div class="faq-a">Yes. <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
+      <div class="faq-a">Yes. <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
     </div>
 
     <div class="faq-item">
@@ -2464,18 +2458,18 @@
     </div>
 
     <div class="faq-item">
-      <div class="faq-q">Why is a 3-angle biometric facial capture required before unlocking a vault?</div>
-      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the statutory audit vault.</div>
+      <div class="faq-q">Why is a 3-angle biometric facial capture required before unlocking a my i-box?</div>
+      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the statutory audit my i-box.</div>
     </div>
 
     <div class="faq-item">
-      <div class="faq-q">Does mySikaVault hold money or pay out insurance claims directly?</div>
-      <div class="faq-a">No. <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> is strictly an encrypted estate information registry and disbursement clearinghouse. We do not underwrite insurance, hold policyholder investment funds, or execute cash disbursements. Once a claimant’s identity is legally authenticated, we disburse a certified claim discovery dossier—including policy numbers, asset records, and underwriter claim desk contacts—enabling families to claim their benefits directly from licensed institutions without middlemen.</div>
+      <div class="faq-q">Does InheritanceBox hold money or pay out insurance claims directly?</div>
+      <div class="faq-a">No. <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> is strictly an encrypted estate information registry and disbursement clearinghouse. We do not underwrite insurance, hold policyholder investment funds, or execute cash disbursements. Once a claimant’s identity is legally authenticated, we disburse a certified claim discovery dossier—including policy numbers, asset records, and underwriter claim desk contacts—enabling families to claim their benefits directly from licensed institutions without middlemen.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">Can policyholders catalog bank accounts, Treasury Bills, and land property?</div>
-      <div class="faq-a">Yes. Beyond insurance policies, <span class="brand-mysikavault dark-contrast"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span> functions as a comprehensive estate depository where citizens securely record commercial bank accounts, Government of Ghana Treasury Bills, mutual funds, listed GSE shares, land titles, and family lineage trees so assets are never lost or left unclaimed.</div>
+      <div class="faq-a">Yes. Beyond insurance policies, <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> functions as a comprehensive estate depository where citizens securely record commercial bank accounts, Government of Ghana Treasury Bills, mutual funds, listed GSE shares, land titles, and family lineage trees so assets are never lost or left unclaimed.</div>
     </div>
 
     <div class="faq-item">
@@ -2687,8 +2681,8 @@
   <div class="handover-modal" style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 20px; max-width: 480px; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
     <div class="handover-header">
       <span class="handover-badge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">🔐 Access Granted</span>
-      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">Claimant Vault Provisioned</h3>
-      <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Save your dedicated credentials below to re-access this estate vault anytime.</p>
+      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">Claimant My i-Box Provisioned</h3>
+      <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Save your dedicated credentials below to re-access this estate my i-box anytime.</p>
     </div>
 
     <div class="handover-body">
@@ -2813,16 +2807,16 @@
     // ----------------------------------------------------
     // Localized Neural Voice Prompt (No Active Policy Located)
     // ----------------------------------------------------
-    if (!window.mySikaNoPolicyAudio) {
-      window.mySikaNoPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
-      window.mySikaNoPolicyAudio.preload = "auto";
+    if (!window.inheritanceBoxNoPolicyAudio) {
+      window.inheritanceBoxNoPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
+      window.inheritanceBoxNoPolicyAudio.preload = "auto";
     }
-    const noPolicyAudio = window.mySikaNoPolicyAudio;
+    const noPolicyAudio = window.inheritanceBoxNoPolicyAudio;
 
     window.playNoPolicyAudio = function () {
       try {
-        window.mySikaNoPolicyAudio.currentTime = 0;
-        window.mySikaNoPolicyAudio.play().catch(function (err) {
+        window.inheritanceBoxNoPolicyAudio.currentTime = 0;
+        window.inheritanceBoxNoPolicyAudio.play().catch(function (err) {
           console.log("Autoplay waiting for user interaction:", err);
         });
       } catch (e) {}
@@ -2834,8 +2828,8 @@
 
       // Immediately silence the audio if modal is dismissed
       try {
-        window.mySikaNoPolicyAudio.pause();
-        window.mySikaNoPolicyAudio.currentTime = 0;
+        window.inheritanceBoxNoPolicyAudio.pause();
+        window.inheritanceBoxNoPolicyAudio.currentTime = 0;
       } catch (e) {}
 
       const input = document.getElementById('registry-search-input');
@@ -3533,15 +3527,12 @@
           intakeModal.style.display = 'none';
           stopCamera();
 
-          if (data.status === 'success' && data.is_matched) {
-            // Strict Authorization: Paystack triggers ONLY on verified match
-            launchPaystackPayment(claimantData, data.audit_id);
-          } else {
+          if (data.status === 'success' && data.is_matched) {} else {
             // Discrepancy Gate: Lock payment, halt process, show security alert
             currentAuditId = data.audit_id;
             pendingClaimantData = null;
             if (mismatchModal) mismatchModal.style.display = 'flex';
-            speakFemaleVoice('Identity verification failed. Your details and facial captures have been logged in the security vault.');
+            speakFemaleVoice('Identity verification failed. Your details and facial captures have been logged in the security my i-box.');
           }
         })
         .catch(err => {

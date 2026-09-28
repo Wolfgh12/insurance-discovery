@@ -7,14 +7,14 @@
 <meta name="theme-color" content="#0A192F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>{% block title %}mySikaVault | Digital Legacy Vault{% endblock %}</title>
+<title>{% block title %}InheritanceBox | Digital Legacy My i-Box{% endblock %}</title>
 
 <!-- WhatsApp, iMessage & Social Media Open Graph Previews -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="mySikaVault">
+<meta property="og:site_name" content="InheritanceBox">
 <meta property="og:url" content="https://mysikavault.com/">
-<meta property="og:title" content="mySikaVault | Digital Legacy Vault">
-<meta property="og:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted vault.">
+<meta property="og:title" content="InheritanceBox | Digital Legacy My i-Box">
+<meta property="og:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my i-box.">
 <meta property="og:image" content="https://mysikavault.com{% static 'images/download.png' %}">
 <meta property="og:image:secure_url" content="https://mysikavault.com{% static 'images/download.png' %}">
 <meta property="og:image:type" content="image/png">
@@ -25,8 +25,8 @@
 
 <!-- Twitter Card Previews -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="mySikaVault | Digital Legacy Vault">
-<meta name="twitter:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted vault.">
+<meta name="twitter:title" content="InheritanceBox | Digital Legacy My i-Box">
+<meta name="twitter:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my i-box.">
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/download.png' %}?v=8">
 
 <!-- Shield Favicon & Touch Icons --> 
@@ -35,8 +35,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/download.png' %}?v=8">
 <link rel="apple-touch-icon-precomposed" href="{% static 'images/download.png' %}?v=8">
 <!-- Android / Chrome Web App Icon -->
-<meta name="apple-mobile-web-app-title" content="mySikaVault">
-<meta name="application-name" content="mySikaVault">
+<meta name="apple-mobile-web-app-title" content="InheritanceBox">
+<meta name="application-name" content="InheritanceBox">
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="{% static 'manifest.json' %}?v=2026.9">
@@ -121,36 +121,34 @@
       gap: 6px;
     }
 
-    /* Eye-Catching mySikaVault Dual-Tone Brand Typography */
-    .brand-mysikavault {
-      display: inline-flex;
-      align-items: baseline;
-      font-weight: 900;
-      letter-spacing: -0.4px;
-      text-transform: none;
+    
+    /* Exact InheritanceBox Dual-Tone Branding */
+    .brand-inheritancebox, .brand-mysikavault {
+      display: inline-flex !important;
+      align-items: baseline !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.4px !important;
+      text-transform: none !important;
     }
 
-    .brand-mysikavault .p-my {
-      color: #E0F2FE;
-      font-weight: 700;
-      font-size: 0.94em;
-      opacity: 0.95;
-    }
-
+    .brand-inheritancebox .p-inheritance,
+    .brand-mysikavault .p-my,
     .brand-mysikavault .p-sika {
-      background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 55%, #D97706 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 950;
-      padding: 0 1px;
-      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45));
+      color: #00B4E6 !important;
+      -webkit-text-fill-color: #00B4E6 !important;
+      font-weight: 900 !important;
+      font-size: 0.96em !important;
+      letter-spacing: -0.3px !important;
     }
 
+    .brand-inheritancebox .p-box,
     .brand-mysikavault .p-vault {
-      background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 950;
+      background: linear-gradient(135deg, #FFC107 0%, #FF9800 50%, #F57C00 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-weight: 950 !important;
+      padding-left: 1px !important;
+      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.45)) !important;
     }
 
     .brand-badge {
@@ -768,13 +766,13 @@
 </head>
 <body>
 
-  <!-- Global Minimal Big-Logo Vault Loader (Initial Load & Nav Transition) -->
-  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading vault">
+  <!-- Global Minimal Big-Logo My i-Box Loader (Initial Load & Nav Transition) -->
+  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading my i-box">
     <div class="vault-loader-card" style="flex-direction: column;">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
         <div class="vault-loader-icon" id="vault-loader-icon">
-          <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Shield Logo">
+          <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Shield Logo">
         </div>
       </div>
       <div id="vault-loader-sub" style="margin-top: 1.25rem; font-size: 0.92rem; font-weight: 700; color: #38BDF8; letter-spacing: 0.3px; text-align: center; max-width: 300px; min-height: 1.2em;"></div>
@@ -788,10 +786,10 @@
       <!-- Brand Identity -->
       <a href="/" class="brand-group">
         <div class="brand-icon-shield" style="padding: 0; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); border-radius: 10px;">
-          <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-title">
-          <span class="brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>
+          <span class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span>
         </div>
       </a>
       
@@ -890,7 +888,7 @@
                 <a 
                   href="{% url 'vault:claimant_login' %}" 
                   class="nav-link-item nav-link-private"
-                  title="Authenticate to Private Estate Vault"
+                  title="Authenticate to Private Estate My i-Box"
                   style="white-space: nowrap;"
                 >
                   Private Dashboard 🔐
@@ -953,7 +951,7 @@
         {% else %}
           <!-- Guest View -->
           <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="white-space: nowrap;">Sign Up</a>
-          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Open Vault 🔐</a>
+          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Open My i-Box 🔐</a>
         {% endif %}
       </div>
 
@@ -986,25 +984,25 @@
         <div class="footer-brand-col">
           <a href="/" class="footer-brand-header">
             <div class="footer-brand-icon" style="padding: 0; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.6); border-radius: 10px;">
-              <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+              <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             </div>
-            <span class="footer-brand-name brand-mysikavault"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></span>
+            <span class="footer-brand-name brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span>
           </a>
           <p class="footer-brand-desc">
            Your digital legacy archive and verified underwritten policy repository. Protecting lifetime assets, policies, and certified wills for future generations.
           </p>
           <div class="footer-security-pill">
             <span class="security-dot"></span>
-            <span>256-Bit Vault Encryption Active</span>
+            <span>256-Bit My i-Box Encryption Active</span>
           </div>
         </div>
 
-<!-- Column 2: Quick Vault Navigation -->
+<!-- Column 2: Quick My i-Box Navigation -->
         <div>
-          <div class="footer-heading">Vault Navigation</div>
+          <div class="footer-heading">My i-Box Navigation</div>
           <ul class="footer-links">
             <li><a href="/#registry-search" class="footer-link">Search Registry</a></li>
-            <li><a href="/#vault-features" class="footer-link">Vault Modules & Security</a></li>
+            <li><a href="/#vault-features" class="footer-link">My i-Box Modules & Security</a></li>
             <li><a href="{% url 'vault:pricing' %}" class="footer-link">Protection Plans & Pricing</a></li>
             <li><a href="/#how-it-works" class="footer-link">Claims Verification Flow</a></li>
             <li><a href="/#faq" class="footer-link">Frequently Asked Questions</a></li>
@@ -1028,7 +1026,7 @@
           <ul class="footer-links">
             <li><a href="/#faq" class="footer-link">Data Protection Act 843</a></li>
             <li><a href="/#faq" class="footer-link">Ghana Card ID Standards</a></li>
-            <li><a href="/#faq" class="footer-link">Privacy & Vault Encryption</a></li>
+            <li><a href="/#faq" class="footer-link">Privacy & My i-Box Encryption</a></li>
             <li><a href="/#faq" class="footer-link">Anti-Fraud & Penal Code</a></li>
             <li><a href="{% url 'vault:terms' %}" class="footer-link">Terms of Service</a></li>
           </ul>
@@ -1041,7 +1039,7 @@
             <li><a href="/#registry-search" class="footer-link">🏛️ Life Underwriters Ghana</a></li>
             <li><a href="/#registry-search" class="footer-link">🇬🇭 National ID Integration</a></li>
             <li><a href="/#registry-search" class="footer-link">📜 Certified Probate Storage</a></li>
-            <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant Vault Sync</a></li>
+            <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant My i-Box Sync</a></li>
           </ul>
         </div>
 
@@ -1053,7 +1051,7 @@
       <!-- Bottom Bar -->
       <div class="footer-bottom">
         <div class="footer-copy">
-          &copy; 2026 mySikaVault. All sovereign rights reserved.
+          &copy; 2026 InheritanceBox. All sovereign rights reserved.
         </div>
         <div class="footer-architect">
           <span>Engineered with excellence by</span>
@@ -1256,9 +1254,9 @@
         <div class="mobile-drawer-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <div class="brand-icon-shield" style="width: 32px; height: 32px; padding: 0; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.6); border-radius: 8px;">
-              <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+              <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             </div>
-            <strong class="brand-mysikavault" style="font-size: 1.05rem;"><span class="p-my">my</span><span class="p-sika">Sika</span><span class="p-vault">Vault</span></strong>
+            <strong class="brand-inheritancebox" style="font-size: 1.05rem;"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></strong>
           </div>
           <button type="button" class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">✕</button>
         </div>
@@ -1434,7 +1432,7 @@
           </form>
         {% else %}
           <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="justify-content: center; padding: 0.85rem; font-size: 0.9rem; width: 100%; border-radius: 12px;">
-            Open Vault 🔐
+            Open My i-Box 🔐
           </a>
           <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="justify-content: center; padding: 0.8rem; font-size: 0.9rem; width: 100%; border-radius: 12px; text-align: center;">
             Sign Up
@@ -1667,13 +1665,13 @@
         ⏳
       </div>
       <div style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
-        Vault Inactivity Warning
+        My i-Box Inactivity Warning
       </div>
       <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px;">
         Session Expiring Soon
       </h3>
       <p style="margin: 0 0 1.5rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        To protect confidential estate assets and policy records, your active vault session will lock automatically in:
+        To protect confidential estate assets and policy records, your active my i-box session will lock automatically in:
       </p>
       <div style="font-size: 2.2rem; font-weight: 900; color: #38BDF8; font-variant-numeric: tabular-nums; margin-bottom: 1.75rem;">
         <span id="timeout-countdown-sec">30</span>s
@@ -2027,7 +2025,7 @@
     <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 450px; width: 100%; max-height: 92vh; overflow-y: auto; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(6, 182, 212, 0.35);">
       
       <div style="width: 62px; height: 62px; margin: 0 auto 1.1rem; border-radius: 18px; overflow: hidden; border: 1.5px solid rgba(212, 175, 55, 0.8); box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
-        <img src="{% static 'images/download.png' %}?v=8" alt="mySikaVault Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <img src="{% static 'images/download.png' %}?v=8" alt="InheritanceBox Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
       </div>
 
       <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.65rem;">
@@ -2039,7 +2037,7 @@
       </h3>
 
       <p style="margin: 0 0 1.25rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        mySikaVault will install directly to your device launcher. Tap below to capture offline application packages and trigger the system prompt.
+        InheritanceBox will install directly to your device launcher. Tap below to capture offline application packages and trigger the system prompt.
       </p>
 
       <!-- Realtime Background Asset Download Progress Bar -->
@@ -2060,7 +2058,7 @@
           <span>🛡️ Android, Samsung, Tecno &amp; Infinix Safety Notice</span>
         </div>
         <p style="margin: 0; font-size: 0.79rem; color: #E2E8F0; line-height: 1.55;">
-          If your Samsung, Tecno, Infinix, or other Android phone prompts you with an <em>"Unverified software"</em>, <em>"Unknown app"</em>, or security scanner alert, simply select <strong style="color: #34D399;">"Proceed anyway"</strong>, <strong style="color: #34D399;">"Install"</strong>, or <strong style="color: #34D399;">"Trust"</strong>. This standard check occurs on mobile devices for secure direct browser apps. mySikaVault is 100% verified, ad-free, encrypted, and compliant with statutory Act 843 standards.
+          If your Samsung, Tecno, Infinix, or other Android phone prompts you with an <em>"Unverified software"</em>, <em>"Unknown app"</em>, or security scanner alert, simply select <strong style="color: #34D399;">"Proceed anyway"</strong>, <strong style="color: #34D399;">"Install"</strong>, or <strong style="color: #34D399;">"Trust"</strong>. This standard check occurs on mobile devices for secure direct browser apps. InheritanceBox is 100% verified, ad-free, encrypted, and compliant with statutory Act 843 standards.
         </p>
       </div>
 
@@ -2072,7 +2070,7 @@
           disabled
           style="width: 100%; background: rgba(255, 255, 255, 0.1); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: not-allowed; opacity: 0.7; font-family: inherit; transition: all 0.25s ease;"
         >
-          Packaging Offline Vault... ⏳
+          Packaging Offline My i-Box... ⏳
         </button>
 
         <button 
@@ -2168,11 +2166,11 @@
       });
 
       // Voice prompt audio controller - anchored globally with auto-preload to prevent GC drops
-      if (!window.mySikaInstallVoiceAudio) {
-        window.mySikaInstallVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}");
-        window.mySikaInstallVoiceAudio.preload = "auto";
+      if (!window.inheritanceBoxInstallVoiceAudio) {
+        window.inheritanceBoxInstallVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}");
+        window.inheritanceBoxInstallVoiceAudio.preload = "auto";
       }
-      const installVoiceAudio = window.mySikaInstallVoiceAudio;
+      const installVoiceAudio = window.inheritanceBoxInstallVoiceAudio;
 
       // 3. Pre-package assets and transition to ready state
       async function runPrePackagingAnimation() {
@@ -2193,7 +2191,7 @@
         // Background caching
         try {
           if ('caches' in window) {
-            caches.open('mysikavault-runtime-v1').then(function (cache) {
+            caches.open('inheritancebox-runtime-v1').then(function (cache) {
               packageItems.forEach(function (item) {
                 fetch(item.url, { cache: 'force-cache' }).then(function (res) {
                   if (res && res.ok) cache.put(item.url, res);
@@ -2212,7 +2210,7 @@
           installBtn.style.opacity = '0.7';
           installBtn.style.cursor = 'not-allowed';
           installBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-          installBtn.innerHTML = 'Packaging Offline Vault... ⏳';
+          installBtn.innerHTML = 'Packaging Offline My i-Box... ⏳';
         }
 
         // Stepper loop
@@ -2233,7 +2231,7 @@
           installBtn.style.cursor = 'pointer';
           installBtn.style.background = 'linear-gradient(135deg, #059669 0%, #10B981 100%)';
           installBtn.style.boxShadow = '0 4px 18px rgba(16, 185, 129, 0.45)';
-          installBtn.innerHTML = 'Install mySikaVault Now ➔';
+          installBtn.innerHTML = 'Install InheritanceBox Now ➔';
         }
       }
 
@@ -2299,7 +2297,7 @@
         } else if (isMobileDevice) {
           alert("To add the app to your home screen: tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
         } else {
-          alert("To add the app to your desktop: click the Install icon (⊕) on the right side of the address bar or select 'Install mySikaVault' in the browser menu (⋮).");
+          alert("To add the app to your desktop: click the Install icon (⊕) on the right side of the address bar or select 'Install InheritanceBox' in the browser menu (⋮).");
         }
       };
 

@@ -1,4 +1,6 @@
 import secrets
+import requests
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Q
@@ -649,6 +651,49 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        # Automatic Django -> Paystack Push Synchronization
+        plan_code = (obj.paystack_annual_plan_code or "").strip()
+        secret_key = (getattr(settings, "PAYSTACK_SECRET_KEY", "") or "").strip()
+
+        if plan_code and secret_key and obj.annual_subscription_fee:
+            headers = {
+                "Authorization": f"Bearer {secret_key}",
+                "Content-Type": "application/json",
+            }
+            amount_pesewas = int(float(obj.annual_subscription_fee) * 100)
+            try:
+                resp = requests.put(
+                    f"https://api.paystack.co/plan/{plan_code}",
+                    headers=headers,
+                    json={
+                        "amount": amount_pesewas,
+                        "name": "Annual Vault Protection",
+                    },
+                    timeout=10,
+                )
+                data = resp.json()
+                if resp.status_code == 200 and data.get("status"):
+                    self.message_user(
+                        request,
+                        f"✓ Live Paystack Sync Successful: Plan {plan_code} updated to GHS {obj.annual_subscription_fee:.2f} ({amount_pesewas} pesewas)."
+                    )
+                else:
+                    err_msg = data.get("message", "Paystack rejected plan update")
+                    self.message_user(
+                        request,
+                        f"⚠️ Saved in Django database, but Paystack remote sync failed: {err_msg}",
+                        level="WARNING",
+                    )
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"⚠️ Saved in Django database, but Paystack network sync timed out: {str(e)}",
+                    level="WARNING",
+                )
 
     def anti_inspect_badge(self, obj):
         if getattr(obj, "security_anti_inspect_enabled", True):
