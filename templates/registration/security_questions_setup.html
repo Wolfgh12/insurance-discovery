@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}LegacyTrace | Configure Security Recovery Keys{% endblock %}
+{% block title %}InheritanceBox | Configure Security Recovery Keys{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -32,12 +32,82 @@
     border-radius: 26px;
     padding: clamp(2rem, 5vw, 3rem);
     width: 100%;
-    max-width: 580px;
+    max-width: 680px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 40px rgba(6, 182, 212, 0.15);
     position: relative;
     z-index: 1;
     color: #ffffff;
     box-sizing: border-box;
+  }
+
+  /* Real-time Progress Bar */
+  .setup-progress-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .setup-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #38BDF8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .setup-progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .setup-progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00B4E6, #10B981);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  /* 4-Tier Visual Section Banners */
+  .sec-tier-header {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(2, 132, 199, 0.05) 100%);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    border-left: 4px solid #00B4E6;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 2rem 0 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sec-tier-title {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sec-tier-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #38BDF8;
+    background: rgba(6, 182, 212, 0.2);
+    padding: 2px 8px;
+    border-radius: 6px;
   }
 
   .gold-clearance-badge {
@@ -200,13 +270,24 @@
   <div class="sec-setup-card">
 
     <div class="gold-clearance-badge">
-      <span>🛡️</span> Statutory Vault Identity Registration
+      <span>🛡️</span> Statutory My i-Box Identity Verification
     </div>
 
-    <h1 class="sec-setup-title">Configure Recovery Keys</h1>
+    <h1 class="sec-setup-title">Configure Security Recovery Keys</h1>
     <p class="sec-setup-sub">
-      Your email is confirmed. Now choose <strong>{{ form.required_questions_count|default:3 }} distinct questions</strong> from the national registry pool. These form your two-factor security barrier on future logins.
+      Your email is verified. Please configure your <strong>{{ form.required_questions_count|default:20 }} security recovery keys</strong> below across the 4 security tiers. These questions form your permanent identity verification barrier.
     </p>
+
+    <!-- Progress Indicator Bar -->
+    <div class="setup-progress-wrapper">
+      <div class="setup-progress-header">
+        <span>Setup Completion</span>
+        <span id="setup-progress-label">0 / {{ form.required_questions_count|default:20 }} Completed</span>
+      </div>
+      <div class="setup-progress-bar-bg">
+        <div class="setup-progress-bar-fill" id="setup-progress-fill"></div>
+      </div>
+    </div>
 
     {% if form.non_field_errors %}
       <div class="error-callout">
@@ -220,10 +301,32 @@
       {% csrf_token %}
 
       {% for item in form.security_question_fields %}
+        {% if item.index == 1 %}
+          <div class="sec-tier-header" style="margin-top: 0.5rem;">
+            <span class="sec-tier-title">🏛️ Tier 1: Identity & Origins</span>
+            <span class="sec-tier-badge">Questions 1 – 5</span>
+          </div>
+        {% elif item.index == 6 %}
+          <div class="sec-tier-header">
+            <span class="sec-tier-title">🌳 Tier 2: Family & Ancestral Lineage</span>
+            <span class="sec-tier-badge">Questions 6 – 10</span>
+          </div>
+        {% elif item.index == 11 %}
+          <div class="sec-tier-header">
+            <span class="sec-tier-title">🎓 Tier 3: Education & Formative Years</span>
+            <span class="sec-tier-badge">Questions 11 – 15</span>
+          </div>
+        {% elif item.index == 16 %}
+          <div class="sec-tier-header">
+            <span class="sec-tier-title">🔐 Tier 4: Personal Lore & Traditions</span>
+            <span class="sec-tier-badge">Questions 16 – 20</span>
+          </div>
+        {% endif %}
+
         <div class="sec-step-block">
           <div class="sec-step-label">
-            <span>{{ item.index }}. Recovery Key {{ item.index }}</span>
-            <span class="sec-step-pill">Key {{ item.index }} of {{ form.required_questions_count|default:3 }}</span>
+            <span>{{ item.index }}. Security Key {{ item.index }}</span>
+            <span class="sec-step-pill">Key {{ item.index }} of {{ form.required_questions_count|default:20 }}</span>
           </div>
           {{ item.question }}
           <div style="margin-top: 0.65rem;">
@@ -236,7 +339,7 @@
       {% endfor %}
 
       <button type="submit" id="btn-submit-keys" class="btn-save-keys">
-        <span>Save Recovery Keys & Enter Vault</span> ➔
+        <span>Save 20 Recovery Keys & Enter My i-Box</span> ➔
       </button>
     </form>
 
@@ -253,8 +356,32 @@
     const form = document.getElementById('sec-keys-form');
     const errBox = document.getElementById('js-error-box');
     const btn = document.getElementById('btn-submit-keys');
+    const progressFill = document.getElementById('setup-progress-fill');
+    const progressLabel = document.getElementById('setup-progress-label');
 
     if (!form) return;
+
+    const questionBlocks = form.querySelectorAll('.sec-step-block');
+    const totalRequired = questionBlocks.length || 20;
+
+    function updateProgress() {
+      let answeredCount = 0;
+      questionBlocks.forEach(block => {
+        const sel = block.querySelector('select.sec-select-field');
+        const inp = block.querySelector('input.sec-text-field');
+        if (sel && sel.value && inp && inp.value.trim().length > 0) {
+          answeredCount++;
+        }
+      });
+
+      const percentage = Math.round((answeredCount / totalRequired) * 100);
+      if (progressFill) progressFill.style.width = percentage + '%';
+      if (progressLabel) progressLabel.textContent = `${answeredCount} / ${totalRequired} Completed`;
+    }
+
+    form.addEventListener('input', updateProgress);
+    form.addEventListener('change', updateProgress);
+    updateProgress();
 
     form.addEventListener('submit', function (e) {
       errBox.style.display = 'none';
@@ -279,20 +406,22 @@
 
       if (hasEmpty) {
         e.preventDefault();
-        errBox.textContent = 'Please select all required security questions and provide answers for each.';
+        errBox.textContent = `Please complete all ${totalRequired} security questions and answers before proceeding.`;
         errBox.style.display = 'block';
+        errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
       if (new Set(selectedValues).size < selectedValues.length) {
         e.preventDefault();
-        errBox.textContent = 'Each security question must be unique. You cannot select the same question twice.';
+        errBox.textContent = 'Each question must be unique. You have selected duplicate questions.';
         errBox.style.display = 'block';
+        errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Activating Security Keys...</span> ⚡';
+      btn.innerHTML = '<span>Cryptographically Salting & Saving Keys...</span> ⚡';
     });
   });
 </script>

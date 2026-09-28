@@ -65,20 +65,20 @@ class SignUpForm(UserCreationForm):
             SecurityQuestion.seed_default_questions()
 
         config = PlatformConfiguration.get_solo()
-        self.required_questions_count = config.required_security_questions if config else 3
+        self.required_questions_count = config.required_security_questions if config else 20
         active_questions = SecurityQuestion.objects.filter(is_active=True).order_by('display_order', 'id')
 
-        # Dynamically inject the exact number of questions defined by admin
+        # Dynamically inject all 20 question fields
         for i in range(1, self.required_questions_count + 1):
             self.fields[f'question_{i}'] = forms.ModelChoiceField(
                 queryset=active_questions,
                 required=False,
-                empty_label=f"-- Select Security Question {i} --",
+                empty_label=f"-- Select Security Key {i} of {self.required_questions_count} --",
                 widget=forms.Select(attrs={'class': 'auth-input sec-question-select'})
             )
             self.fields[f'answer_{i}'] = forms.CharField(
                 required=False,
-                widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': f'Answer to Question {i}'})
+                widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': f'Confidential Answer for Key {i}'})
             )
 
         core_fields = [
@@ -105,14 +105,16 @@ class SignUpForm(UserCreationForm):
 
     @property
     def security_question_fields(self):
-        """Pairs question and answer bound fields for clean template looping."""
+        """Pairs question and answer bound fields with section grouping for clean 4x5 block layout."""
         field_pairs = []
-        for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+        req_count = getattr(self, 'required_questions_count', 20)
+        for i in range(1, req_count + 1):
             q_name = f'question_{i}'
             a_name = f'answer_{i}'
             if q_name in self.fields and a_name in self.fields:
                 field_pairs.append({
                     'index': i,
+                    'section': ((i - 1) // 5) + 1,  # Groups questions into 4 sections (1-5, 6-10, 11-15, 16-20)
                     'question': self[q_name],
                     'answer': self[a_name],
                 })
@@ -159,19 +161,20 @@ class SignUpForm(UserCreationForm):
 
         if method == 'QUESTIONS':
             selected_ids = []
-            for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+            req_count = getattr(self, 'required_questions_count', 20)
+            for i in range(1, req_count + 1):
                 q = cleaned_data.get(f'question_{i}')
                 a = (cleaned_data.get(f'answer_{i}') or '').strip()
 
                 if not q or not a:
-                    self.add_error(f'answer_{i}', f'Please select Question {i} and provide an answer.')
+                    self.add_error(f'answer_{i}', f'Please select Security Key {i} and provide an answer.')
                 if q:
                     selected_ids.append(q.id)
 
-            if len(selected_ids) == getattr(self, 'required_questions_count', 3):
+            if len(selected_ids) == req_count:
                 if len(set(selected_ids)) < len(selected_ids):
                     raise forms.ValidationError(
-                        f'Please choose {self.required_questions_count} distinct questions. You cannot select the same question twice.'
+                        f'Please choose {req_count} distinct questions. You cannot select the same question twice.'
                     )
 
         return cleaned_data
@@ -187,7 +190,8 @@ class SignUpForm(UserCreationForm):
 
         def save_security_answers():
             if method == 'QUESTIONS':
-                for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+                req_count = getattr(self, 'required_questions_count', 20)
+                for i in range(1, req_count + 1):
                     q = self.cleaned_data.get(f'question_{i}')
                     a = self.cleaned_data.get(f'answer_{i}')
                     if q and a:
@@ -215,19 +219,19 @@ class SecurityQuestionsSetupForm(forms.Form):
             SecurityQuestion.seed_default_questions()
 
         config = PlatformConfiguration.get_solo()
-        self.required_questions_count = config.required_security_questions if config else 3
+        self.required_questions_count = config.required_security_questions if config else 20
         active_questions = SecurityQuestion.objects.filter(is_active=True).order_by('display_order', 'id')
 
         for i in range(1, self.required_questions_count + 1):
             self.fields[f'question_{i}'] = forms.ModelChoiceField(
                 queryset=active_questions,
-                empty_label=f"-- Select Security Question {i} --",
+                empty_label=f"-- Select Security Key {i} of {self.required_questions_count} --",
                 widget=forms.Select(attrs={'class': 'sec-select-field', 'required': 'required'})
             )
             self.fields[f'answer_{i}'] = forms.CharField(
                 widget=forms.TextInput(attrs={
                     'class': 'sec-text-field',
-                    'placeholder': f'Enter your confidential answer for key {i}...',
+                    'placeholder': f'Confidential answer for key {i}...',
                     'required': 'required',
                     'autocomplete': 'off',
                 })
@@ -235,14 +239,16 @@ class SecurityQuestionsSetupForm(forms.Form):
 
     @property
     def security_question_fields(self):
-        """Pairs question and answer bound fields for clean template looping."""
+        """Pairs question and answer bound fields with section grouping for clean 4x5 block layout."""
         field_pairs = []
-        for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+        req_count = getattr(self, 'required_questions_count', 20)
+        for i in range(1, req_count + 1):
             q_name = f'question_{i}'
             a_name = f'answer_{i}'
             if q_name in self.fields and a_name in self.fields:
                 field_pairs.append({
                     'index': i,
+                    'section': ((i - 1) // 5) + 1,
                     'question': self[q_name],
                     'answer': self[a_name],
                 })
@@ -251,26 +257,28 @@ class SecurityQuestionsSetupForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         selected_ids = []
+        req_count = getattr(self, 'required_questions_count', 20)
 
-        for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+        for i in range(1, req_count + 1):
             q = cleaned_data.get(f'question_{i}')
             a = (cleaned_data.get(f'answer_{i}') or '').strip()
 
             if not q or not a:
-                self.add_error(f'answer_{i}', f'Please select Question {i} and provide an answer.')
+                self.add_error(f'answer_{i}', f'Please select Security Key {i} and provide an answer.')
             if q:
                 selected_ids.append(q.id)
 
-        if len(selected_ids) == getattr(self, 'required_questions_count', 3):
+        if len(selected_ids) == req_count:
             if len(set(selected_ids)) < len(selected_ids):
                 raise forms.ValidationError(
-                    f'Please choose {self.required_questions_count} distinct questions. You cannot select the same question twice.'
+                    f'Please choose {req_count} distinct questions. You cannot select the same question twice.'
                 )
 
         return cleaned_data
 
     def save(self, user):
-        for i in range(1, getattr(self, 'required_questions_count', 3) + 1):
+        req_count = getattr(self, 'required_questions_count', 20)
+        for i in range(1, req_count + 1):
             q = self.cleaned_data.get(f'question_{i}')
             a = self.cleaned_data.get(f'answer_{i}')
             if q and a:

@@ -225,14 +225,16 @@ class CustomUser(AbstractUser):
         if not self.pk:
             return False
         config = PlatformConfiguration.get_solo()
-        required_count = config.required_security_questions if config else 3
+        required_count = config.required_security_questions if config else 20
         if self.security_answers.count() >= required_count:
             return True
-        return bool(
-            self.security_birth_city
-            and self.security_mother_maiden_name
-            and self.security_high_school_crush
-        )
+        if required_count <= 3:
+            return bool(
+                self.security_birth_city
+                and self.security_mother_maiden_name
+                and self.security_high_school_crush
+            )
+        return False
 
     def verify_security_answer(self, question_identifier, raw_answer):
         """Constant-time, hash-protected verification supporting dynamic questions and legacy fallback."""
@@ -931,8 +933,8 @@ class PlatformConfiguration(models.Model):
         help_text="Paystack Plan Code for Annual Retainer"
     )
     required_security_questions = models.PositiveIntegerField(
-        default=3,
-        help_text="Number of security questions a citizen must select and answer during registration or setup (e.g. 3, 5, or 10)."
+        default=20,
+        help_text="Number of security questions a citizen must select and answer during registration or setup (e.g. 3, 5, 10, or 20)."
     )
 
     # Master Developer Anti-Inspect & DevTools Lockout Switch (Controlled via Django Admin)
@@ -1029,7 +1031,7 @@ class PlatformConfiguration(models.Model):
                 'registration_fee': 10.00,
                 'annual_subscription_fee': 1200.00,
                 'paystack_annual_plan_code': 'PLN_14xz26jx9j3gakp',
-                'required_security_questions': 3,
+                'required_security_questions': 20,
                 'security_anti_inspect_enabled': True,
                 'security_dom_poisoning_enabled': True,
                 'security_poison_density': 30,
@@ -1042,7 +1044,7 @@ class PlatformConfiguration(models.Model):
                 'module_wills_enabled': False,
             }
         )
-        return config 
+        return config
 
     def save(self, *args, **kwargs):
         # Automated Push Sync to Paystack (Fires from both Django Admin and Lead Admin)
@@ -1226,7 +1228,7 @@ class SecurityQuestion(models.Model):
 
     @classmethod
     def seed_default_questions(cls):
-        """Seeds the standard 10 national identity recovery questions if the table is empty."""
+        """Seeds the standard 30 national identity recovery questions pool."""
         default_prompts = [
             "Where were you born? (City / Town)",
             "What is your mother's maiden surname?",
@@ -1238,6 +1240,26 @@ class SecurityQuestion(models.Model):
             "What was your childhood nickname among family?",
             "What was your favorite traditional meal growing up?",
             "What was your first official job or apprenticeship?",
+            "What is the name of your maternal ancestral hometown?",
+            "What is the name of your paternal ancestral hometown?",
+            "What was the name of your first secondary / high school?",
+            "What was the house or dormitory name you stayed in during school?",
+            "What was the title of the first book or story that made a lasting impression on you?",
+            "What was your favorite subject or course in basic school?",
+            "What was the street name or neighborhood of your childhood home?",
+            "What is the middle name of your oldest sibling?",
+            "What was the first music concert or live event you attended?",
+            "What was the name of the church, mosque, or religious place your family attended in childhood?",
+            "What was the registration number or color of your family's first television or car?",
+            "Who was your favorite childhood teacher or headmaster?",
+            "In which town or hospital was your first child or sibling born?",
+            "What was the name of your best childhood friend before age 12?",
+            "What was the first musical instrument you learned or wanted to play?",
+            "What was your maternal grandmother's first name?",
+            "What was your paternal grandfather's first name?",
+            "What was the name of your first employer or company manager?",
+            "What is the town or country of your first travel or vacation outside your home region?",
+            "What was the sport or athletic game you played most in your youth?",
         ]
         for idx, prompt in enumerate(default_prompts, start=1):
             cls.objects.get_or_create(
