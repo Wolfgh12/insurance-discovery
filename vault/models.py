@@ -1206,10 +1206,24 @@ class ContactInquiry(models.Model):
 
 # 15. Admin-Controlled Statutory Security Questions Pool
 class SecurityQuestion(models.Model):
+    TIER_CHOICES = (
+        ('TIER_1', 'Tier 1: Identity & Origins'),
+        ('TIER_2', 'Tier 2: Family & Ancestral Lineage'),
+        ('TIER_3', 'Tier 3: Education & Formative Years'),
+        ('TIER_4', 'Tier 4: Personal Lore & Traditions'),
+    )
+
     question_text = models.CharField(
         max_length=255,
         unique=True,
         help_text="Statutory identity verification question prompt"
+    )
+    tier = models.CharField(
+        max_length=20,
+        choices=TIER_CHOICES,
+        default='TIER_1',
+        db_index=True,
+        help_text="Statutory security tier classification"
     )
     is_active = models.BooleanField(
         default=True,
@@ -1222,55 +1236,74 @@ class SecurityQuestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['display_order', 'id']
+        ordering = ['tier', 'display_order', 'id']
         verbose_name = "Security Question"
         verbose_name_plural = "Security Questions"
 
     @classmethod
     def seed_default_questions(cls):
-        """Seeds the standard 30 national identity recovery questions pool."""
-        default_prompts = [
-            "Where were you born? (City / Town)",
-            "What is your mother's maiden surname?",
-            "Who was your first high school crush?",
-            "What was the name of your first primary / elementary school?",
-            "What was the make or model of your first vehicle or bicycle?",
-            "In which town or village did your parents first meet?",
-            "What was the name of your favorite childhood pet?",
-            "What was your childhood nickname among family?",
-            "What was your favorite traditional meal growing up?",
-            "What was your first official job or apprenticeship?",
-            "What is the name of your maternal ancestral hometown?",
-            "What is the name of your paternal ancestral hometown?",
-            "What was the name of your first secondary / high school?",
-            "What was the house or dormitory name you stayed in during school?",
-            "What was the title of the first book or story that made a lasting impression on you?",
-            "What was your favorite subject or course in basic school?",
-            "What was the street name or neighborhood of your childhood home?",
-            "What is the middle name of your oldest sibling?",
-            "What was the first music concert or live event you attended?",
-            "What was the name of the church, mosque, or religious place your family attended in childhood?",
-            "What was the registration number or color of your family's first television or car?",
-            "Who was your favorite childhood teacher or headmaster?",
-            "In which town or hospital was your first child or sibling born?",
-            "What was the name of your best childhood friend before age 12?",
-            "What was the first musical instrument you learned or wanted to play?",
-            "What was your maternal grandmother's first name?",
-            "What was your paternal grandfather's first name?",
-            "What was the name of your first employer or company manager?",
-            "What is the town or country of your first travel or vacation outside your home region?",
-            "What was the sport or athletic game you played most in your youth?",
-        ]
-        for idx, prompt in enumerate(default_prompts, start=1):
-            cls.objects.get_or_create(
-                question_text=prompt,
-                defaults={'display_order': idx, 'is_active': True}
-            )
+        """Seeds 32 tier-isolated recovery questions (8 distinct questions per tier)."""
+        tiered_prompts = {
+            'TIER_1': [
+                "Where were you born? (City / Town / Hospital)",
+                "What was your childhood nickname among close family?",
+                "What is the name of your maternal ancestral hometown?",
+                "What is the name of your paternal ancestral hometown?",
+                "What was the street name or neighborhood of your childhood home?",
+                "In which town or village did your parents first meet?",
+                "What was the name of your favorite childhood pet?",
+                "What was the registration number or color of your family's first car or TV?",
+            ],
+            'TIER_2': [
+                "What is your mother's maiden surname?",
+                "What was your maternal grandmother's first name?",
+                "What was your paternal grandfather's first name?",
+                "What is the middle name of your oldest sibling or cousin?",
+                "In which town, hospital, or clinic was your first child or sibling born?",
+                "What is the traditional name or title of your family's elder/clan house?",
+                "What was the profession or trade of your favorite uncle or aunt?",
+                "What was the maiden surname of your paternal grandmother?",
+            ],
+            'TIER_3': [
+                "What was the name of your first primary or elementary school?",
+                "What was the name of your first secondary or high school?",
+                "Who was your first high school crush?",
+                "What was the house or dormitory name you stayed in during school?",
+                "Who was your favorite childhood teacher, headmaster, or mentor?",
+                "What was your favorite subject or course in basic school?",
+                "What was the name of your best childhood friend before age 12?",
+                "What was the first musical instrument or sport you practiced in school?",
+            ],
+            'TIER_4': [
+                "What was your favorite traditional meal growing up?",
+                "What was your first official job or apprenticeship?",
+                "What was the name of the church, mosque, or religious place attended in youth?",
+                "What was the first music concert, festival, or live event you attended?",
+                "What is the destination of your first trip outside your home region?",
+                "What was the make or model of your very first bicycle or vehicle?",
+                "What was the title of the first book or story that influenced you?",
+                "What was the traditional family festival or celebration you looked forward to most?",
+            ],
+        }
+
+        order = 1
+        for tier_code, questions in tiered_prompts.items():
+            for prompt in questions:
+                obj, created = cls.objects.get_or_create(
+                    question_text=prompt,
+                    defaults={'tier': tier_code, 'display_order': order, 'is_active': True}
+                )
+                if not created:
+                    if obj.tier != tier_code or obj.display_order != order:
+                        obj.tier = tier_code
+                        obj.display_order = order
+                        obj.is_active = True
+                        obj.save(update_fields=['tier', 'display_order', 'is_active'])
+                order += 1
 
     def __str__(self):
         status = "Active" if self.is_active else "Disabled"
-        return f"{self.question_text} [{status}]"
-
+        return f"[{self.get_tier_display()}] {self.question_text} [{status}]"
 
 # 16. Citizen-Bound Security Question Answers
 class UserSecurityAnswer(models.Model):

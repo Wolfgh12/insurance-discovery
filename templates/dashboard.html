@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}My Legacy Vault Dashboard | LegacyTrace{% endblock %}
+{% block title %}InheritanceBox | My i-Box Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -945,6 +945,12 @@
         <div class="stat-chip-label">Wills & Deeds</div>
       </div>
     {% endif %}
+
+    <!-- SQ (Security Questions) Chip -->
+    <div class="stat-chip" style="background: rgba(0, 180, 230, 0.12); border-color: rgba(0, 180, 230, 0.4);">
+      <div class="stat-chip-count" style="color: #00B4E6;">{{ total_sq_count|default:"20" }}</div>
+      <div class="stat-chip-label" style="color: #E0F2FE;">Security Keys (SQ)</div>
+    </div>
   </div>
 </div>
 
@@ -1060,6 +1066,13 @@
         <span class="badge-coming-soon">Coming Soon</span>
       </button>
     {% endif %}
+
+    <!-- SQ (Security Questions) Button -->
+    <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-sq')">
+      <span>🔐 Security Keys (SQ)</span>
+      <span class="pill-badge pill-primary" style="font-size: 0.68rem; background: rgba(0, 180, 230, 0.15); color: #00B4E6;">{{ total_sq_count|default:"20" }}</span>
+    </button>
+
     <button type="button" class="sidebar-nav-btn search-highlight {% if has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-search')">
       <span>🔍 Search Relative Policy</span>
       <span>➔</span>
@@ -2097,6 +2110,81 @@
           {% endif %}
         </div>
       </div>
+    </div>
+
+    <!-- TAB: Security Keys & Recovery Questions (SQ) -->
+    <div id="tab-sq" class="tab-pane">
+      <div class="dash-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #0A192F 0%, #081426 100%); border: 1.5px solid rgba(0, 180, 230, 0.45); color: #ffffff; padding: clamp(1.25rem, 3vw, 1.75rem); border-radius: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="max-width: 620px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+              <span style="font-size: 1.35rem;">🔐</span>
+              <h2 style="font-size: clamp(1.15rem, 3vw, 1.35rem); font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.3px;">
+                Statutory Security Recovery Keys (SQ)
+              </h2>
+              <span style="background: rgba(0, 180, 230, 0.2); border: 1px solid #00B4E6; color: #38BDF8; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                {{ total_sq_count|default:"20" }} Keys Active
+              </span>
+            </div>
+            <p style="margin: 0; font-size: 0.85rem; color: #94A3B8; line-height: 1.55;">
+              These 20 recovery keys form your multi-factor identity verification barrier. They authenticate login challenges and protect your estate from unauthorized claims. Answers are stored using cryptographically salted PBKDF2/SHA256 hashes and are never readable in plaintext.
+            </p>
+          </div>
+          <a href="{% url 'vault:security_questions_setup' %}?force=1" class="btn-submit-action" style="width: auto; margin: 0; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #0284C7 0%, #00B4E6 100%);">
+            <span>⚙️</span> Update Security Keys
+          </a>
+        </div>
+      </div>
+
+      {% if security_answers %}
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          {% for ans in security_answers %}
+            {% if forloop.first or ans.question.tier != security_answers|slice:forloop.counter0|last|stringformat:"s" %}
+              {% if not forloop.first %}</div></div>{% endif %}
+              <div class="dash-card" style="padding: 1.25rem 1.5rem;">
+                <div class="card-header-line" style="margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 180, 230, 0.2);">
+                  <div class="card-title-text" style="font-size: 0.95rem; color: #0F172A;">
+                    <span>🛡️</span> {{ ans.question.get_tier_display|default:"Security Tier" }}
+                  </div>
+                  <span style="font-size: 0.72rem; font-weight: 800; color: #0284C7; background: #E0F2FE; padding: 3px 9px; border-radius: 6px;">
+                    Verified Tier
+                  </span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% endif %}
+
+            <div class="record-item" style="margin-bottom: 0; background: #F8FAFC; border: 1px solid #E2E8F0;">
+              <div>
+                <div class="record-main-title" style="font-size: 0.9rem; color: #0F172A; display: flex; align-items: center; gap: 8px;">
+                  <span style="color: #00B4E6; font-family: monospace; font-size: 0.78rem;">#{{ forloop.counter }}</span>
+                  {{ ans.question.question_text }}
+                </div>
+                <div class="record-sub-meta" style="color: #64748B; font-family: monospace; font-size: 0.78rem; margin-top: 4px;">
+                  Stored Answer: <span style="letter-spacing: 2px; color: #059669; font-weight: 800;">••••••••••••</span>
+                  <span style="color: #94A3B8; font-size: 0.7rem; margin-left: 6px;">[PBKDF2/SHA256 Encrypted]</span>
+                </div>
+              </div>
+              <span class="pill-badge pill-success" style="font-size: 0.68rem;">Active</span>
+            </div>
+
+            {% if forloop.last %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="dash-card" style="text-align: center; padding: 3.5rem 1.5rem; border: 2px dashed #CBD5E1; background: #F8FAFC;">
+          <div style="font-size: 2.75rem; margin-bottom: 0.6rem;">🔐</div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0;">No Security Keys Configured</h3>
+          <p style="font-size: 0.85rem; color: #64748B; max-width: 460px; margin: 0 auto 1.5rem; line-height: 1.55;">
+            You have not configured your 20 identity recovery keys yet. Set them up now to protect your my i-box from unauthorized access.
+          </p>
+          <a href="{% url 'vault:security_questions_setup' %}" class="btn-submit-action" style="width: auto; padding: 0.8rem 1.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <span>➔</span> Setup 20 Security Keys
+          </a>
+        </div>
+      {% endif %}
     </div>
 
     <!-- TAB 6: Relative Policy Registry Discovery -->

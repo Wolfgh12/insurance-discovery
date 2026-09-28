@@ -2017,6 +2017,12 @@ def dashboard_view(request):
 
     approved_prompts_count = MilestonePrompt.objects.filter(status='APPROVED', is_active=True).count()
 
+    # Query all 20 active security keys sorted by tier and display order
+    security_answers = (
+        user.security_answers.select_related('question')
+        .order_by('question__tier', 'question__display_order', 'id')
+    )
+
     context = {
         'profile_form': ProfileUpdateForm(instance=user),
         'contact_form': EmergencyContactForm(),
@@ -2036,6 +2042,8 @@ def dashboard_view(request):
         'family_members': family_members,
         'my_suggestions': my_suggestions,
         'approved_prompts_count': approved_prompts_count,
+        'security_answers': security_answers,
+        'total_sq_count': security_answers.count(),
         'contact_query': contact_query,
         'policy_query': policy_query,
         'search_query': search_query,
@@ -2047,7 +2055,6 @@ def dashboard_view(request):
         'paystack_public_key': getattr(settings, 'PAYSTACK_PUBLIC_KEY', 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3'),
     }
     return render(request, 'dashboard.html', context)
-
 
 # ====================================================
 # Administrative Portals & National Oversight
