@@ -16,6 +16,9 @@ if env_hosts and env_hosts.strip() != '*':
 else:
     # Comprehensive default: covers apex domain, subdomains, Coolify sslip.io, IP, and local
     ALLOWED_HOSTS = [
+        'inheritancebox.com',
+        'www.inheritancebox.com',
+        '.inheritancebox.com',
         'mysikavault.com',
         'www.mysikavault.com',
         '.mysikavault.com',
@@ -33,7 +36,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS', 
-        'https://mysikavault.com,https://www.mysikavault.com,https://*.mysikavault.com,https://*.sslip.io'
+        'https://inheritancebox.com,https://www.inheritancebox.com,https://*.inheritancebox.com,https://mysikavault.com,https://www.mysikavault.com,https://*.mysikavault.com,https://*.sslip.io'
     ).split(',')
     if origin.strip()
 ]
@@ -129,8 +132,8 @@ SESSION_SAVE_EVERY_REQUEST = True       # Activity resets timeout clock
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # 12. Paystack Payment Gateway API Credentials
-PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', '')
-PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '')
+PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', '').strip()
+PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '').strip()
 
 # 13. SMTP Production Mail Routing
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -139,5 +142,5 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = f"mySikaVault <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "mySikaVault"
+DEFAULT_FROM_EMAIL = f"InheritanceBox <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "InheritanceBox"
 SERVER_EMAIL = EMAIL_HOST_USER
