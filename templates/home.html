@@ -1,7 +1,7 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}InheritanceBox | Insurance & Estate Discovery i-Box{% endblock %}
+{% block title %}InheritanceBox | Insurance & Estate Discovery i Box{% endblock %}
 {% block extra_css %}
 <style>
   /* ----------------------------------------------------
@@ -1323,13 +1323,13 @@
 <div class="hero-showcase">
   <div class="hero-grid">
     <div>
-      <!-- Branded Gold i-Box App Icon & Badge -->
+      <!-- Branded Gold i Box App Icon & Badge -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
         <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(10, 25, 47, 0.95); border: 2px solid rgba(212, 175, 55, 0.6); padding: 0; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(212, 175, 55, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
           <img src="{% static 'images/finale_logo.jpg' %}?v=9" alt="InheritanceBox App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>
         <div class="brand-pill" style="margin-bottom: 0;">
-          <span class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> • Encrypted i-Box
+          <span class="brand-inheritancebox"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> • Encrypted i Box
         </div>
       </div>  
 
@@ -1348,11 +1348,11 @@
             Enter Operations Desk 🏛️
           </a>
         {% elif request.session.active_claimant_token or request.user.received_vault_grants.exists %}
-          <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary">Open Private i-Box 🔐</a>
+          <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary">Open Private i Box 🔐</a>
         {% elif user.is_authenticated %}
           <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Go to Dashboard ⚡</a>
         {% else %}
-          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your i-Box 🔐</a>
+          <a href="{% url 'vault:dashboard' %}" class="btn-vault-primary">Open Your i Box 🔐</a>
         {% endif %}
         <button type="button" onclick="triggerPwaInstall()" class="btn-vault-primary no-loader pwa-install-element" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.4); color: #38BDF8; cursor: pointer; font-family: inherit;">
           📲 Download App
@@ -1420,7 +1420,7 @@
                 </span>
               </div>
               <div style="font-size: 0.75rem; color: #94A3B8; margin-top: 2px;">
-                Administrative desks records. To hold personal family policies, open a separate citizen i-box.
+                Administrative desks records. To hold personal family policies, open a separate citizen i box.
               </div>
             </div>
           </div>
@@ -1435,7 +1435,7 @@
                 onmouseover="this.style.background='rgba(6, 182, 212, 0.2)'; this.style.color='#ffffff';"
                 onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#38BDF8';"
               >
-                Register Citizen i-Box ➔
+                Register Citizen i Box ➔
               </button>
             </form>
           </div>
@@ -1458,7 +1458,7 @@
           </div>
           {% if request.session.active_claimant_token or request.user.received_vault_grants.exists %}
             <a href="{% url 'vault:claimant_dashboard' %}" class="btn-vault-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; min-height: unset; flex: 0 1 auto;">
-              Open Private i-Box ➔
+              Open Private i Box ➔
             </a>
           {% endif %}
         </div>
@@ -1536,7 +1536,7 @@
               Policy Closed — Benefit Already Disbursed
             </h3>
             <p style="font-size: 0.88rem; color: #64748B; line-height: 1.6; margin: 0 auto 1.5rem; max-width: 520px;">
-              Our registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This i-box entry is permanently closed and no further claim filings can be accepted.
+              Our registry confirms that the insurance benefit under this record has already been <strong>claimed and settled</strong> in coordination with <strong>{{ policy.insurer.name }}</strong>. This i box entry is permanently closed and no further claim filings can be accepted.
             </p>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
@@ -1640,7 +1640,7 @@
         <div style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.78rem; color: #CBD5E1; line-height: 1.5;">
           <strong style="color: #38BDF8;">💡 Verification Notes:</strong>
           <ul style="margin: 6px 0 0; padding-left: 18px; color: #94A3B8;">
-            <li>The citizen has not yet deposited an active policy into their i-box profile.</li>
+            <li>The citizen has not yet deposited an active policy into their i box profile.</li>
             <li>Double-check the digits entered to eliminate typographical mistakes.</li>
           </ul>
         </div>
@@ -1696,7 +1696,7 @@
         <div class="satellite-icon">🔐</div>
         <div>
           <div class="satellite-title">Private Lifetime Estate Registry</div>
-          <p class="satellite-desc">A 256-bit encrypted i-box for life policies, land indenture deeds, and certified digital wills that remains strictly confidential until verified next-of-kin audit.</p>
+          <p class="satellite-desc">A 256-bit encrypted i box for life policies, land indenture deeds, and certified digital wills that remains strictly confidential until verified next-of-kin audit.</p>
         </div>
       </div>
     </div>
@@ -1711,7 +1711,7 @@
       <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
         {% if not user.is_authenticated and not request.session.active_claimant_token %}
           <a href="{% url 'vault:signup' %}" class="btn-vault-primary" style="flex: 0 1 auto; padding: 0.85rem 1.6rem; font-size: 0.88rem;">
-            Register Your i-Box 🛡️
+            Register Your i Box 🛡️
           </a>
         {% endif %}
         <button type="button" onclick="triggerPwaInstall()" class="no-loader pwa-install-element" style="background: rgba(6, 182, 212, 0.12); border: 1.5px solid rgba(6, 182, 212, 0.45); color: #38BDF8; font-weight: 800; font-size: 0.84rem; padding: 0.8rem 1.4rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
@@ -1920,7 +1920,7 @@
       </div>
       <div>
         <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary-deep-navy); letter-spacing: -0.3px;">
-          Your Modular i-Box
+          Your Modular i Box
         </div>
         <div style="font-size: 0.85rem; color: var(--secondary-sea-blue); font-weight: 600;">
           7 core folders keeping family policies, heritage, property, and estate continuity in one place
@@ -1929,7 +1929,7 @@
     </div>
     <span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; font-weight: 800; font-size: 0.78rem; padding: 6px 14px; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px;">
       <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
-       256-Bit i-Box
+       256-Bit i Box
     </span>
   </div>
 
@@ -2405,7 +2405,7 @@
   <div class="sec-item">
     <div class="sec-icon">🔒</div>
     <div>
-      <div class="sec-head">AES-256 i-Box Encryption</div>
+      <div class="sec-head">AES-256 i Box Encryption</div>
       <div class="sec-desc">All wills, land indentures, and asset documentation are encrypted at rest with multi-layer key derivation.</div>
     </div>
   </div>
@@ -2440,7 +2440,7 @@
     </div> 
     <div>
       <div class="pwa-chip-title">Install InheritanceBox on Your Phone</div>
-      <div class="pwa-chip-sub">Add to your home screen for rapid biometric access, offline i-box viewing, and estate management.</div>
+      <div class="pwa-chip-sub">Add to your home screen for rapid biometric access, offline i box viewing, and estate management.</div>
     </div>
   </div>
   <button type="button" onclick="triggerPwaInstall()" class="badge-appstore no-loader" style="cursor: pointer; border: 1px solid rgba(6, 182, 212, 0.4); background: #0A192F; color: #38BDF8; font-weight: 800; font-size: 0.85rem; padding: 10px 18px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
@@ -2476,8 +2476,8 @@
     </div>
 
     <div class="faq-item">
-      <div class="faq-q">Why is a 3-angle biometric facial capture required before unlocking an i-box?</div>
-      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the statutory audit my i-box.</div>
+      <div class="faq-q">Why is a 3-angle biometric facial capture required before unlocking an i box?</div>
+      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the statutory audit my i box.</div>
     </div>
 
     <div class="faq-item">
@@ -2787,8 +2787,8 @@
   <div class="handover-modal" style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 20px; max-width: 480px; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
     <div class="handover-header">
       <span class="handover-badge" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">🔐 Access Granted</span>
-      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">Claimant i-Box Provisioned</h3>
-      <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Save your dedicated credentials below to re-access this estate i-box anytime.</p>
+      <h3 style="margin: 0.5rem 0 0.25rem; font-size: 1.25rem; font-weight: 900; color: #ffffff;">Claimant i Box Provisioned</h3>
+      <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Save your dedicated credentials below to re-access this estate i box anytime.</p>
     </div>
 
     <div class="handover-body">
@@ -3816,7 +3816,7 @@
             currentAuditId = data.audit_id;
             pendingClaimantData = null;
             if (mismatchModal) mismatchModal.style.display = 'flex';
-            speakFemaleVoice('Identity verification failed. Your details and facial captures have been logged in the security i-box.');
+            speakFemaleVoice('Identity verification failed. Your details and facial captures have been logged in the security i box.');
           }
         })
         .catch(err => {
