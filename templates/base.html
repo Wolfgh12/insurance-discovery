@@ -2071,7 +2071,7 @@
           disabled
           style="width: 100%; background: rgba(255, 255, 255, 0.1); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: not-allowed; opacity: 0.7; font-family: inherit; transition: all 0.25s ease;"
         >
-          Packaging Offline My i-Box... ⏳
+          Packaging Offline i-Box... ⏳
         </button>
 
         <button 
@@ -2166,12 +2166,54 @@
         }
       });
 
-      // Voice prompt audio controller - anchored globally with auto-preload to prevent GC drops
+      // Voice prompt audio controller - anchored globally with auto-preload & cache buster
       if (!window.inheritanceBoxInstallVoiceAudio) {
-        window.inheritanceBoxInstallVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}");
+        window.inheritanceBoxInstallVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=2026.10");
         window.inheritanceBoxInstallVoiceAudio.preload = "auto";
       }
       const installVoiceAudio = window.inheritanceBoxInstallVoiceAudio;
+
+      // Localized Female Speech Engine Fallback
+      let pwaVoices = [];
+      function loadPwaVoices() {
+        if ('speechSynthesis' in window) {
+          pwaVoices = window.speechSynthesis.getVoices();
+        }
+      }
+      if ('speechSynthesis' in window) {
+        loadPwaVoices();
+        window.speechSynthesis.onvoiceschanged = loadPwaVoices;
+      }
+
+      function speakPwaFemaleVoice(text) {
+        if (!('speechSynthesis' in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.88;
+          utterance.pitch = 1.1;
+
+          if (pwaVoices.length === 0) pwaVoices = window.speechSynthesis.getVoices();
+          const femaleVoice = pwaVoices.find(v =>
+            /female|zira|samantha|victoria|karen|moira|google uk english female|natasha|ayanda/i.test(v.name)
+          ) || pwaVoices.find(v => v.lang && v.lang.startsWith('en')) || pwaVoices[0];
+
+          if (femaleVoice) utterance.voice = femaleVoice;
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {}
+      }
+
+      function playPwaInstallVoicePrompt() {
+        if (installVoiceAudio) {
+          installVoiceAudio.currentTime = 0;
+          installVoiceAudio.play().catch(function () {
+            // If MP3 playback is restricted or blocked, immediately use the localized female voice engine
+            speakPwaFemaleVoice("To install InheritanceBox on your phone, tap Install Now to add your encrypted i-box directly to your home screen.");
+          });
+        } else {
+          speakPwaFemaleVoice("To install InheritanceBox on your phone, tap Install Now to add your encrypted i-box directly to your home screen.");
+        }
+      }
 
       // 3. Pre-package assets and transition to ready state
       async function runPrePackagingAnimation() {
@@ -2211,9 +2253,9 @@
           installBtn.style.opacity = '0.7';
           installBtn.style.cursor = 'not-allowed';
           installBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-          installBtn.innerHTML = 'Packaging Offline My i-Box... ⏳';
+          installBtn.innerHTML = 'Packaging Offline i-Box... ⏳';
         }
-
+ 
         // Stepper loop
         for (let i = 0; i < packageItems.length; i++) {
           const percent = Math.round(((i + 1) / packageItems.length) * 100);
@@ -2242,13 +2284,8 @@
           modal.style.display = 'flex';
           runPrePackagingAnimation();
 
-          // Play localized voice prompt
-          try {
-            installVoiceAudio.currentTime = 0;
-            installVoiceAudio.play().catch(function () {
-              // Gracefully catches browser policies if muted
-            });
-          } catch (e) {}
+          // Play the localized female voice prompt
+          playPwaInstallVoicePrompt();
         }
       };
 
@@ -2256,11 +2293,16 @@
         const modal = document.getElementById('pwa-install-success-modal');
         if (modal) modal.style.display = 'none';
 
-        // Immediately kill and rewind voice audio when user dismisses or clicks Maybe Later
+        // Immediately kill and rewind voice audio and silence speech synthesis
         try {
-          installVoiceAudio.pause();
-          installVoiceAudio.currentTime = 0;
-        } catch (e) {}   
+          if (installVoiceAudio) {
+            installVoiceAudio.pause();
+            installVoiceAudio.currentTime = 0;
+          }
+        } catch (e) {}
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
       };   
 
       window.openIosInstallTooltip = function () {
