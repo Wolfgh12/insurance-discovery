@@ -306,12 +306,23 @@ def verify_subscription_view(request):
 @csrf_exempt
 def check_claimant_match_view(request):
     """
-    Pre-payment identity audit check, rate-limiting & 3-angle biometric capture engine.
+    Forensic Intake & Terminal Evaluation Engine:
+    1. Progressive Cancellation Logging: Silently captures partial forensic footprints
+       and biometric frames upon modal exit or cancellation (status='ABANDONED_EXIT').
+    2. Terminal Evaluation Gate: Validates all data concurrently only at final submission:
+       - 3 Security Question answers against Policyholder recovery keys
+       - Policyholder Ghana Card custody match
+       - Claimant Next-of-Kin relationship & phone match against EmergencyContact
+       - 3-Angle Biometric facial verification captures
+       - Optional Death Certificate processing (validates format/size only if uploaded)
+    3. Strict Zero-Tolerance: If even a single item fails, cold rejection is recorded
+       with zero audible mismatch announcement. If all match 100%, passes cleanly to payment.
     """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
 
-    client_ip = get_client_ip(request)
+    client_ip = get_client_ip(request) or '127.0.0.1'
+    user_agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
     claimant_throttle_key = f"throttle_claimant_audit_{client_ip}"
     failed_attempts = cache.get(claimant_throttle_key, 0)
 
@@ -321,6 +332,7 @@ def check_claimant_match_view(request):
             'message': 'Too many failed identity verification attempts from this network. Access locked for 15 minutes.'
         }, status=429)
 
+    # Support both multipart/form-data and JSON payloads
     if request.content_type and 'multipart/form-data' in request.content_type:
         data = request.POST
     else:
@@ -329,48 +341,82 @@ def check_claimant_match_view(request):
         except Exception:
             data = request.POST
 
+    action = data.get('action', '').strip()
     record_id = data.get('record_id')
+    policyholder_id = data.get('policyholder_id')
+    cancelled_stage = data.get('cancelled_stage', '').strip()
+
     claimant_name = data.get('claimant_name', '').strip()
     relationship = data.get('relationship', '').strip()
     claimant_phone = data.get('claimant_phone', '').strip()
     claimant_ghana_card = data.get('claimant_ghana_card', '').strip().upper()
-    permanent_address = data.get('permanent_address', '').strip()
     claimant_email = data.get('email', '').strip()
+    permanent_address = data.get('permanent_address', '').strip()
+
+    sq_answers_raw = data.get('sq_answers', '')
+    custody_ghana_card = data.get('custody_ghana_card', '').strip().upper()
 
     biometric_front_b64 = data.get('biometric_front')
     biometric_left_b64 = data.get('biometric_left')
     biometric_right_b64 = data.get('biometric_right')
-    consent_granted = data.get('biometric_consent_granted', True)
-    camera_permission = data.get('camera_permission_granted', True)
+    consent_granted = str(data.get('biometric_consent_granted', 'true')).lower() in ['true', '1', 'yes']
+    camera_permission = str(data.get('camera_permission_granted', 'true')).lower() in ['true', '1', 'yes']
 
     death_cert_file = request.FILES.get('death_certificate')
 
+    # Resolve targeted Policy and Policyholder
+    policy = None
+    policyholder = None
+    if record_id:
+        policy = PolicyRecord.objects.filter(id=record_id).select_related('policyholder', 'insurer').first()
+        if policy:
+            policyholder = policy.policyholder
+
+    if not policyholder and policyholder_id:
+        policyholder = CustomUser.objects.filter(id=policyholder_id, user_type='POLICYHOLDER').first()
+
+    clean_card_digits = re.sub(r'\D', '', claimant_ghana_card) or secrets.token_hex(4)
+    front_file = decode_base64_image(biometric_front_b64, file_prefix=f"{clean_card_digits}_front")
+    left_file = decode_base64_image(biometric_left_b64, file_prefix=f"{clean_card_digits}_left")
+    right_file = decode_base64_image(biometric_right_b64, file_prefix=f"{clean_card_digits}_right")
+
+    # ====================================================
+    # Path A: Progressive Exit / Cancellation Logger
+    # ====================================================
+    if action == 'log_cancellation':
+        ClaimSecurityAuditLog.objects.create(
+            policy=policy,
+            policyholder=policyholder,
+            claimant_name=claimant_name or None,
+            relationship_stated=relationship or None,
+            claimant_phone=claimant_phone or None,
+            claimant_ghana_card=claimant_ghana_card or None,
+            claimant_email=claimant_email or None,
+            permanent_address=permanent_address or None,
+            death_certificate=death_cert_file,
+            sq_answers_captured=sq_answers_raw or None,
+            custody_ghana_card_captured=custody_ghana_card or None,
+            cancelled_stage=cancelled_stage or 'USER_CANCELLED',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            biometric_front_photo=front_file,
+            biometric_left_photo=left_file,
+            biometric_right_photo=right_file,
+            biometric_consent_granted=consent_granted,
+            camera_permission_granted=camera_permission,
+            is_matched=False,
+            status='ABANDONED_EXIT',
+        )
+        return JsonResponse({'status': 'logged', 'message': 'Exit telemetry recorded.'})
+
+    # ====================================================
+    # Path B: Terminal Evaluation Gate (All-or-Nothing)
+    # ====================================================
     if not record_id or not claimant_name or not claimant_phone or not claimant_ghana_card:
-        return JsonResponse({'status': 'error', 'message': 'All intake fields are required.'}, status=400)
+        return JsonResponse({'status': 'error', 'message': 'All intake dossier fields are required.'}, status=400)
 
-    if not death_cert_file:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Official scanned statutory death certificate or burial permit document is mandatory.'
-        }, status=400)
-
-    if death_cert_file.size > 8 * 1024 * 1024:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Death certificate exceeds the 8MB statutory size limit. Please upload a compressed document.'
-        }, status=400)
-
-    ext = death_cert_file.name.split('.')[-1].lower() if '.' in death_cert_file.name else ''
-    if ext not in ['pdf', 'jpg', 'jpeg', 'png', 'webp']:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Invalid death certificate format. Only PDF, JPG, PNG, or WEBP documents are accepted.'
-        }, status=400)
-
-    policy = get_object_or_404(
-        PolicyRecord.objects.select_related('policyholder', 'insurer'), id=record_id
-    )
-    policyholder = policy.policyholder
+    if not policy or not policyholder:
+        return JsonResponse({'status': 'error', 'message': 'Targeted policy record could not be resolved.'}, status=404)
 
     if policy.is_claim_locked:
         return JsonResponse({
@@ -378,6 +424,22 @@ def check_claimant_match_view(request):
             'message': 'This policy is already locked and undergoing claim processing.'
         }, status=400)
 
+    # Optional Death Certificate Validation (validates only if claimant chose to attach one)
+    if death_cert_file:
+        if death_cert_file.size > 8 * 1024 * 1024:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Death certificate exceeds the 8MB statutory size limit. Please upload a compressed document.'
+            }, status=400)
+
+        ext = death_cert_file.name.split('.')[-1].lower() if '.' in death_cert_file.name else ''
+        if ext not in ['pdf', 'jpg', 'jpeg', 'png', 'webp']:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid death certificate format. Only PDF, JPG, PNG, or WEBP documents are accepted.'
+            }, status=400)
+
+    # Sovereign Identity Collision Interceptions
     clean_card = claimant_ghana_card.replace('-', '').replace(' ', '').upper()
     if (
         CustomUser.objects.filter(
@@ -420,18 +482,37 @@ def check_claimant_match_view(request):
             'message': 'This email address is already registered in the system. Please use a different email address.'
         })
 
-    client_ip = get_client_ip(request) or '127.0.0.1'
-    user_agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
-    clean_card_digits = re.sub(r'\D', '', claimant_ghana_card)
+    # Terminal Zero-Tolerance Checks
+    terminal_failures = []
 
-    front_file = decode_base64_image(biometric_front_b64, file_prefix=f"{clean_card_digits}_front")
-    left_file = decode_base64_image(biometric_left_b64, file_prefix=f"{clean_card_digits}_left")
-    right_file = decode_base64_image(biometric_right_b64, file_prefix=f"{clean_card_digits}_right")
+    # Check 1: Validate all 3 security question answers against policyholder recovery keys
+    try:
+        answers_dict = json.loads(sq_answers_raw) if isinstance(sq_answers_raw, str) else sq_answers_raw
+    except Exception:
+        answers_dict = {}
 
-    clean_claimant_phone = re.sub(r'\D', '', claimant_phone)[-9:]
-    registered_contacts = EmergencyContact.objects.filter(user=policyholder)
-    is_matched = False
+    if not answers_dict or len(answers_dict) < 3:
+        terminal_failures.append('Missing or incomplete security question challenges.')
+    else:
+        for q_id, raw_answer in answers_dict.items():
+            if not policyholder.verify_security_answer(q_id, raw_answer):
+                terminal_failures.append(f'Security answer for question {q_id} failed verification.')
+                break
 
+    # Check 2: Validate Policyholder Physical Ghana Card custody
+    clean_custody_digits = re.sub(r'\D', '', custody_ghana_card)
+    stored_ph_digits = policyholder.clean_card_digits
+
+    card_custody_matched = False
+    if policyholder.ghana_card_number and policyholder.ghana_card_number.upper() == custody_ghana_card:
+        card_custody_matched = True
+    elif len(clean_custody_digits) == 10 and clean_custody_digits == stored_ph_digits:
+        card_custody_matched = True
+
+    if not card_custody_matched:
+        terminal_failures.append('Physical Ghana Card custody check failed.')
+
+    # Check 3: Validate Emergency Contact Kinship & Phone
     relation_aliases = {
         'spouse': {'spouse', 'wife', 'husband', 'partner'},
         'child': {'child', 'son', 'daughter'},
@@ -448,6 +529,10 @@ def check_claimant_match_view(request):
                 return True
         return False
 
+    registered_contacts = EmergencyContact.objects.filter(user=policyholder)
+    kinship_matched = False
+    clean_claimant_phone = re.sub(r'\D', '', claimant_phone)[-9:]
+
     for contact in registered_contacts:
         clean_contact_phone = re.sub(r'\D', '', contact.phone_number)[-9:]
         phone_match = bool(clean_claimant_phone and clean_contact_phone and clean_claimant_phone == clean_contact_phone)
@@ -459,8 +544,18 @@ def check_claimant_match_view(request):
         relation_match = relations_compatible(relationship, contact.relationship)
 
         if phone_match and name_match and relation_match:
-            is_matched = True
+            kinship_matched = True
             break
+
+    if not kinship_matched:
+        terminal_failures.append('Next-of-kin relationship and contact matching failed.')
+
+    # Check 4: Biometric 3-angle facial verification captures
+    if not front_file or not left_file or not right_file:
+        terminal_failures.append('Biometric 3-angle facial verification incomplete.')
+
+    # Terminal Verdict: Flawless pass or immediate forensic failure record
+    is_matched = len(terminal_failures) == 0
 
     if is_matched:
         audit_log = ClaimSecurityAuditLog.objects.create(
@@ -473,13 +568,15 @@ def check_claimant_match_view(request):
             claimant_email=claimant_email,
             permanent_address=permanent_address,
             death_certificate=death_cert_file,
+            sq_answers_captured=sq_answers_raw,
+            custody_ghana_card_captured=custody_ghana_card,
             ip_address=client_ip,
             user_agent=user_agent,
             biometric_front_photo=front_file,
             biometric_left_photo=left_file,
             biometric_right_photo=right_file,
-            biometric_consent_granted=bool(consent_granted),
-            camera_permission_granted=bool(camera_permission),
+            biometric_consent_granted=consent_granted,
+            camera_permission_granted=camera_permission,
             is_matched=True,
             status='VERIFIED_MATCH',
         )
@@ -490,6 +587,7 @@ def check_claimant_match_view(request):
             'audit_id': audit_log.id,
         })
 
+    # Cold Rejection: Silently commit forensic trail to the security vault
     audit_log = ClaimSecurityAuditLog.objects.create(
         policy=policy,
         policyholder=policyholder,
@@ -500,13 +598,15 @@ def check_claimant_match_view(request):
         claimant_email=claimant_email,
         permanent_address=permanent_address,
         death_certificate=death_cert_file,
+        sq_answers_captured=sq_answers_raw,
+        custody_ghana_card_captured=custody_ghana_card,
         ip_address=client_ip,
         user_agent=user_agent,
         biometric_front_photo=front_file,
         biometric_left_photo=left_file,
         biometric_right_photo=right_file,
-        biometric_consent_granted=bool(consent_granted),
-        camera_permission_granted=bool(camera_permission),
+        biometric_consent_granted=consent_granted,
+        camera_permission_granted=camera_permission,
         is_matched=False,
         status='UNMATCHED_FLAGGED',
     )
@@ -518,7 +618,7 @@ def check_claimant_match_view(request):
         'status': 'mismatch_flagged',
         'is_matched': False,
         'audit_id': audit_log.id,
-        'message': 'Identity verification failed. The provided details do not match the registered next-of-kin records. All submitted details and facial verifications have been permanently recorded in the security audit vault.',
+        'message': 'Identity verification failed. The provided details do not match the registered next-of-kin records.',
     })
 
 

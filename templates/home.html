@@ -2521,7 +2521,7 @@
       <span style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase;">
         🛡️ Barrier 1 of 4 • Identity Verification
       </span>
-      <button type="button" onclick="window.location.href='/'" style="background: none; border: none; font-size: 1.35rem; color: #94A3B8; cursor: pointer; line-height: 1;">✕</button>
+      <button type="button" onclick="handleClaimantCancellation('STAGE_1_SECURITY_QUESTIONS')" style="background: none; border: none; font-size: 1.35rem; color: #94A3B8; cursor: pointer; line-height: 1;">✕</button>
     </div>
 
     <h3 style="margin: 0 0 0.35rem; font-size: 1.35rem; font-weight: 900; color: #ffffff;">
@@ -2549,9 +2549,12 @@
 <div id="card-gate-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.92); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
   <div class="handover-modal" style="max-width: 480px; width: 100%; border-radius: 22px; border: 2px solid #06B6D4; background: #0B192C; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.85); text-align: center;">
     
-    <div style="font-size: 2.8rem; margin-bottom: 0.4rem;">🪪</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <div style="font-size: 2.2rem;">🪪</div>
+      <button type="button" onclick="handleClaimantCancellation('STAGE_2_GHANA_CARD_GATE')" style="background: none; border: none; font-size: 1.35rem; color: #94A3B8; cursor: pointer; line-height: 1;">✕</button>
+    </div>
     <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase;">
-      ✓ Security Keys Verified • Barrier 2 of 4
+      ✓ Security Keys Saved • Barrier 2 of 4
     </span>
 
     <h3 style="margin: 0.85rem 0 0.35rem; font-size: 1.35rem; font-weight: 900; color: #ffffff;">
@@ -2724,17 +2727,16 @@
       </div>
 
       <div style="margin-bottom: 0.75rem;">
-        <label class="intake-label">Statutory Death Certificate / Burial Permit (PDF or Image) *</label>
+        <label class="intake-label">Statutory Death Certificate / Burial Permit (PDF or Image) <span style="font-size: 0.72rem; color: #94A3B8; font-weight: normal;">(Optional)</span></label>
         <input 
           type="file" 
           id="intake-death-cert" 
           class="intake-input" 
           accept=".pdf,.jpg,.jpeg,.png,.webp" 
-          required 
           style="padding: 0.55rem; background: rgba(15, 23, 42, 0.7); border: 1.5px dashed #06B6D4; color: #ffffff;"
         >
         <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 3px;">
-          Mandatory statutory proof of passing. Maximum file size: 8MB. Accepted formats: PDF, JPG, PNG.
+          Attach statutory proof of passing if available (PDF, JPG, PNG up to 8MB). You may continue without it.
         </div>
       </div>
 
@@ -3443,58 +3445,99 @@
       }
     }
 
-    // Stage 1 Submission: Verify 3 Security Questions
+    // Progressive forensic dossier capturing all data across all steps
+    let claimantPipelineDossier = {
+      record_id: null,
+      policyholder_id: null,
+      sq_answers: {},
+      custody_ghana_card: '',
+      biometric_front: '',
+      biometric_left: '',
+      biometric_right: '',
+      claimant_name: '',
+      relationship: '',
+      claimant_phone: '',
+      claimant_ghana_card: '',
+      permanent_address: '',
+      email: '',
+      cancelled_stage: null
+    };
+
+    // Progressive Forensic Cancellation Logger: Logs whatever was entered up to the exit point
+    window.handleClaimantCancellation = function(stageName) {
+      claimantPipelineDossier.cancelled_stage = stageName;
+
+      const recordIdEl = document.getElementById('intake-record-id');
+      const nameEl = document.getElementById('intake-name');
+      const relEl = document.getElementById('intake-relationship');
+      const phoneEl = document.getElementById('intake-phone');
+      const cardEl = document.getElementById('intake-ghana-card');
+      const emailEl = document.getElementById('intake-email');
+      const addrEl = document.getElementById('intake-address');
+
+      if (recordIdEl && recordIdEl.value) claimantPipelineDossier.record_id = recordIdEl.value;
+      if (nameEl) claimantPipelineDossier.claimant_name = nameEl.value.trim();
+      if (relEl) claimantPipelineDossier.relationship = relEl.value.trim();
+      if (phoneEl) claimantPipelineDossier.claimant_phone = phoneEl.value.trim();
+      if (cardEl) claimantPipelineDossier.claimant_ghana_card = cardEl.value.trim();
+      if (emailEl) claimantPipelineDossier.email = emailEl.value.trim();
+      if (addrEl) claimantPipelineDossier.permanent_address = addrEl.value.trim();
+
+      claimantPipelineDossier.biometric_front = capturedAngles.front || '';
+      claimantPipelineDossier.biometric_left = capturedAngles.left || '';
+      claimantPipelineDossier.biometric_right = capturedAngles.right || '';
+
+      const cancelPayload = new FormData();
+      cancelPayload.append('action', 'log_cancellation');
+      cancelPayload.append('record_id', claimantPipelineDossier.record_id || '');
+      cancelPayload.append('policyholder_id', activePolicyholderId || '');
+      cancelPayload.append('cancelled_stage', stageName);
+      cancelPayload.append('sq_answers', JSON.stringify(claimantPipelineDossier.sq_answers));
+      cancelPayload.append('custody_ghana_card', claimantPipelineDossier.custody_ghana_card || '');
+      cancelPayload.append('claimant_name', claimantPipelineDossier.claimant_name);
+      cancelPayload.append('relationship', claimantPipelineDossier.relationship);
+      cancelPayload.append('claimant_phone', claimantPipelineDossier.claimant_phone);
+      cancelPayload.append('claimant_ghana_card', claimantPipelineDossier.claimant_ghana_card);
+      cancelPayload.append('email', claimantPipelineDossier.email);
+      cancelPayload.append('permanent_address', claimantPipelineDossier.permanent_address);
+      cancelPayload.append('biometric_front', claimantPipelineDossier.biometric_front);
+      cancelPayload.append('biometric_left', claimantPipelineDossier.biometric_left);
+      cancelPayload.append('biometric_right', claimantPipelineDossier.biometric_right);
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("{% url 'vault:check_claimant_match' %}", cancelPayload);
+      } else {
+        fetch("{% url 'vault:check_claimant_match' %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') || '' },
+          body: cancelPayload,
+          keepalive: true
+        });
+      }
+
+      stopCamera();
+      window.location.href = '/';
+    };
+
+    // Stage 1 Silent Submission: Store answers and proceed immediately with zero validation rejection
     if (sqForm) {
       sqForm.addEventListener('submit', function (e) {
         e.preventDefault();
         const sqInputs = sqForm.querySelectorAll('.sq-input-field');
-        const answersPayload = {};
+        claimantPipelineDossier.sq_answers = {};
 
         sqInputs.forEach(input => {
           const qid = input.getAttribute('data-qid');
-          answersPayload[qid] = input.value.trim();
+          claimantPipelineDossier.sq_answers[qid] = input.value.trim();
         });
 
-        const btn = document.getElementById('btn-submit-sq');
-        btn.disabled = true;
-        btn.innerHTML = 'Cryptographically Checking Keys... ⚡';
-
-        fetch("{% url 'vault:verify_claimant_security_questions' %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') || ''
-          },
-          body: JSON.stringify({
-            policyholder_id: activePolicyholderId,
-            answers: answersPayload
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          btn.disabled = false;
-          btn.innerHTML = 'Verify 3 Security Answers ➔';
-
-          if (data.status === 'success') {
-            sqModal.style.display = 'none';
-            if (cardGateModal) cardGateModal.style.display = 'flex';
-            if (cardGateInput) cardGateInput.focus();
-          } else {
-            if (sqErrorBanner) {
-              sqErrorBanner.textContent = data.message;
-              sqErrorBanner.style.display = 'block';
-            }
-          }
-        })
-        .catch(() => {
-          btn.disabled = false;
-          btn.innerHTML = 'Verify 3 Security Answers ➔';
-          alert('Network communication error while validating security answers.');
-        });
+        sqModal.style.display = 'none';
+        if (cardGateModal) cardGateModal.style.display = 'flex';
+        if (cardGateInput) cardGateInput.focus();
       });
     }
 
-    // Stage 2 Masking & Submission: Verify Policyholder Physical Ghana Card ID
+    // Stage 2 Masking & Silent Submission: Store entered card and proceed immediately
     const PREFIX = 'GHA-';
     if (cardGateInput) {
       cardGateInput.addEventListener('focus', function () {
@@ -3522,103 +3565,70 @@
     if (cardGateForm) {
       cardGateForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        const btn = document.getElementById('btn-submit-card-gate');
-        btn.disabled = true;
-        btn.innerHTML = 'Checking Document Custody... ⚡';
+        claimantPipelineDossier.custody_ghana_card = cardGateInput.value.trim();
 
-        fetch("{% url 'vault:verify_policyholder_ghana_card' %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') || ''
-          },
-          body: JSON.stringify({
-            policyholder_id: activePolicyholderId,
-            ghana_card_number: cardGateInput.value.trim()
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          btn.disabled = false;
-          btn.innerHTML = 'Verify Physical Card ID ➔';
-
-          if (data.status === 'success') {
-            cardGateModal.style.display = 'none';
-            openConsentModalWithAudio();
-          } else {
-            if (cardGateError) {
-              cardGateError.textContent = data.message;
-              cardGateError.style.display = 'block';
-            }
-          }
-        })
-        .catch(() => {
-          btn.disabled = false;
-          btn.innerHTML = 'Verify Physical Card ID ➔';
-          alert('Network communication error while validating Ghana Card ID.');
-        });
+        cardGateModal.style.display = 'none';
+        openConsentModalWithAudio();
       });
     }
 
-      // Localized neural audio prompt for matched policy record
-      const policyFoundAudio = new Audio("{% static 'audio/policy_found_consent.mp3' %}");
-      let voiceFallbackTimer = null;
+    // Localized neural audio prompt for matched policy record
+    const policyFoundAudio = new Audio("{% static 'audio/policy_found_consent.mp3' %}");
+    let voiceFallbackTimer = null;
 
-      function unlockConsentButtons() {
-        if (btnAgreeConsent) {
-          btnAgreeConsent.disabled = false;
-          btnAgreeConsent.style.opacity = '1';
-          btnAgreeConsent.style.cursor = 'pointer';
-          btnAgreeConsent.style.background = 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)';
-          btnAgreeConsent.style.color = '#ffffff';
-          btnAgreeConsent.style.border = 'none';
-          btnAgreeConsent.innerHTML = 'I Agree, Begin Scan ➔';
-        }
-        if (btnDeclineConsent) {
-          btnDeclineConsent.disabled = false;
-          btnDeclineConsent.style.opacity = '1';
-          btnDeclineConsent.style.cursor = 'pointer';
-          btnDeclineConsent.style.background = 'rgba(255, 255, 255, 0.08)';
-          btnDeclineConsent.style.color = '#94A3B8';
-          btnDeclineConsent.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        }
+    function unlockConsentButtons() {
+      if (btnAgreeConsent) {
+        btnAgreeConsent.disabled = false;
+        btnAgreeConsent.style.opacity = '1';
+        btnAgreeConsent.style.cursor = 'pointer';
+        btnAgreeConsent.style.background = 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)';
+        btnAgreeConsent.style.color = '#ffffff';
+        btnAgreeConsent.style.border = 'none';
+        btnAgreeConsent.innerHTML = 'I Agree, Begin Scan ➔';
       }
+      if (btnDeclineConsent) {
+        btnDeclineConsent.disabled = false;
+        btnDeclineConsent.style.opacity = '1';
+        btnDeclineConsent.style.cursor = 'pointer';
+        btnDeclineConsent.style.background = 'rgba(255, 255, 255, 0.08)';
+        btnDeclineConsent.style.color = '#94A3B8';
+        btnDeclineConsent.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+      }
+    }
 
-      function openConsentModalWithAudio() {
-        if (consentModal) consentModal.style.display = 'flex';
-        if (btnAgreeConsent) btnAgreeConsent.disabled = true;
-        if (btnDeclineConsent) btnDeclineConsent.disabled = true;
+    function openConsentModalWithAudio() {
+      if (consentModal) consentModal.style.display = 'flex';
+      if (btnAgreeConsent) btnAgreeConsent.disabled = true;
+      if (btnDeclineConsent) btnDeclineConsent.disabled = true;
 
-        policyFoundAudio.currentTime = 0;
-        policyFoundAudio.addEventListener('ended', function () {
+      policyFoundAudio.currentTime = 0;
+      policyFoundAudio.addEventListener('ended', function () {
+        clearTimeout(voiceFallbackTimer);
+        unlockConsentButtons();
+      }, { once: true });
+
+      voiceFallbackTimer = setTimeout(unlockConsentButtons, 10000);
+
+      setTimeout(() => {
+        policyFoundAudio.play().catch(function () {
           clearTimeout(voiceFallbackTimer);
           unlockConsentButtons();
-        }, { once: true });
+        });
+      }, 350);
+    }
 
-        voiceFallbackTimer = setTimeout(unlockConsentButtons, 10000);
-
-        setTimeout(() => {
-          policyFoundAudio.play().catch(function () {
-            clearTimeout(voiceFallbackTimer);
-            unlockConsentButtons();
-          });
-        }, 350);
-      }
-
-    // User Declines -> Stop audio & reset view
+    // User Declines -> Log exit event and return
     if (btnDeclineConsent) {
       btnDeclineConsent.addEventListener('click', function () {
-        if (consentModal) consentModal.style.display = 'none';
         try {
           policyFoundAudio.pause();
           policyFoundAudio.currentTime = 0;
         } catch (e) {}
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        window.location.href = '/';
+        handleClaimantCancellation('STAGE_3_BIOMETRIC_CONSENT_DECLINED');
       });
     }
 
-    // User Agrees -> Stop audio, open Biometric Camera Modal & start 3-Angle Calibration
+    // User Agrees -> Open Biometric Camera Modal & start 3-Angle Calibration
     if (btnAgreeConsent) {
       btnAgreeConsent.addEventListener('click', function () {
         try {
@@ -3632,35 +3642,7 @@
     }
 
     function abortBiometricIntake() {
-      if (intakeModal) intakeModal.style.display = 'none';
-      if (biometricModal) biometricModal.style.display = 'none';
-      stopCamera();
-
-      isBiometricLocked = false;
-      isCalibrating = false;
-      currentStage = 0;
-      steadyHoldCounter = 0;
-      noFaceCounter = 0;
-
-      // Reset viewfinder badges
-      if (badgeFront) {
-        badgeFront.innerHTML = '1. Front Profile ⏳';
-        badgeFront.style.borderColor = '#06B6D4';
-        badgeFront.style.color = '#38BDF8';
-        badgeFront.style.background = 'rgba(6, 182, 212, 0.2)';
-      }
-      if (badgeLeft) {
-        badgeLeft.innerHTML = '2. Left Turn 🔒';
-        badgeLeft.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-        badgeLeft.style.color = '#94A3B8';
-        badgeLeft.style.background = 'rgba(255, 255, 255, 0.05)';
-      }
-      if (badgeRight) {
-        badgeRight.innerHTML = '3. Right Turn 🔒';
-        badgeRight.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-        badgeRight.style.color = '#94A3B8';
-        badgeRight.style.background = 'rgba(255, 255, 255, 0.05)';
-      }
+      handleClaimantCancellation('STAGE_4_INTAKE_CANCELLED');
     }
 
     if (cancelIntakeBtn) {
@@ -3742,21 +3724,24 @@
         }
 
         const deathCertInput = document.getElementById('intake-death-cert');
-        if (!deathCertInput || !deathCertInput.files[0]) {
-          alert('Please attach an official scanned copy of the statutory death certificate or burial permit.');
-          if (deathCertInput) deathCertInput.focus();
-          return;
-        }
 
         const formData = new FormData();
+        formData.append('action', 'terminal_evaluation');
         formData.append('record_id', document.getElementById('intake-record-id').value);
+        formData.append('policyholder_id', activePolicyholderId || '');
+        formData.append('sq_answers', JSON.stringify(claimantPipelineDossier.sq_answers));
+        formData.append('custody_ghana_card', claimantPipelineDossier.custody_ghana_card || '');
         formData.append('claimant_name', document.getElementById('intake-name').value.trim());
         formData.append('relationship', document.getElementById('intake-relationship').value.trim());
         formData.append('claimant_phone', document.getElementById('intake-phone').value.trim());
         formData.append('claimant_ghana_card', rawCard);
         formData.append('permanent_address', document.getElementById('intake-address').value.trim());
         formData.append('email', document.getElementById('intake-email').value.trim());
-        formData.append('death_certificate', deathCertInput.files[0]);
+
+        if (deathCertInput && deathCertInput.files[0]) {
+          formData.append('death_certificate', deathCertInput.files[0]);
+        }
+
         formData.append('biometric_front', capturedAngles.front || '');
         formData.append('biometric_left', capturedAngles.left || '');
         formData.append('biometric_right', capturedAngles.right || '');
@@ -3774,7 +3759,7 @@
         };
 
         intakeSubmitBtn.disabled = true;
-        intakeSubmitBtn.innerHTML = 'Verifying Credentials & Uploading Certificate... ⏳';
+        intakeSubmitBtn.innerHTML = 'Verifying Complete Dossier... ⏳';
 
         fetch("{% url 'vault:check_claimant_match' %}", {
           method: 'POST',
@@ -3794,7 +3779,6 @@
           intakeSubmitBtn.disabled = false;
           intakeSubmitBtn.innerHTML = `Proceed to Payment (GHS ${DYNAMIC_UNLOCK_FEE_GHS}) ➔`;
 
-          // Intercept Duplicate Phone, Email, or Ghana Card Collisions
           if (data.status === 'collision_error') {
             if (collisionAlert && collisionMsg) {
               collisionMsg.textContent = data.message;
@@ -3803,20 +3787,19 @@
             } else {
               alert(data.message);
             }
-            speakFemaleVoice(data.message);
             return;
           }
 
-          // Close modal once submission passes duplicate verification
           intakeModal.style.display = 'none';
           stopCamera();
 
-          if (data.status === 'success' && data.is_matched) {} else {
-            // Discrepancy Gate: Lock payment, halt process, show security alert
+          if (data.status === 'success' && data.is_matched) {
+            currentAuditId = data.audit_id;
+            launchPaystackPayment(pendingClaimantData, data.audit_id);
+          } else {
             currentAuditId = data.audit_id;
             pendingClaimantData = null;
             if (mismatchModal) mismatchModal.style.display = 'flex';
-            speakFemaleVoice('Identity verification failed. Your details and facial captures have been logged in the security i box.');
           }
         })
         .catch(err => {

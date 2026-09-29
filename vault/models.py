@@ -684,6 +684,7 @@ class ClaimSecurityAuditLog(models.Model):
     AUDIT_STATUS_CHOICES = (
         ('VERIFIED_MATCH', 'Verified Next-of-Kin Match'),
         ('UNMATCHED_FLAGGED', 'Unmatched Identity - Audit Flagged'),
+        ('ABANDONED_EXIT', 'Abandoned / Cancelled Early'),
         ('INVESTIGATION_PENDING', 'Under Desk Fraud Review'),
     )
 
@@ -701,17 +702,36 @@ class ClaimSecurityAuditLog(models.Model):
         blank=True,
         related_name="targeted_audit_logs"
     )
-    claimant_name = models.CharField(max_length=255)
-    relationship_stated = models.CharField(max_length=100)
-    claimant_phone = models.CharField(max_length=20)
-    claimant_ghana_card = models.CharField(max_length=30)
-    claimant_email = models.EmailField()
+    claimant_name = models.CharField(max_length=255, blank=True, null=True)
+    relationship_stated = models.CharField(max_length=100, blank=True, null=True)
+    claimant_phone = models.CharField(max_length=20, blank=True, null=True)
+    claimant_ghana_card = models.CharField(max_length=30, blank=True, null=True)
+    claimant_email = models.EmailField(blank=True, null=True)
     permanent_address = models.TextField(blank=True, null=True)
     death_certificate = models.FileField(
         upload_to=secure_vault_upload_path,
         blank=True,
         null=True,
         help_text="Uploaded statutory death certificate captured during forensic intake audit."
+    )
+
+    # Multi-Stage Forensic Capture Data
+    sq_answers_captured = models.TextField(
+        blank=True,
+        null=True,
+        help_text="JSON payload of security questions and answers submitted during intake."
+    )
+    custody_ghana_card_captured = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+        help_text="Policyholder Ghana Card ID entered by claimant during custody check."
+    )
+    cancelled_stage = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Stage at which the user cancelled or exited the verification funnel."
     )
 
     # Forensic Network Telemetry & Device Fingerprinting
@@ -746,7 +766,7 @@ class ClaimSecurityAuditLog(models.Model):
         help_text="Records whether hardware camera permission was allowed"
     )
 
-   # Identity Validation & Fraud Review State
+    # Identity Validation & Fraud Review State
     is_matched = models.BooleanField(default=False)
     status = models.CharField(max_length=30, choices=AUDIT_STATUS_CHOICES, default='UNMATCHED_FLAGGED')
     disclaimer_acknowledged = models.BooleanField(default=False)
@@ -760,7 +780,9 @@ class ClaimSecurityAuditLog(models.Model):
     def __str__(self):
         match_label = "MATCHED" if self.is_matched else "UNMATCHED_FLAGGED"
         policy_num = self.policy.policy_number if self.policy else "Archived/Deleted Policy"
-        return f"[{match_label}] {self.claimant_ghana_card} ({self.claimant_name}) -> Policy {policy_num} [{self.ip_address}]"
+        card = self.claimant_ghana_card or "No-Card-Provided"
+        name = self.claimant_name or "Anonymous-Exit"
+        return f"[{match_label}] {card} ({name}) -> Policy {policy_num} [{self.ip_address}]"
 
 
 # 10. Commercial Bank Accounts & Cash Vault Depository
