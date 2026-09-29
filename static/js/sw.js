@@ -1,9 +1,10 @@
-const CACHE_NAME = 'inheritancebox-v2026.11';
+const CACHE_NAME = 'inheritancebox-v2026.12';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
   '/static/manifest.json',
-  '/static/images/finale_logo.jpg'
+  '/static/images/icon-192.png',
+  '/static/images/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
