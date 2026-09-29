@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}InheritanceBox | Create Your My i Box{% endblock %}
+{% block title %}InheritanceBox | Create Your i Box{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -521,7 +521,7 @@
 
     <div class="signup-header">
       <div class="signup-badge-icon">🛡️</div>
-      <h1 class="signup-title">Create Your Digital My i Box</h1>
+      <h1 class="signup-title">Create Your Digital i Box</h1>
       <p class="signup-sub">Register to secure your policies, wills, family assets and more...</p>
       <div style="font-size: 0.74rem; font-weight: 800; color: #DC2626; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
         * All fields are strictly mandatory
@@ -583,7 +583,7 @@
           <label class="verification-card-label selected" id="label-method-questions">
             <input type="radio" name="verification_method" value="QUESTIONS" checked>
             <div class="verification-title">⚡ Instant Security Keys</div>
-            <div class="verification-desc">Answer {{ form.required_questions_count|default:20 }} statutory recovery questions now for immediate, unblocked my i box activation.</div>
+            <div class="verification-desc">Answer {{ form.required_questions_count|default:20 }} statutory recovery questions now for immediate, unblocked i box activation.</div>
           </label>
 
           <label class="verification-card-label" id="label-method-email">
@@ -658,11 +658,11 @@
       <div class="fraud-warning-notice">
         <div class="fraud-warning-icon">⚠️</div>
         <div class="fraud-warning-text">
-          <strong>Mandatory Verification Warning:</strong> If fraudulent Ghana Card or identity details are detected at any time, your my i box will be <strong>permanently revoked, deleted, and barred from reopening</strong>. Violations are permanently blacklisted and reported for fraud prosecution.
+          <strong>Mandatory Verification Warning:</strong> If fraudulent Ghana Card or identity details are detected at any time, your i box will be <strong>permanently revoked, deleted, and barred from reopening</strong>. Violations are permanently blacklisted and reported for fraud prosecution.
         </div>
       </div>
 
-      <button type="button" id="btn-signup-trigger" class="btn-signup-submit">Register & Open My i Box ⚡</button>
+      <button type="button" id="btn-signup-trigger" class="btn-signup-submit">Register & Open i Box ⚡</button>
 
       <!-- Statutory Dynamic Question Security Setup Modal (Directly Embedded Inside Form) -->
       <div id="security-questions-modal" style="display: none; position: fixed; inset: 0; background: rgba(10, 15, 29, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1.25rem;">
@@ -741,7 +741,7 @@
           <div id="sec-setup-error" style="display: none; color: #FCA5A5; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.85rem; background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; padding: 8px 12px; border-radius: 8px; line-height: 1.4;"></div>
 
           <button type="button" id="btn-sec-proceed" style="width: 100%; padding: 0.9rem; border-radius: 12px; border: none; font-size: 0.92rem; font-weight: 900; color: #ffffff; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); cursor: pointer; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);">
-            Confirm 20 Keys & Open My i Box ⚡
+            Confirm 20 Keys & Open i Box ⚡
           </button>
 
         </div>
@@ -775,7 +775,7 @@
 
     <div class="signup-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
       <div>
-        <span>Already registered a my i box? </span>
+        <span>Already registered an i box? </span>
         <a href="{% url 'login' %}">Sign In Here</a>
       </div>
       <div>
@@ -920,7 +920,7 @@
       } else {
         labelQuestions.classList.add('selected');
         labelEmail.classList.remove('selected');
-        triggerBtn.textContent = 'Register & Open My i Box ⚡';
+        triggerBtn.textContent = 'Register & Open i Box ⚡';
       }
     }
 
@@ -1164,4 +1164,4 @@
     }
   });
 </script>
-{% endblock %}
+{% endblock %}  
