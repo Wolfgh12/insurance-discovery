@@ -2166,53 +2166,17 @@
         }
       });
 
-      // Voice prompt audio controller - anchored globally with auto-preload & cache buster
-      if (!window.inheritanceBoxInstallVoiceAudio) {
-        window.inheritanceBoxInstallVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=2026.10");
-        window.inheritanceBoxInstallVoiceAudio.preload = "auto";
-      }
-      const installVoiceAudio = window.inheritanceBoxInstallVoiceAudio;
-
-      // Localized Female Speech Engine Fallback
-      let pwaVoices = [];
-      function loadPwaVoices() {
-        if ('speechSynthesis' in window) {
-          pwaVoices = window.speechSynthesis.getVoices();
-        }
-      }
-      if ('speechSynthesis' in window) {
-        loadPwaVoices();
-        window.speechSynthesis.onvoiceschanged = loadPwaVoices;
-      }
-
-      function speakPwaFemaleVoice(text) {
-        if (!('speechSynthesis' in window)) return;
-        try {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.rate = 0.88;
-          utterance.pitch = 1.1;
-
-          if (pwaVoices.length === 0) pwaVoices = window.speechSynthesis.getVoices();
-          const femaleVoice = pwaVoices.find(v =>
-            /female|zira|samantha|victoria|karen|moira|google uk english female|natasha|ayanda/i.test(v.name)
-          ) || pwaVoices.find(v => v.lang && v.lang.startsWith('en')) || pwaVoices[0];
-
-          if (femaleVoice) utterance.voice = femaleVoice;
-          window.speechSynthesis.speak(utterance);
-        } catch (err) {}
-      }
+      // Voice prompt audio controller - strictly plays the generated West African female MP3
+      const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=" + new Date().getTime());
+      installVoiceAudio.preload = "auto";
 
       function playPwaInstallVoicePrompt() {
-        if (installVoiceAudio) {
+        try {
           installVoiceAudio.currentTime = 0;
-          installVoiceAudio.play().catch(function () {
-            // If MP3 playback is restricted or blocked, immediately use the localized female voice engine
-            speakPwaFemaleVoice("To install InheritanceBox on your phone, tap Install Now to add your encrypted i-box directly to your home screen.");
+          installVoiceAudio.play().catch(function (err) {
+            console.log("Audio waiting for user gesture:", err);
           });
-        } else {
-          speakPwaFemaleVoice("To install InheritanceBox on your phone, tap Install Now to add your encrypted i-box directly to your home screen.");
-        }
+        } catch (e) {}
       }
 
       // 3. Pre-package assets and transition to ready state
