@@ -605,7 +605,7 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
                     "security_dom_poisoning_enabled",
                     "security_poison_density",
                 ),
-                "description": "Master Developer Controls: Toggle client-side inspection lockout, or engage hardcore DOM memory-poisoning. When active, opening DevTools floods the Elements tab with simulated kernel crashes, registers, and statutory audit honeypot traps.",
+                "description": "Master Developer Controls: Toggle client-side inspection lockout, or engage hardcore DOM memory-poisoning.",
             },
         ),
         (
@@ -620,14 +620,14 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
                     "module_assets_enabled",
                     "module_wills_enabled",
                 ),
-                "description": "Check a module to activate it live across the platform. Uncheck to lock it to 'Coming Soon' on the Home Page and Citizen Dashboard.",
+                "description": "Check a module to activate it live across the platform.",
             },
         ),
         (
             "Statutory Identity & Two-Factor Verification",
             {
                 "fields": ("required_security_questions",),
-                "description": "Set the exact number of security recovery keys citizens must select and answer (e.g. 3, 5, or 10).",
+                "description": "Set the exact number of security recovery keys citizens must select and answer.",
             },
         ),
         (
@@ -655,17 +655,17 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
-        # Automatic Django -> Paystack Push Synchronization
-        plan_code = (obj.paystack_annual_plan_code or "").strip()
+        plan_code = (getattr(obj, "paystack_annual_plan_code", "") or "").strip()
         secret_key = (getattr(settings, "PAYSTACK_SECRET_KEY", "") or "").strip()
+        sub_fee = getattr(obj, "annual_subscription_fee", None)
 
-        if plan_code and secret_key and obj.annual_subscription_fee:
+        if plan_code and secret_key and sub_fee:
             headers = {
                 "Authorization": f"Bearer {secret_key}",
                 "Content-Type": "application/json",
             }
-            amount_pesewas = int(float(obj.annual_subscription_fee) * 100)
             try:
+                amount_pesewas = int(float(sub_fee) * 100)
                 resp = requests.put(
                     f"https://api.paystack.co/plan/{plan_code}",
                     headers=headers,
@@ -679,7 +679,7 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
                 if resp.status_code == 200 and data.get("status"):
                     self.message_user(
                         request,
-                        f"✓ Live Paystack Sync Successful: Plan {plan_code} updated to GHS {obj.annual_subscription_fee:.2f} ({amount_pesewas} pesewas)."
+                        f"✓ Live Paystack Sync Successful: Plan {plan_code} updated to GHS {float(sub_fee):.2f}."
                     )
                 else:
                     err_msg = data.get("message", "Paystack rejected plan update")
@@ -732,33 +732,47 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
     required_questions_display.short_description = "Security Keys Count"
 
     def unlock_fee_display(self, obj):
-        fee_str = f"{obj.unlock_fee:.2f}" if obj.unlock_fee is not None else "0.00"
+        raw_fee = getattr(obj, "unlock_fee", None)
+        try:
+            val = float(raw_fee) if raw_fee is not None else 0.0
+            fee_str = f"{val:.2f}"
+            pesewas = getattr(obj, "unlock_fee_pesewas", int(val * 100))
+        except (ValueError, TypeError):
+            fee_str = str(raw_fee or "0.00")
+            pesewas = 0
         return format_html(
             '<strong style="color: #0284C7; font-size: 0.95rem;">GHS {}</strong> <span style="font-family: monospace; color: #64748B; font-size: 0.75rem;">({} pesewas)</span>',
             fee_str,
-            obj.unlock_fee_pesewas,
+            pesewas,
         )
     unlock_fee_display.short_description = "Unlock Fee"
 
     def annual_retainer_display(self, obj):
-        annual_str = f"{obj.annual_subscription_fee:.2f}" if obj.annual_subscription_fee is not None else "0.00"
+        raw_annual = getattr(obj, "annual_subscription_fee", None)
+        try:
+            val = float(raw_annual) if raw_annual is not None else 0.0
+            annual_str = f"{val:.2f}"
+        except (ValueError, TypeError):
+            annual_str = str(raw_annual or "0.00")
+        plan_code = getattr(obj, "paystack_annual_plan_code", "") or "No Plan"
         return format_html(
             '<strong style="color: #059669; font-size: 0.95rem;">GHS {}</strong> <span style="font-family: monospace; color: #64748B; font-size: 0.75rem;">[{}]</span>',
             annual_str,
-            obj.paystack_annual_plan_code,
+            plan_code,
         )
     annual_retainer_display.short_description = "Annual Retainer"
 
     def active_modules_display(self, obj):
-        active_count = sum([
-            bool(obj.module_policies_enabled),
-            bool(obj.module_memories_enabled),
-            bool(obj.module_family_tree_enabled),
-            bool(obj.module_banks_enabled),
-            bool(obj.module_investments_enabled),
-            bool(obj.module_assets_enabled),
-            bool(obj.module_wills_enabled),
-        ])
+        module_fields = [
+            "module_policies_enabled",
+            "module_memories_enabled",
+            "module_family_tree_enabled",
+            "module_banks_enabled",
+            "module_investments_enabled",
+            "module_assets_enabled",
+            "module_wills_enabled",
+        ]
+        active_count = sum(1 for m in module_fields if getattr(obj, m, False))
         return format_html(
             '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.75rem;">{} of 7 Active</span>',
             active_count,
