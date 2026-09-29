@@ -12,16 +12,25 @@ def service_worker(request):
     Serves sw.js directly from the root domain with root-scope permission.
     Resolves Chrome's SecurityError and allows the PWA to install with the custom shield icon.
     """
-    primary_path = os.path.join(settings.BASE_DIR, 'static', 'js', 'sw.js')
-    fallback_path = os.path.join(settings.STATIC_ROOT, 'js', 'sw.js') if settings.STATIC_ROOT else primary_path
-    target_path = primary_path if os.path.exists(primary_path) else fallback_path
+    candidate_paths = [
+        os.path.join(settings.BASE_DIR, 'static', 'js', 'sw.js'),
+        os.path.join(settings.BASE_DIR, 'static', 'sw.js'),
+        os.path.join(settings.STATIC_ROOT, 'js', 'sw.js') if getattr(settings, 'STATIC_ROOT', None) else None,
+        os.path.join(settings.STATIC_ROOT, 'sw.js') if getattr(settings, 'STATIC_ROOT', None) else None,
+        os.path.join(settings.BASE_DIR, 'vault', 'static', 'js', 'sw.js'),
+        os.path.join(settings.BASE_DIR, 'vault', 'static', 'sw.js'),
+    ]
 
-    if os.path.exists(target_path):
+    target_path = next((p for p in candidate_paths if p and os.path.exists(p)), None)
+
+    if target_path:
         with open(target_path, 'r', encoding='utf-8') as f:
             content = f.read()
         response = HttpResponse(content, content_type='application/javascript')
         response['Service-Worker-Allowed'] = '/'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response
+
     raise Http404("Service worker script not found.")
 
 urlpatterns = [
@@ -39,7 +48,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),  # Handles password reset and recovery routes
     path('', include('vault.urls', namespace='vault')),
 ]
-
+ 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
