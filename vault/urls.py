@@ -23,7 +23,9 @@ urlpatterns = [
     path('activate/<str:uidb64>/<str:token>/', views.activate_account_view, name='activate_account'),
     path('security-questions/', views.security_questions_setup_view, name='security_questions_setup'),
     
-    # Pre-payment identity validation & forensic telemetry logging
+    # Multi-Stage Claimant Identity & Question Verification Gates
+    path('api/verify-claimant-questions/', views.verify_claimant_security_questions_view, name='verify_claimant_security_questions'),
+    path('api/verify-policyholder-card/', views.verify_policyholder_ghana_card_view, name='verify_policyholder_ghana_card'),
     path('api/check-claimant-match/', views.check_claimant_match_view, name='check_claimant_match'),
     
     # Paystack payment verifications & automated webhook sync

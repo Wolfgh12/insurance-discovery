@@ -1367,17 +1367,26 @@
             <span>Searching on behalf of a relative or deceased loved one?</span>
           </div>
 
-<form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar no-loader" id="registry-search-form">
+<form method="GET" action="{% url 'vault:home' %}" class="registry-search-bar no-loader" id="registry-search-form" style="display: flex; gap: 8px; flex-wrap: wrap;">
   <input 
     type="text"  
-    name="q" 
-    id="registry-search-input"
-    placeholder="Enter Relative's Ghana Card ID (GHA-XXXXXXXXX-X)..." 
-    value="{{ query }}"
+    name="first_name" 
+    id="registry-search-firstname"
+    placeholder="Policyholder First Name..." 
+    value="{{ first_name|default:'' }}"
     autocomplete="off"
     required
-    pattern="GHA-[0-9]{9}-[0-9]"
-    title="Please enter a valid Ghana Card ID (e.g. GHA-123456789-0)"
+    style="flex: 1; min-width: 140px;"
+  >
+  <input 
+    type="text"  
+    name="last_name" 
+    id="registry-search-lastname"
+    placeholder="Policyholder Last Name..." 
+    value="{{ last_name|default:'' }}"
+    autocomplete="off"
+    required
+    style="flex: 1; min-width: 140px;"
   >
   <!-- Instant X Reset Element (Bypasses Global Capture Loader) -->
   <span id="search-clear-btn" role="button" tabindex="0" class="btn-search-clear {% if query %}visible{% endif %}" aria-label="Clear search" title="Clear and reset search">✕</span>
@@ -1387,7 +1396,7 @@
           <!-- Immediate Empty/Invalid Search Error Message -->
           <div id="search-empty-feedback" class="search-empty-alert" role="alert" aria-live="polite">
             <span style="font-size: 1rem;">⚠️</span>
-            <span id="search-feedback-text">You entered nothing. Please enter your relative's Ghana Card ID to search.</span>
+            <span id="search-feedback-text">Please provide both the registered First Name and Last Name of your relative.</span>
           </div>
 
           <!-- Privacy & Safety Reassurance Sub-label -->
@@ -1583,14 +1592,23 @@
         </div>
 
       {% else %}
-        <!-- Status 3: Active & Unclaimed — Triggers Biometric Verification Flow -->
+        <!-- Status 3: Active & Unclaimed — Triggers 4-Barrier Multi-Stage Verification Pipeline -->
         <div 
           id="matched-record-signal" 
           data-record-id="{{ policy.id }}" 
+          data-policyholder-id="{{ policy.policyholder.id }}"
+          data-policyholder-name="{{ policy.policyholder.get_full_name|default:policy.policyholder.username }}"
           data-full-insurer="{{ policy.insurer.name }}" 
           data-full-policy="{{ policy.policy_number }}"
           style="display: none;"
         ></div>
+
+        <!-- Embedded 3 Random Security Question Challenges -->
+        <div id="security-questions-data" style="display: none;">
+          {% for q in policy.random_challenges %}
+            <div class="sq-challenge-item" data-qid="{{ q.id }}" data-prompt="{{ q.prompt }}"></div>
+          {% endfor %}
+        </div>
       {% endif %}
     {% endwith %}
 
@@ -2495,6 +2513,79 @@
      Statutory Modals (Centered Fixed Overlays)
 ==================================================== -->
 
+<!-- Barrier 1: Mandatory 3-Question Security Key Challenge Modal -->
+<div id="sq-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.92); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="max-width: 540px; width: 100%; border-radius: 22px; border: 2px solid #06B6D4; background: #0B192C; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.85); max-height: 90vh; overflow-y: auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+      <span style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06B6D4; color: #38BDF8; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase;">
+        🛡️ Barrier 1 of 4 • Identity Verification
+      </span>
+      <button type="button" onclick="window.location.href='/'" style="background: none; border: none; font-size: 1.35rem; color: #94A3B8; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <h3 style="margin: 0 0 0.35rem; font-size: 1.35rem; font-weight: 900; color: #ffffff;">
+      Policyholder Match Confirmed
+    </h3>
+    <p style="margin: 0 0 1.25rem; font-size: 0.85rem; color: #94A3B8; line-height: 1.55;">
+      An active policy record was located for <strong style="color: #38BDF8;" id="sq-modal-holder-name"></strong>. To confirm legitimate next-of-kin kinship, please answer the <strong>3 security questions</strong> below selected at random from the policyholder's recovery keys.
+    </p>
+
+    <div id="sq-error-banner" style="display: none; background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1.25rem;"></div>
+
+    <form id="sq-challenge-form">
+      <div id="sq-questions-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+        <!-- Populated dynamically by JavaScript -->
+      </div>
+
+      <button type="submit" id="btn-submit-sq" class="btn-enter-vault" style="width: 100%; margin: 0; padding: 0.95rem; font-size: 0.92rem; font-weight: 900; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); border: none; color: #ffffff; cursor: pointer; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);">
+        Verify 3 Security Answers ➔
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Barrier 2: Policyholder Physical Ghana Card Custody Gate Modal -->
+<div id="card-gate-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.92); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
+  <div class="handover-modal" style="max-width: 480px; width: 100%; border-radius: 22px; border: 2px solid #06B6D4; background: #0B192C; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.85); text-align: center;">
+    
+    <div style="font-size: 2.8rem; margin-bottom: 0.4rem;">🪪</div>
+    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase;">
+      ✓ Security Keys Verified • Barrier 2 of 4
+    </span>
+
+    <h3 style="margin: 0.85rem 0 0.35rem; font-size: 1.35rem; font-weight: 900; color: #ffffff;">
+      Confirm Ghana Card Custody
+    </h3>
+    <p style="margin: 0 0 1.5rem; font-size: 0.84rem; color: #94A3B8; line-height: 1.55;">
+      To verify that you hold physical custody of the policyholder's estate documents, enter the policyholder's registered <strong>Ghana Card ID</strong> below.
+    </p>
+
+    <div id="card-gate-error" style="display: none; background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1.25rem; text-align: left;"></div>
+
+    <form id="card-gate-form">
+      <div style="margin-bottom: 1.5rem; text-align: left;">
+        <label style="display: block; font-size: 0.76rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; margin-bottom: 6px;">
+          Policyholder Ghana Card ID *
+        </label>
+        <input 
+          type="text" 
+          id="policyholder-card-input" 
+          class="intake-input" 
+          placeholder="GHA-XXXXXXXXX-X" 
+          required 
+          autocomplete="off"
+          style="width: 100%; padding: 0.85rem; font-size: 1.05rem; font-family: monospace; font-weight: 800; letter-spacing: 1px; text-align: center;"
+        >
+      </div>
+
+      <button type="submit" id="btn-submit-card-gate" class="btn-enter-vault" style="width: 100%; margin: 0; padding: 0.95rem; font-size: 0.92rem; font-weight: 900; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); border: none; color: #ffffff; cursor: pointer; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);">
+        Verify Physical Card ID ➔
+      </button>
+    </form>
+  </div>
+</div>
+
 <!-- Step 1: Mandatory 3-Angle Biometric Consent Gate Modal -->
 <div id="consent-modal-backdrop" class="handover-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(2, 12, 27, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 1rem;">
   <div class="handover-modal" style="max-width: 490px; text-align: center; border-radius: 20px; border: 2px solid #06B6D4; background: #0B192C; padding: 2rem; color: #ffffff; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
@@ -2630,6 +2721,21 @@
       <div style="margin-bottom: 0.75rem;">
         <label class="intake-label">Claimant Email Address *</label>
         <input type="email" id="intake-email" class="intake-input" placeholder="claimant@email.com" required>
+      </div>
+
+      <div style="margin-bottom: 0.75rem;">
+        <label class="intake-label">Statutory Death Certificate / Burial Permit (PDF or Image) *</label>
+        <input 
+          type="file" 
+          id="intake-death-cert" 
+          class="intake-input" 
+          accept=".pdf,.jpg,.jpeg,.png,.webp" 
+          required 
+          style="padding: 0.55rem; background: rgba(15, 23, 42, 0.7); border: 1.5px dashed #06B6D4; color: #ffffff;"
+        >
+        <div style="font-size: 0.7rem; color: #94A3B8; margin-top: 3px;">
+          Mandatory statutory proof of passing. Maximum file size: 8MB. Accepted formats: PDF, JPG, PNG.
+        </div>
       </div>
 
       <div style="margin-bottom: 1.25rem;">
@@ -3255,12 +3361,42 @@
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     }
 
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
     // ----------------------------------------------------
-    // 4. Search Match Trigger: Open Modal & Speak Concurrently
+    // 4. Multi-Barrier Pipeline: Stage 1 (SQ) -> Stage 2 (Ghana Card) -> Stage 3 (Biometrics) -> Stage 4 (Intake + Death Cert)
     // ----------------------------------------------------
     const matchedSignal = document.getElementById('matched-record-signal');
+    const sqModal = document.getElementById('sq-modal-backdrop');
+    const sqForm = document.getElementById('sq-challenge-form');
+    const sqContainer = document.getElementById('sq-questions-container');
+    const sqErrorBanner = document.getElementById('sq-error-banner');
+    const sqHolderName = document.getElementById('sq-modal-holder-name');
+
+    const cardGateModal = document.getElementById('card-gate-modal-backdrop');
+    const cardGateForm = document.getElementById('card-gate-form');
+    const cardGateInput = document.getElementById('policyholder-card-input');
+    const cardGateError = document.getElementById('card-gate-error');
+
+    let activePolicyholderId = null;
+
     if (matchedSignal) {
       const recordId = matchedSignal.getAttribute('data-record-id');
+      activePolicyholderId = matchedSignal.getAttribute('data-policyholder-id');
+      const holderName = matchedSignal.getAttribute('data-policyholder-name');
       const insurerName = matchedSignal.getAttribute('data-full-insurer');
       const policyNum = matchedSignal.getAttribute('data-full-policy');
 
@@ -3272,9 +3408,160 @@
       if (intakeInsurerEl) intakeInsurerEl.value = insurerName;
       if (intakePolicyEl) intakePolicyEl.value = policyNum;
 
-      if (consentModal) {
-        consentModal.style.display = 'flex';
+      if (sqHolderName) sqHolderName.textContent = holderName;
+
+      // Extract the 3 random questions and inject inputs
+      const challengeItems = document.querySelectorAll('#security-questions-data .sq-challenge-item');
+      if (sqContainer && challengeItems.length > 0) {
+        sqContainer.innerHTML = '';
+        challengeItems.forEach((item, index) => {
+          const qid = item.getAttribute('data-qid');
+          const prompt = item.getAttribute('data-prompt');
+
+          const block = document.createElement('div');
+          block.style.background = 'rgba(15, 23, 42, 0.6)';
+          block.style.border = '1px solid rgba(6, 182, 212, 0.25)';
+          block.style.borderRadius = '12px';
+          block.style.padding = '0.9rem';
+
+          block.innerHTML = `
+            <label style="display: block; font-size: 0.78rem; font-weight: 800; color: #38BDF8; margin-bottom: 6px;">
+              ${index + 1}. ${prompt} *
+            </label>
+            <input 
+              type="text" 
+              name="sq_answer_${qid}" 
+              data-qid="${qid}" 
+              class="intake-input sq-input-field" 
+              placeholder="Your answer for question ${index + 1}..." 
+              required 
+              autocomplete="off"
+            >
+          `;
+          sqContainer.appendChild(block);
+        });
+
+        // Immediately open Stage 1 Security Questions Modal
+        if (sqModal) sqModal.style.display = 'flex';
       }
+    }
+
+    // Stage 1 Submission: Verify 3 Security Questions
+    if (sqForm) {
+      sqForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const sqInputs = sqForm.querySelectorAll('.sq-input-field');
+        const answersPayload = {};
+
+        sqInputs.forEach(input => {
+          const qid = input.getAttribute('data-qid');
+          answersPayload[qid] = input.value.trim();
+        });
+
+        const btn = document.getElementById('btn-submit-sq');
+        btn.disabled = true;
+        btn.innerHTML = 'Cryptographically Checking Keys... ⚡';
+
+        fetch("{% url 'vault:verify_claimant_security_questions' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          },
+          body: JSON.stringify({
+            policyholder_id: activePolicyholderId,
+            answers: answersPayload
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          btn.disabled = false;
+          btn.innerHTML = 'Verify 3 Security Answers ➔';
+
+          if (data.status === 'success') {
+            sqModal.style.display = 'none';
+            if (cardGateModal) cardGateModal.style.display = 'flex';
+            if (cardGateInput) cardGateInput.focus();
+          } else {
+            if (sqErrorBanner) {
+              sqErrorBanner.textContent = data.message;
+              sqErrorBanner.style.display = 'block';
+            }
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.innerHTML = 'Verify 3 Security Answers ➔';
+          alert('Network communication error while validating security answers.');
+        });
+      });
+    }
+
+    // Stage 2 Masking & Submission: Verify Policyholder Physical Ghana Card ID
+    const PREFIX = 'GHA-';
+    if (cardGateInput) {
+      cardGateInput.addEventListener('focus', function () {
+        if (!cardGateInput.value.trim()) cardGateInput.value = PREFIX;
+      });
+
+      cardGateInput.addEventListener('input', function () {
+        let raw = cardGateInput.value.toUpperCase();
+        if (!raw.startsWith('GHA')) {
+          cardGateInput.value = PREFIX;
+          return;
+        }
+        const afterPrefix = raw.replace(/^GHA-?/, '');
+        let digits = afterPrefix.replace(/\D/g, '');
+        if (digits.length > 10) digits = digits.substring(0, 10);
+        let formatted = PREFIX;
+        if (digits.length > 0) {
+          if (digits.length <= 9) formatted += digits;
+          else formatted += digits.substring(0, 9) + '-' + digits.substring(9, 10);
+        }
+        cardGateInput.value = formatted;
+      });
+    }
+
+    if (cardGateForm) {
+      cardGateForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-card-gate');
+        btn.disabled = true;
+        btn.innerHTML = 'Checking Document Custody... ⚡';
+
+        fetch("{% url 'vault:verify_policyholder_ghana_card' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          },
+          body: JSON.stringify({
+            policyholder_id: activePolicyholderId,
+            ghana_card_number: cardGateInput.value.trim()
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          btn.disabled = false;
+          btn.innerHTML = 'Verify Physical Card ID ➔';
+
+          if (data.status === 'success') {
+            cardGateModal.style.display = 'none';
+            if (consentModal) consentModal.style.display = 'flex';
+          } else {
+            if (cardGateError) {
+              cardGateError.textContent = data.message;
+              cardGateError.style.display = 'block';
+            }
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.innerHTML = 'Verify Physical Card ID ➔';
+          alert('Network communication error while validating Ghana Card ID.');
+        });
+      });
+    }
 
       // Keep buttons locked
       if (btnAgreeConsent) btnAgreeConsent.disabled = true;
@@ -3457,48 +3744,63 @@
           return;
         }
 
-        const claimantData = {
+        const rawCard = document.getElementById('intake-ghana-card').value.trim();
+        const cardDigits = rawCard.replace(/^GHA-?/, '').replace(/\D/g, '');
+
+        if (cardDigits.length < 10) {
+          if (collisionAlert && collisionMsg) {
+            collisionMsg.textContent = `Incomplete Ghana Card ID. You entered ${cardDigits.length} of 10 required digits (GHA-XXXXXXXXX-X).`;
+            collisionAlert.style.display = 'flex';
+            intakeModal.scrollTop = 0;
+          } else {
+            alert(`Incomplete Ghana Card ID. You entered ${cardDigits.length} of 10 required digits (GHA-XXXXXXXXX-X).`);
+          }
+          document.getElementById('intake-ghana-card').focus();
+          return;
+        }
+
+        const deathCertInput = document.getElementById('intake-death-cert');
+        if (!deathCertInput || !deathCertInput.files[0]) {
+          alert('Please attach an official scanned copy of the statutory death certificate or burial permit.');
+          if (deathCertInput) deathCertInput.focus();
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('record_id', document.getElementById('intake-record-id').value);
+        formData.append('claimant_name', document.getElementById('intake-name').value.trim());
+        formData.append('relationship', document.getElementById('intake-relationship').value.trim());
+        formData.append('claimant_phone', document.getElementById('intake-phone').value.trim());
+        formData.append('claimant_ghana_card', rawCard);
+        formData.append('permanent_address', document.getElementById('intake-address').value.trim());
+        formData.append('email', document.getElementById('intake-email').value.trim());
+        formData.append('death_certificate', deathCertInput.files[0]);
+        formData.append('biometric_front', capturedAngles.front || '');
+        formData.append('biometric_left', capturedAngles.left || '');
+        formData.append('biometric_right', capturedAngles.right || '');
+        formData.append('biometric_consent_granted', 'true');
+        formData.append('camera_permission_granted', String(Boolean(mediaStream && mediaStream.active)));
+
+        pendingClaimantData = {
           record_id: document.getElementById('intake-record-id').value,
           claimant_name: document.getElementById('intake-name').value.trim(),
           relationship: document.getElementById('intake-relationship').value.trim(),
           claimant_phone: document.getElementById('intake-phone').value.trim(),
           claimant_ghana_card: rawCard,
           permanent_address: document.getElementById('intake-address').value.trim(),
-          email: document.getElementById('intake-email').value.trim(),
-          biometric_front: capturedAngles.front,
-          biometric_left: capturedAngles.left,
-          biometric_right: capturedAngles.right,
-          biometric_consent_granted: true,
-          camera_permission_granted: Boolean(mediaStream && mediaStream.active)
+          email: document.getElementById('intake-email').value.trim()
         };
 
-        pendingClaimantData = claimantData;
         intakeSubmitBtn.disabled = true;
-        intakeSubmitBtn.innerHTML = 'Verifying Credentials... ⏳';
-
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-              }
-            }
-          }
-          return cookieValue;
-        }
+        intakeSubmitBtn.innerHTML = 'Verifying Credentials & Uploading Certificate... ⏳';
 
         fetch("{% url 'vault:check_claimant_match' %}", {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': getCookie('csrftoken') || ''
           },
-          body: JSON.stringify(claimantData)
+          body: formData
         })
         .then(res => {
           if (!res.ok) {
@@ -3554,15 +3856,91 @@
     }
 
     // ----------------------------------------------------
-    // 6. Ghana Card Input Auto-Mask & Form Validator
+    // 6. Name-First Search Input Controller & Form Validator
     // ----------------------------------------------------
-    const searchInput = document.getElementById('registry-search-input');
+    const searchFirstName = document.getElementById('registry-search-firstname');
+    const searchLastName = document.getElementById('registry-search-lastname');
     const searchForm = document.getElementById('registry-search-form');
     const searchClearBtn = document.getElementById('search-clear-btn');
     const feedbackBox = document.getElementById('search-empty-feedback');
     const feedbackText = document.getElementById('search-feedback-text');
     const intakeGhanaCard = document.getElementById('intake-ghana-card');
-    const PREFIX = 'GHA-';
+
+    if (searchFirstName && searchLastName && searchForm) {
+      function triggerSearchShake() {
+        searchForm.classList.remove('search-invalid');
+        void searchForm.offsetWidth;
+        searchForm.classList.add('search-invalid');
+      }
+
+      function showFeedback(message) {
+        if (feedbackText && feedbackBox) {
+          feedbackText.textContent = message;
+          feedbackBox.classList.add('active');
+        }
+      }
+
+      function hideFeedback() {
+        if (feedbackBox) feedbackBox.classList.remove('active');
+      }
+
+      function checkSearchInputs() {
+        hideFeedback();
+        const f = searchFirstName.value.trim();
+        const l = searchLastName.value.trim();
+        if (searchClearBtn) {
+          if (f || l) searchClearBtn.classList.add('visible');
+          else searchClearBtn.classList.remove('visible');
+        }
+      }
+
+      searchFirstName.addEventListener('input', checkSearchInputs);
+      searchLastName.addEventListener('input', checkSearchInputs);
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          searchFirstName.value = '';
+          searchLastName.value = '';
+          hideFeedback();
+          searchClearBtn.classList.remove('visible');
+
+          const resultsWrapper = document.getElementById('search-results-wrapper');
+          if (resultsWrapper) resultsWrapper.remove();
+
+          if (window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          searchFirstName.focus();
+        });
+      }
+
+      function dismissGlobalLoader() {
+        const loader = document.getElementById('global-loader') || document.querySelector('.global-loader') || document.querySelector('.loader-backdrop');
+        if (loader) {
+          loader.style.display = 'none';
+          loader.classList.remove('active', 'show');
+        }
+      }
+
+      searchForm.addEventListener('submit', function (e) {
+        const f = searchFirstName.value.trim();
+        const l = searchLastName.value.trim();
+
+        if (!f || !l) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          dismissGlobalLoader();
+          triggerSearchShake();
+          showFeedback("Both First Name and Last Name are strictly required to verify the clearinghouse registry.");
+          if (!f) searchFirstName.focus();
+          else searchLastName.focus();
+          return;
+        }
+        hideFeedback();
+      });
+    }
 
     // Stationary Auto-Mask for Claimant Intake Modal
     if (intakeGhanaCard) {

@@ -90,67 +90,71 @@ def decode_base64_image(data_uri, file_prefix="biometric"):
 
 
 def home_search_view(request):
-    query = request.GET.get('q', '').strip()
+    """
+    Stage 1: Full-Name First Registry Search.
+    Requires First Name and Last Name to match a registered policyholder.
+    Selects 3 random questions from their 20 security recovery keys for Stage 2 challenge.
+    """
+    first_name = request.GET.get('first_name', '').strip()
+    last_name = request.GET.get('last_name', '').strip()
+    raw_query = request.GET.get('q', '').strip()
+
+    # Allow query string fallback if entered together in a single search box
+    if not first_name and not last_name and raw_query:
+        parts = raw_query.split(None, 1)
+        first_name = parts[0]
+        if len(parts) > 1:
+            last_name = parts[1]
+
     results = []
     has_searched = False
+    name_error = None
 
-    if query:
+    if first_name or last_name:
         has_searched = True
-        clean_digits = re.sub(r'\D', '', query)
-        clean_card = query.replace('-', '').replace(' ', '').upper()
+        if not first_name or not last_name:
+            name_error = "Both First Name and Last Name are required to query the national clearinghouse."
+        else:
+            # Match strictly by First Name and Last Name
+            matched_users = list(CustomUser.objects.filter(
+                first_name__iexact=first_name,
+                last_name__iexact=last_name,
+                user_type='POLICYHOLDER'
+            ))
 
-        card_variations = [query, clean_card]
-        if clean_digits:
-            card_variations.extend([
-                clean_digits,
-                f"GHA-{clean_digits}",
-                f"GHA{clean_digits}",
-            ])
-            if len(clean_digits) >= 10:
-                card_variations.extend([
-                    f"GHA-{clean_digits[:9]}-{clean_digits[9:10]}",
-                    f"{clean_digits[:9]}-{clean_digits[9:10]}",
-                ])
-            if len(clean_digits) >= 9:
-                card_variations.append(clean_digits[:9])
+            if matched_users:
+                existing_policies = list(
+                    PolicyRecord.objects.filter(policyholder__in=matched_users)
+                    .select_related('policyholder', 'insurer', 'policyholder__subscription')
+                    .prefetch_related('unlock_grants', 'claims')
+                )
 
-        user_q = (
-            Q(first_name__icontains=query)
-            | Q(last_name__icontains=query)
-            | Q(username__icontains=query)
-        )
-        for var in set(card_variations):
-            if var:
-                user_q |= Q(ghana_card_number__iexact=var)
-                user_q |= Q(ghana_card_number__icontains=var)
+                # Attach 3 random security questions to each matched policyholder
+                for policy in existing_policies:
+                    holder = policy.policyholder
+                    saved_answers = list(
+                        holder.security_answers.filter(question__is_active=True).select_related('question')
+                    )
+                    if len(saved_answers) >= 3:
+                        chosen_answers = random.sample(saved_answers, 3)
+                    else:
+                        chosen_answers = saved_answers
 
-        matched_users = list(CustomUser.objects.filter(user_q))
+                    policy.random_challenges = [
+                        {'id': ans.question.id, 'prompt': ans.question.question_text}
+                        for ans in chosen_answers
+                    ]
 
-        policy_q = (
-            Q(policyholder__in=matched_users)
-            | Q(policy_number__icontains=query)
-            | Q(policyholder__first_name__icontains=query)
-            | Q(policyholder__last_name__icontains=query)
-            | Q(policyholder__username__icontains=query)
-        )
-        for var in set(card_variations):
-            if var:
-                policy_q |= Q(policyholder__ghana_card_number__iexact=var)
-                policy_q |= Q(policyholder__ghana_card_number__icontains=var)
-
-        existing_policies = list(
-            PolicyRecord.objects.filter(policy_q)
-            .select_related('policyholder', 'insurer', 'policyholder__subscription')
-            .prefetch_related('unlock_grants', 'claims')
-        )
-
-        results = existing_policies
+                results = existing_policies
 
     total_insurers = InsuranceCompany.objects.filter(is_verified=True).count()
     platform_config = PlatformConfiguration.get_solo()
 
     context = {
-        'query': query,
+        'first_name': first_name,
+        'last_name': last_name,
+        'query': f"{first_name} {last_name}".strip(),
+        'name_error': name_error,
         'results': results,
         'has_searched': has_searched,
         'total_insurers': total_insurers or 6,
@@ -325,10 +329,14 @@ def check_claimant_match_view(request):
             'message': 'Too many failed identity verification attempts from this network. Access locked for 15 minutes.'
         }, status=429)
 
-    try:
-        data = json.loads(request.body)
-    except Exception:
+    # Support both JSON and multipart/form-data for file uploads
+    if request.content_type and 'multipart/form-data' in request.content_type:
         data = request.POST
+    else:
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            data = request.POST
 
     record_id = data.get('record_id')
     claimant_name = data.get('claimant_name', '').strip()
@@ -344,8 +352,30 @@ def check_claimant_match_view(request):
     consent_granted = data.get('biometric_consent_granted', True)
     camera_permission = data.get('camera_permission_granted', True)
 
+    death_cert_file = request.FILES.get('death_certificate')
+
     if not record_id or not claimant_name or not claimant_phone or not claimant_ghana_card:
         return JsonResponse({'status': 'error', 'message': 'All intake fields are required.'}, status=400)
+
+    # Mandatory Death Certificate Validation
+    if not death_cert_file:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Official scanned statutory death certificate or burial permit document is mandatory.'
+        }, status=400)
+
+    if death_cert_file.size > 8 * 1024 * 1024:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Death certificate exceeds the 8MB statutory size limit. Please upload a compressed document.'
+        }, status=400)
+
+    ext = death_cert_file.name.split('.')[-1].lower() if '.' in death_cert_file.name else ''
+    if ext not in ['pdf', 'jpg', 'jpeg', 'png', 'webp']:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid death certificate format. Only PDF, JPG, PNG, or WEBP documents are accepted.'
+        }, status=400)
 
     policy = get_object_or_404(
         PolicyRecord.objects.select_related('policyholder', 'insurer'), id=record_id
@@ -454,6 +484,7 @@ def check_claimant_match_view(request):
             claimant_ghana_card=claimant_ghana_card,
             claimant_email=claimant_email,
             permanent_address=permanent_address,
+            death_certificate=death_cert_file,
             ip_address=client_ip,
             user_agent=user_agent,
             biometric_front_photo=front_file,
@@ -480,6 +511,7 @@ def check_claimant_match_view(request):
         claimant_ghana_card=claimant_ghana_card,
         claimant_email=claimant_email,
         permanent_address=permanent_address,
+        death_certificate=death_cert_file,
         ip_address=client_ip,
         user_agent=user_agent,
         biometric_front_photo=front_file,
@@ -627,6 +659,8 @@ def verify_unlock_view(request):
         if audit_id:
             ClaimSecurityAuditLog.objects.filter(id=audit_id).update(disclaimer_acknowledged=True)
 
+        cert_file = audit_entry.death_certificate if audit_entry else None
+
         grant, _ = ClaimantAccessGrant.objects.update_or_create(
             payment_reference=reference,
             defaults={
@@ -639,6 +673,7 @@ def verify_unlock_view(request):
                 'claimant_ghana_card': claimant_ghana_card,
                 'permanent_address': permanent_address,
                 'claimant_email': claimant_email,
+                'death_certificate': cert_file,
                 'access_token': access_token,
                 'is_active': True,
             },
@@ -2817,3 +2852,114 @@ def paystack_webhook_view(request):
             ).update(status='CANCELLED', auto_renew=False)
 
     return JsonResponse({'status': 'success', 'message': 'Webhook processed successfully.'})
+
+@csrf_exempt
+def verify_claimant_security_questions_view(request):
+    """
+    Stage 2 Gate: Verifies that the claimant correctly answered all 3 
+    security questions randomly drawn from the policyholder's 20 keys.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    client_ip = get_client_ip(request)
+    throttle_key = f"throttle_claimant_sq_{client_ip}"
+    fails = cache.get(throttle_key, 0)
+
+    if fails >= 5:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Too many failed security question attempts. Access locked for 15 minutes.'
+        }, status=429)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        data = request.POST
+
+    policyholder_id = data.get('policyholder_id')
+    answers = data.get('answers', {})
+
+    if not policyholder_id or not answers or len(answers) < 3:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'All 3 security question answers are strictly required.'
+        }, status=400)
+
+    policyholder = get_object_or_404(CustomUser, id=policyholder_id, user_type='POLICYHOLDER')
+
+    # Verify each answer against cryptographically salted hashes
+    all_passed = True
+    for q_id, raw_answer in answers.items():
+        if not policyholder.verify_security_answer(q_id, raw_answer):
+            all_passed = False
+            break
+
+    if not all_passed:
+        cache.set(throttle_key, fails + 1, timeout=900)
+        return JsonResponse({
+            'status': 'error',
+            'message': 'One or more security answers are incorrect. Verification failed.'
+        }, status=400)
+
+    cache.delete(throttle_key)
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Security keys confirmed. Please provide the policyholder\'s Ghana Card ID.'
+    })
+
+
+@csrf_exempt
+def verify_policyholder_ghana_card_view(request):
+    """
+    Stage 3 Gate: Verifies that the claimant possesses physical documentation of the
+    deceased policyholder's official Ghana Card ID before intake dossier is unlocked.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    client_ip = get_client_ip(request)
+    throttle_key = f"throttle_claimant_card_{client_ip}"
+    fails = cache.get(throttle_key, 0)
+
+    if fails >= 5:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Too many failed Ghana Card attempts. Access locked for 15 minutes.'
+        }, status=429)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        data = request.POST
+
+    policyholder_id = data.get('policyholder_id')
+    input_card = data.get('ghana_card_number', '').strip().upper()
+
+    if not policyholder_id or not input_card:
+        return JsonResponse({'status': 'error', 'message': 'Ghana Card ID is required.'}, status=400)
+
+    policyholder = get_object_or_404(CustomUser, id=policyholder_id, user_type='POLICYHOLDER')
+
+    clean_input_digits = re.sub(r'\D', '', input_card)
+    stored_digits = policyholder.clean_card_digits
+
+    # Verify matching format and digits
+    is_card_matched = False
+    if policyholder.ghana_card_number and policyholder.ghana_card_number.upper() == input_card:
+        is_card_matched = True
+    elif len(clean_input_digits) == 10 and clean_input_digits == stored_digits:
+        is_card_matched = True
+
+    if not is_card_matched:
+        cache.set(throttle_key, fails + 1, timeout=900)
+        return JsonResponse({
+            'status': 'error',
+            'message': 'The provided Ghana Card ID does not match our records for this policyholder.'
+        }, status=400)
+
+    cache.delete(throttle_key)
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Policyholder Ghana Card verified. Intake dossier unlocked.'
+    })

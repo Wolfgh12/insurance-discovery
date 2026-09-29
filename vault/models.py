@@ -634,6 +634,12 @@ class ClaimantAccessGrant(models.Model):
     claimant_ghana_card = models.CharField(max_length=30, blank=True, null=True)
     permanent_address = models.TextField(blank=True, null=True)
     claimant_email = models.EmailField(blank=True, null=True)
+    death_certificate = models.FileField(
+        upload_to=secure_vault_upload_path,
+        blank=True,
+        null=True,
+        help_text="Official scanned statutory death certificate or certificate of death extract."
+    )
     payment_reference = models.CharField(max_length=150, unique=True, blank=True, db_index=True)
     access_token = models.CharField(max_length=100, unique=True, blank=True, db_index=True)
     is_active = models.BooleanField(
@@ -701,6 +707,12 @@ class ClaimSecurityAuditLog(models.Model):
     claimant_ghana_card = models.CharField(max_length=30)
     claimant_email = models.EmailField()
     permanent_address = models.TextField(blank=True, null=True)
+    death_certificate = models.FileField(
+        upload_to=secure_vault_upload_path,
+        blank=True,
+        null=True,
+        help_text="Uploaded statutory death certificate captured during forensic intake audit."
+    )
 
     # Forensic Network Telemetry & Device Fingerprinting
     ip_address = models.GenericIPAddressField(blank=True, null=True)
