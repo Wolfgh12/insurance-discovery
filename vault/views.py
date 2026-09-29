@@ -929,7 +929,7 @@ def claimant_vault_view(request, access_token):
 def signup_view(request):
     """
     Citizen registration endpoint:
-    Creates account with zero upfront payment gate and redirects to login.
+    Supports account creation and captures the 5-per-tier security questions if submitted during signup.
     """
     if request.user.is_authenticated:
         if (
@@ -941,6 +941,8 @@ def signup_view(request):
         else:
             return redirect('vault:dashboard')
 
+    tiered_pool = SecurityQuestion.get_tiered_pool()
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -949,6 +951,19 @@ def signup_view(request):
             user.has_paid_registration_fee = False
             user.save()
             form.save_m2m()
+
+            # Automatically capture and save the 5-per-tier security answers if provided on signup
+            tier_keys = ['TIER_1', 'TIER_2', 'TIER_3', 'TIER_4']
+            for tier_code in tier_keys:
+                for slot in range(1, 6):
+                    q_id = request.POST.get(f"question_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_q_{slot}")
+                    ans = (request.POST.get(f"answer_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_a_{slot}") or "").strip()
+                    if q_id and ans:
+                        q_obj = SecurityQuestion.objects.filter(id=q_id, is_active=True).first()
+                        if q_obj:
+                            ans_record = UserSecurityAnswer(user=user, question=q_obj)
+                            ans_record.set_answer(ans)
+                            ans_record.save()
 
             method = form.cleaned_data.get('verification_method')
 
@@ -959,21 +974,21 @@ def signup_view(request):
                     reverse('vault:activate_account', kwargs={'uidb64': uid, 'token': token})
                 )
 
-                email_subject = "mySikaVault | Confirm Your Registration"
+                email_subject = "InheritanceBox | Confirm Your Registration"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
-                    f"Thank you for registering your digital estate vault on mySikaVault.\n\n"
+                    f"Thank you for registering your digital estate i-box on InheritanceBox.\n\n"
                     f"Please click the secure statutory link below to activate your account and configure your identity recovery keys:\n"
                     f"{activation_url}\n\n"
                     f"This link is valid for 24 hours. If you did not initiate this registration, please disregard this email.\n\n"
-                    f"mySikaVault National Registry Desk"
+                    f"InheritanceBox National Registry Desk"
                 )
 
                 try:
                     send_mail(
                         subject=email_subject,
                         message=email_message,
-                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@inheritancebox.com'),
                         recipient_list=[user.email],
                         fail_silently=False,
                     )
@@ -984,13 +999,13 @@ def signup_view(request):
                 except Exception:
                     messages.warning(
                         request,
-                        "Vault created, but email dispatch timed out. Please try signing in."
+                        "i-Box created, but email dispatch timed out. Please try signing in."
                     )
                 return redirect('vault:login')
             else:
                 messages.success(
                     request,
-                    f"Vault account created successfully, {user.first_name or user.username}! Please sign in to activate your vault."
+                    f"i-Box account created successfully, {user.first_name or user.username}! Please sign in to activate your i-box."
                 )
                 return redirect('vault:login')
     else:
@@ -1000,6 +1015,9 @@ def signup_view(request):
     context = {
         'form': form,
         'platform_config': platform_config,
+        'tiered_pool': tiered_pool,
+        'tiers': ['TIER_1', 'TIER_2', 'TIER_3', 'TIER_4'],
+        'slots': list(range(1, 6)),
     }
     return render(request, 'registration/signup.html', context)
 
@@ -1037,32 +1055,90 @@ def activate_account_view(request, uidb64, token):
 @login_required
 def security_questions_setup_view(request):
     """
-    Mandatory security questions setup gate for users activated via email confirmation.
+    Mandatory security questions setup gate:
+    Validates that exactly 5 questions per tier (4 tiers = 20 total answers)
+    are selected and cryptographically hashed for the user.
     """
     user = request.user
 
-    # If the user already has recovery answers configured, forward directly to dashboard
     if user.has_security_questions_configured and not request.GET.get('force'):
         return redirect('vault:dashboard')
 
-    if request.method == 'POST':
-        form = SecurityQuestionsSetupForm(request.POST)
-        if form.is_valid():
-            form.save(user=user)
-            messages.success(
-                request,
-                "Security recovery keys configured successfully!"
-            )
-            # Enforce statutory GHS 10 fee settlement immediately after security setup
-            if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
-                messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your vault.")
-                return redirect('vault:login')
+    tiered_pool = SecurityQuestion.get_tiered_pool()
+    tier_keys = ['TIER_1', 'TIER_2', 'TIER_3', 'TIER_4']
 
-            return redirect('vault:dashboard')
+    if request.method == 'POST':
+        # Check if submitted via the 5-per-tier modal selector
+        has_tiered_submission = any(f"question_{t}_1" in request.POST or f"tier_{t}_q_1" in request.POST for t in tier_keys)
+
+        if has_tiered_submission:
+            errors = []
+            selected_qa = []
+            all_question_ids = set()
+
+            for tier_code in tier_keys:
+                tier_label = tiered_pool.get(tier_code, {}).get('label', tier_code)
+                for slot in range(1, 6):
+                    q_id = request.POST.get(f"question_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_q_{slot}")
+                    ans = (request.POST.get(f"answer_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_a_{slot}") or "").strip()
+
+                    if not q_id:
+                        errors.append(f"Please select a question for Slot {slot} under {tier_label}.")
+                        continue
+                    if not ans:
+                        errors.append(f"Please enter an answer for Slot {slot} under {tier_label}.")
+                        continue
+
+                    if q_id in all_question_ids:
+                        errors.append(f"Question in Slot {slot} ({tier_label}) was selected more than once. Every question must be distinct.")
+                        continue
+
+                    q_obj = SecurityQuestion.objects.filter(id=q_id, tier=tier_code, is_active=True).first()
+                    if not q_obj:
+                        errors.append(f"Invalid question selected for Slot {slot} in {tier_label}.")
+                        continue
+
+                    all_question_ids.add(q_id)
+                    selected_qa.append((q_obj, ans))
+
+            if not errors and len(selected_qa) == 20:
+                with transaction.atomic():
+                    UserSecurityAnswer.objects.filter(user=user).delete()
+                    for q_obj, raw_ans in selected_qa:
+                        ans_record = UserSecurityAnswer(user=user, question=q_obj)
+                        ans_record.set_answer(raw_ans)
+                        ans_record.save()
+
+                messages.success(request, "All 20 security recovery keys (5 per tier) saved successfully!")
+
+                if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i-box.")
+                    return redirect('vault:login')
+
+                return redirect('vault:dashboard')
+            else:
+                for err in errors[:5]:
+                    messages.error(request, err)
+        else:
+            # Fallback for standard form
+            form = SecurityQuestionsSetupForm(request.POST)
+            if form.is_valid():
+                form.save(user=user)
+                messages.success(request, "Security recovery keys configured successfully!")
+                if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i-box.")
+                    return redirect('vault:login')
+                return redirect('vault:dashboard')
     else:
         form = SecurityQuestionsSetupForm()
 
-    return render(request, 'registration/security_questions_setup.html', {'form': form})
+    context = {
+        'form': form,
+        'tiered_pool': tiered_pool,
+        'tiers': tier_keys,
+        'slots': list(range(1, 6)),
+    }
+    return render(request, 'registration/security_questions_setup.html', context)
 
 
 def login_view(request):

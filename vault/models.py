@@ -1253,8 +1253,21 @@ class SecurityQuestion(models.Model):
         verbose_name_plural = "Security Questions"
 
     @classmethod
+    def get_tiered_pool(cls):
+        """Returns 10 active questions grouped by tier for the pop-up modal picker."""
+        pool = {}
+        for tier_code, tier_label in cls.TIER_CHOICES:
+            pool[tier_code] = {
+                'label': tier_label,
+                'questions': list(
+                    cls.objects.filter(tier=tier_code, is_active=True).order_by('display_order', 'id')[:10]
+                )
+            }
+        return pool
+
+    @classmethod
     def seed_default_questions(cls):
-        """Seeds 32 tier-isolated recovery questions (8 distinct questions per tier)."""
+        """Seeds 40 tier-isolated recovery questions (exactly 10 distinct questions per tier)."""
         tiered_prompts = {
             'TIER_1': [
                 "Where were you born? (City / Town / Hospital)",
@@ -1265,6 +1278,8 @@ class SecurityQuestion(models.Model):
                 "In which town or village did your parents first meet?",
                 "What was the name of your favorite childhood pet?",
                 "What was the registration number or color of your family's first car or TV?",
+                "What was the name of the hospital or clinic where you were born?",
+                "What is the day name or traditional soul name given to you at birth?",
             ],
             'TIER_2': [
                 "What is your mother's maiden surname?",
@@ -1275,6 +1290,8 @@ class SecurityQuestion(models.Model):
                 "What is the traditional name or title of your family's elder/clan house?",
                 "What was the profession or trade of your favorite uncle or aunt?",
                 "What was the maiden surname of your paternal grandmother?",
+                "What was the occupation or business of your maternal grandfather?",
+                "What is the traditional clan, totem, or stool name of your family?",
             ],
             'TIER_3': [
                 "What was the name of your first primary or elementary school?",
@@ -1285,6 +1302,8 @@ class SecurityQuestion(models.Model):
                 "What was your favorite subject or course in basic school?",
                 "What was the name of your best childhood friend before age 12?",
                 "What was the first musical instrument or sport you practiced in school?",
+                "What was the name of the first sports team or school club you joined?",
+                "What was the nickname of your favorite teacher in junior high?",
             ],
             'TIER_4': [
                 "What was your favorite traditional meal growing up?",
@@ -1295,6 +1314,8 @@ class SecurityQuestion(models.Model):
                 "What was the make or model of your very first bicycle or vehicle?",
                 "What was the title of the first book or story that influenced you?",
                 "What was the traditional family festival or celebration you looked forward to most?",
+                "What was the first market, store, or commercial center you visited alone?",
+                "What was the name of your favorite childhood outdoor game?",
             ],
         }
 
