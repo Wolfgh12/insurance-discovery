@@ -1630,7 +1630,7 @@
         </h3>
 
         <p style="margin: 0 0 1.2rem; font-size: 0.88rem; color: #94A3B8; line-height: 1.6;">
-          Our encrypted registry was unable to locate an active underwritten policy matching Ghana Card ID:
+          Our encrypted registry was unable to locate an active underwritten policy matching:
         </p>
 
         <div style="background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.4rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1rem; font-weight: 900; color: #38BDF8; letter-spacing: 1px;">
@@ -2911,46 +2911,39 @@
     }
 
     // ----------------------------------------------------
-    // Localized Neural Voice Prompt (No Active Policy Located)
+    // Female Voice Guidance Notice (No Active Policy Located)
     // ----------------------------------------------------
-    if (!window.inheritanceBoxNoPolicyAudio) {
-      window.inheritanceBoxNoPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}");
-      window.inheritanceBoxNoPolicyAudio.preload = "auto";
-    }
-    const noPolicyAudio = window.inheritanceBoxNoPolicyAudio;
-
     window.playNoPolicyAudio = function () {
-      try {
-        window.inheritanceBoxNoPolicyAudio.currentTime = 0;
-        window.inheritanceBoxNoPolicyAudio.play().catch(function (err) {
-          console.log("Autoplay waiting for user interaction:", err);
-        });
-      } catch (e) {}
+      const queryName = "{{ query|escapejs }}".trim();
+      const spokenNotice = queryName 
+        ? `No active policy was located on the InheritanceBox clearinghouse registry for ${queryName}. Please verify the name details and try searching again.`
+        : "No active policy was located on the InheritanceBox clearinghouse registry. Please verify the policyholder name and try searching again.";
+
+      speakFemaleVoice(spokenNotice);
     };
 
     window.closeNoPolicyModal = function () {
       const modal = document.getElementById('no-policy-modal-backdrop');
       if (modal) modal.style.display = 'none';
 
-      // Immediately silence the audio if modal is dismissed
-      try {
-        window.inheritanceBoxNoPolicyAudio.pause();
-        window.inheritanceBoxNoPolicyAudio.currentTime = 0;
-      } catch (e) {}
+      // Immediately silence speech synthesis if user closes modal
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
 
-      const input = document.getElementById('registry-search-input');
+      const input = document.getElementById('registry-search-firstname');
       if (input) {
         input.focus();
         input.select();
       }
     };
 
-    // Auto-play the West African neural prompt when the no-policy modal appears
+    // Automatically speak the notice in a woman's voice when the modal opens
     const noPolicyModal = document.getElementById('no-policy-modal-backdrop');
     if (noPolicyModal) {
       setTimeout(() => {
         window.playNoPolicyAudio();
-      }, 350);
+      }, 450);
     }
 
     // ----------------------------------------------------
