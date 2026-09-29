@@ -1082,16 +1082,18 @@
         loader.setAttribute('aria-hidden', 'true');
       }
 
-      // Dismiss immediately once DOM is interactive (no artificial 2s wait)
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hideNavLoader);
-      } else {
-        hideNavLoader();
+      // Keep loader visible for exactly 3 seconds (3000ms)
+      function scheduleLoaderDismissal() {
+        setTimeout(hideNavLoader, 3000);
       }
 
-      window.addEventListener('load', hideNavLoader);
-      window.addEventListener('pageshow', hideNavLoader);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scheduleLoaderDismissal);
+      } else {
+        scheduleLoaderDismissal();
+      }
 
+      window.addEventListener('pageshow', scheduleLoaderDismissal);
       window.showVaultLoader = showNavLoader;
       window.hideVaultLoader = hideNavLoader;
 
@@ -2298,7 +2300,7 @@
           alert("To add the app to your home screen: tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
         } else {
           alert("To add the app to your desktop: click the Install icon (⊕) on the right side of the address bar or select 'Install InheritanceBox' in the browser menu (⋮).");
-        }
+        } 
       };
 
       window.addEventListener('appinstalled', function () {
