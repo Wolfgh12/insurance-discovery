@@ -407,6 +407,7 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
         "created_at",
         "biometric_thumbnail",
         "status_tag",
+        "funnel_stage_badge",
         "claimant_ghana_card",
         "claimant_name",
         "relationship_stated",
@@ -417,6 +418,7 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "status",
+        "cancelled_stage",
         "is_matched",
         "biometric_consent_granted",
         "camera_permission_granted",
@@ -428,6 +430,8 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
         "claimant_ghana_card",
         "claimant_phone",
         "claimant_email",
+        "custody_ghana_card_captured",
+        "cancelled_stage",
         "ip_address",
         "policy__policy_number",
         "policyholder__username",
@@ -442,6 +446,10 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
         "camera_permission_granted",
         "policy",
         "policyholder",
+        "cancelled_stage",
+        "custody_ghana_card_captured",
+        "sq_answers_captured",
+        "death_certificate",
         "claimant_name",
         "relationship_stated",
         "claimant_phone",
@@ -467,6 +475,18 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
                     "biometric_consent_granted",
                     "camera_permission_granted",
                 )
+            },
+        ),
+        (
+            "Progressive Forensic Capture & Exit Funnel",
+            {
+                "fields": (
+                    "cancelled_stage",
+                    "custody_ghana_card_captured",
+                    "sq_answers_captured",
+                    "death_certificate",
+                ),
+                "description": "Progressive data captured before submission or upon claimant cancellation/exit.",
             },
         ),
         (
@@ -525,17 +545,35 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
     targeted_policy.short_description = "Target Policyholder"
 
     def status_tag(self, obj):
-        if obj.is_matched:
+        if obj.status == "ABANDONED_EXIT":
             return format_html(
-                '<span style="background: #DCFCE7; color: #15803D; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 0.75rem;">{}</span>',
+                '<span style="background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
+                "⏸️ ABANDONED / EXIT",
+            )
+        elif obj.is_matched or obj.status == "VERIFIED_MATCH":
+            return format_html(
+                '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
                 "✓ VERIFIED MATCH",
             )
         return format_html(
-            '<span style="background: #FEE2E2; color: #B91C1C; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 0.75rem;">{}</span>',
+            '<span style="background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">{}</span>',
             "⚠️ UNMATCHED / FLAGGED",
         )
 
     status_tag.short_description = "Validation Status"
+
+    def funnel_stage_badge(self, obj):
+        if obj.cancelled_stage:
+            return format_html(
+                '<span style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.7rem;">{}</span>',
+                obj.cancelled_stage,
+            )
+        return format_html(
+            '<span style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.7rem;">{}</span>',
+            "COMPLETED_FUNNEL",
+        )
+
+    funnel_stage_badge.short_description = "Funnel Progress / Exit Stage"
 
     def biometric_thumbnail(self, obj):
         if obj.biometric_front_photo:
@@ -583,7 +621,7 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
-@admin.register(PlatformConfiguration)
+@admin.register(PlatformConfiguration) 
 class PlatformConfigurationAdmin(admin.ModelAdmin):
     list_display = (
         "config_summary",

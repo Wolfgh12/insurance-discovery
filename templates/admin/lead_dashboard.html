@@ -793,6 +793,7 @@
           <option value="ALL">All Statuses</option>
           <option value="MATCH">✓ SSOT Match</option>
           <option value="FLAGGED">⚠️ Flagged Discrepancy</option>
+          <option value="ABANDONED">⏸️ Abandoned / Exit</option>
         </select>
       </div>
 
@@ -802,6 +803,7 @@
             <tr>
               <th>Timestamp</th>
               <th>Validation Status</th>
+              <th>Funnel Progress / Exit</th>
               <th>Claimant Name</th>
               <th>Ghana Card</th>
               <th>Relation</th>
@@ -815,33 +817,49 @@
               <tr class="page-item-telemetry">
                 <td style="font-family: monospace; font-size: 0.78rem; color: #64748B;">{{ log.created_at|date:"Y-m-d H:i" }}</td>
                 <td>
-                  {% if log.is_matched %}
+                  {% if log.status == 'ABANDONED_EXIT' %}
+                    <span class="badge-status badge-warning">⏸️ Abandoned Exit</span>
+                  {% elif log.is_matched or log.status == 'VERIFIED_MATCH' %}
                     <span class="badge-status badge-success">✓ SSOT Match</span>
                   {% else %}
                     <span class="badge-status badge-danger">⚠️ Flagged Discrepancy</span>
                   {% endif %}
                 </td>
-                <td style="font-weight: 700;">{{ log.claimant_name }}</td>
-                <td style="font-family: monospace; font-weight: 700; color: #0284C7;">{{ log.claimant_ghana_card }}</td>
-                <td>{{ log.relationship_stated }}</td>
-                <td>{{ log.policy.policy_number }}</td>
+                <td>
+                  {% if log.cancelled_stage %}
+                    <span style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;">
+                      {{ log.cancelled_stage }}
+                    </span>
+                  {% else %}
+                    <span style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #059669; font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;">
+                      COMPLETED_FUNNEL
+                    </span>
+                  {% endif %}
+                </td>
+                <td style="font-weight: 700;">{{ log.claimant_name|default:"Anonymous Filer" }}</td>
+                <td style="font-family: monospace; font-weight: 700; color: #0284C7;">{{ log.claimant_ghana_card|default:"N/A" }}</td>
+                <td>{{ log.relationship_stated|default:"Not Stated" }}</td>
+                <td>{{ log.policy.policy_number|default:"No Policy Resolved" }}</td>
                 <td style="font-family: monospace; font-size: 0.78rem; color: #475569;">{{ log.ip_address|default:"127.0.0.1" }}</td>
                 <td>
                   <div style="display: flex; align-items: center; gap: 6px;">
                     <button 
                       type="button" 
                       class="btn-action-sm btn-inspect-bio"
-                      data-name="{{ log.claimant_name }}"
-                      data-card="{{ log.claimant_ghana_card }}"
+                      data-name="{{ log.claimant_name|default:'Anonymous Filer' }}"
+                      data-card="{{ log.claimant_ghana_card|default:'N/A' }}"
                       data-ip="{{ log.ip_address|default:'127.0.0.1' }}"
                       data-time="{{ log.created_at|date:'Y-m-d H:i:s T' }}"
+                      data-stage="{{ log.cancelled_stage|default:'COMPLETED_FUNNEL' }}"
+                      data-custody="{{ log.custody_ghana_card_captured|default:'None' }}"
+                      data-sq="{{ log.sq_answers_captured|default:'None'|escapejs }}"
                       data-front="{% if log.biometric_front_photo %}{{ log.biometric_front_photo.url }}{% endif %}"
                       data-left="{% if log.biometric_left_photo %}{{ log.biometric_left_photo.url }}{% endif %}"
                       data-right="{% if log.biometric_right_photo %}{{ log.biometric_right_photo.url }}{% endif %}"
                     >
-                      View 3-Angle Scan 🔍
+                      View Dossier 🔍
                     </button>
-                    <form method="POST" action="{% url 'vault:delete_audit_log' log.id %}" onsubmit="return confirm('Permanently delete this forensic audit log for {{ log.claimant_name }}?');" style="margin: 0; display: inline;">
+                    <form method="POST" action="{% url 'vault:delete_audit_log' log.id %}" onsubmit="return confirm('Permanently delete this forensic audit log for {{ log.claimant_name|default:log.claimant_ghana_card }}?');" style="margin: 0; display: inline;">
                       {% csrf_token %}
                       <button type="submit" class="btn-action-sm" style="background: #FEE2E2; border-color: #FECACA; color: #DC2626; padding: 5px 9px;" title="Delete Forensic Log">
                         🗑️
@@ -852,13 +870,13 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="8" style="text-align: center; color: #94A3B8; padding: 2rem;">No security audit logs recorded yet.</td>
+                <td colspan="9" style="text-align: center; color: #94A3B8; padding: 2rem;">No security audit logs recorded yet.</td>
               </tr>
             {% endfor %}
 
             <!-- Dynamic No-Match Row for Real-Time Search -->
             <tr id="telemetry-no-match" style="display: none;">
-              <td colspan="8" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
+              <td colspan="9" style="text-align: center; padding: 2.5rem 1rem; background: #F8FAFC;">
                 <div style="font-size: 1.6rem; margin-bottom: 0.35rem;">🔎</div>
                 <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem; margin-bottom: 0.25rem;">No Matching Telemetry Records Located</div>
                 <div id="telemetry-no-match-detail" style="font-size: 0.8rem; color: #64748B;">No security audit logs match your search and verification filter.</div>
@@ -1737,10 +1755,10 @@
 
 <!-- 3-Angle Facial Biometric Inspection Modal -->
 <div id="inspect-modal" class="inspect-modal-backdrop">
-  <div class="inspect-modal">
+  <div class="inspect-modal" style="max-height: 90vh; overflow-y: auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.85rem;">
       <div>
-        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0F172A;">Biometric Facial Verification Audit</h3>
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0F172A;">Biometric & Forensic Intake Dossier</h3>
         <div id="modal-subhead" style="font-size: 0.78rem; color: #64748B;">--</div>
       </div>
       <button type="button" id="btn-close-inspect" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #64748B;">✕</button>
@@ -1767,9 +1785,20 @@
       </div>
     </div>
 
-    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.85rem; font-size: 0.78rem; color: #475569; font-family: monospace;">
+    <!-- Forensic Progressive Intake Telemetry Strip -->
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.85rem; font-size: 0.78rem; color: #475569; font-family: monospace; display: flex; flex-direction: column; gap: 5px; margin-bottom: 0.85rem;">
+      <div><strong>Funnel Stage:</strong> <span id="modal-stage" style="color: #0284C7; font-weight: 700;">--</span></div>
+      <div><strong>Custody Card Checked:</strong> <span id="modal-custody" style="color: #059669; font-weight: 700;">--</span></div>
       <div><strong>IP Address:</strong> <span id="modal-ip">--</span></div>
       <div><strong>Timestamp:</strong> <span id="modal-time">--</span></div>
+    </div>
+
+    <!-- Captured Security Question Answers -->
+    <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px; padding: 0.85rem;">
+      <div style="font-size: 0.72rem; font-weight: 800; color: #0369A1; text-transform: uppercase; margin-bottom: 4px;">
+        🔐 Security Question Answers Captured During Funnel
+      </div>
+      <pre id="modal-sq" style="font-size: 0.74rem; color: #0F172A; white-space: pre-wrap; word-break: break-all; margin: 0; font-family: monospace;"></pre>
     </div>
   </div>
 </div>
@@ -2159,6 +2188,7 @@
         const text = row.textContent;
         if (status === 'MATCH') return text.includes('SSOT Match');
         if (status === 'FLAGGED') return text.includes('Flagged Discrepancy');
+        if (status === 'ABANDONED') return text.includes('Abandoned');
         return true;
       }
     });
@@ -2225,10 +2255,16 @@
         const card = this.getAttribute('data-card');
         const ip = this.getAttribute('data-ip');
         const time = this.getAttribute('data-time');
+        const stage = this.getAttribute('data-stage');
+        const custody = this.getAttribute('data-custody');
+        const sq = this.getAttribute('data-sq');
 
         document.getElementById('modal-subhead').textContent = `${name} (${card})`;
         document.getElementById('modal-ip').textContent = ip;
         document.getElementById('modal-time').textContent = time;
+        document.getElementById('modal-stage').textContent = stage || 'COMPLETED_FUNNEL';
+        document.getElementById('modal-custody').textContent = custody || 'None Provided';
+        document.getElementById('modal-sq').textContent = sq || 'No security questions answered';
 
         const front = this.getAttribute('data-front');
         const left = this.getAttribute('data-left');
