@@ -1,36 +1,38 @@
 ﻿{
   "id": "/",
-  "name": "mySikaVault | Digital Legacy Vault",
-  "short_name": "mySikaVault",
+  "name": "InheritanceBox | Digital Legacy i-Box",
+  "short_name": "InheritanceBox",
+  "description": "Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted i-box.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0A192F",
   "theme_color": "#0A192F",
   "orientation": "portrait-primary",
+  "categories": ["finance", "lifestyle", "utilities"],
   "icons": [
     {
-      "src": "/static/images/download.png",
+      "src": "/static/images/finale_logo.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "/static/images/download.png",
+      "src": "/static/images/finale_logo.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "/static/images/download.png",
+      "src": "/static/images/finale_logo.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "maskable"
     },
     {
-      "src": "/static/images/download.png",
+      "src": "/static/images/finale_logo.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ]

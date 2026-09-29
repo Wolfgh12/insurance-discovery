@@ -1,9 +1,9 @@
-const CACHE_NAME = 'legacytrace-v7';
+const CACHE_NAME = 'inheritancebox-v2026.11';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
   '/static/manifest.json',
-  '/static/images/download.png'
+  '/static/images/finale_logo.jpg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>mySikaVault | Reconnecting</title>
+            <title>InheritanceBox | Reconnecting</title>
             <style>
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -91,7 +91,7 @@ self.addEventListener('fetch', (event) => {
               <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📡</div>
               <h2>Network Reconnecting</h2>
               <p>A cellular connection shift interrupted the page. Tap below to resume.</p>
-              <button class="btn-retry" onclick="window.location.reload()">Reconnect Vault ⚡</button>
+              <button class="btn-retry" onclick="window.location.reload()">Reconnect i-Box ⚡</button>
             </div>
           </body>
           </html>`,
@@ -101,7 +101,7 @@ self.addEventListener('fetch', (event) => {
             headers: new Headers({ 'Content-Type': 'text/html' })
           }
         );
-      })
+      }) 
     );
     return;
   }
