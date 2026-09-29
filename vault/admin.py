@@ -27,8 +27,8 @@ from .models import (
 )
 
 # Custom Django Admin Header & Titles
-admin.site.site_header = "mySikaVault Administration"
-admin.site.site_title = "mySikaVault Portal"
+admin.site.site_header = "InheritanceBox Administration"
+admin.site.site_title = "InheritanceBox Portal"
 admin.site.index_title = "National Estate & Policy Management"
 
 
@@ -191,7 +191,7 @@ class CustomUserAdmin(UserAdmin):
     def reactivate_selected_users(self, request, queryset):
         rows = queryset.update(account_status="ACTIVE", is_active=True, suspension_reason="")
         self.message_user(request, f"{rows} user account(s) have been RE-ACTIVATED and restored.")
- 
+
 
 @admin.register(InsuranceCompany)
 class InsuranceCompanyAdmin(admin.ModelAdmin):
@@ -567,7 +567,7 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
         if photos:
             return format_html(
                 '<div style="display:flex; gap:16px; margin:8px 0 14px; flex-wrap:wrap;">{}</div>',
-                format_html("".join(photos))
+                mark_safe("".join(photos))
             )
         return format_html(
             '<span style="color: #64748B; font-style: italic;">{}</span>',
@@ -714,7 +714,7 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
                 '<span style="background: #FEE2E2; color: #DC2626; border: 1px solid #EF4444; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">☠️ POISON ACTIVE ({}x)</span>',
                 density,
             )
-        return format_html(
+        return mark_safe(
             '<span style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem;">OFF</span>'
         )
     dom_poison_badge.short_description = "DOM Poison Trap"
@@ -786,6 +786,7 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
 
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):
