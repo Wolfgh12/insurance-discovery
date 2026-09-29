@@ -99,7 +99,6 @@ def home_search_view(request):
     last_name = request.GET.get('last_name', '').strip()
     raw_query = request.GET.get('q', '').strip()
 
-    # Allow query string fallback if entered together in a single search box
     if not first_name and not last_name and raw_query:
         parts = raw_query.split(None, 1)
         first_name = parts[0]
@@ -115,7 +114,6 @@ def home_search_view(request):
         if not first_name or not last_name:
             name_error = "Both First Name and Last Name are required to query the national clearinghouse."
         else:
-            # Match strictly by First Name and Last Name
             matched_users = list(CustomUser.objects.filter(
                 first_name__iexact=first_name,
                 last_name__iexact=last_name,
@@ -129,7 +127,6 @@ def home_search_view(request):
                     .prefetch_related('unlock_grants', 'claims')
                 )
 
-                # Attach 3 random security questions to each matched policyholder
                 for policy in existing_policies:
                     holder = policy.policyholder
                     saved_answers = list(
@@ -164,6 +161,7 @@ def home_search_view(request):
     }
     return render(request, 'home.html', context)
 
+
 def pricing_view(request):
     """
     Public pricing page presenting quarterly and annual digital estate vault plans.
@@ -187,7 +185,6 @@ def verify_subscription_view(request):
     if not request.user.is_authenticated:
         return JsonResponse({'status': 'error', 'message': 'Authentication required.'}, status=401)
 
-    # Server-Side Guard: Prevent administrative and claimant accounts from purchasing personal subscriptions
     if request.user.is_staff or request.user.is_superuser:
         return JsonResponse({
             'status': 'error',
@@ -200,7 +197,6 @@ def verify_subscription_view(request):
             'message': 'Claimant dossier accounts cannot hold personal estate retainers. Please register a citizen account.'
         }, status=403)
 
-    # Prevent duplicate active subscriptions on the same vault
     if hasattr(request.user, 'subscription') and request.user.subscription and request.user.subscription.is_valid:
         return JsonResponse({
             'status': 'error',
@@ -310,10 +306,7 @@ def verify_subscription_view(request):
 @csrf_exempt
 def check_claimant_match_view(request):
     """
-    Pre-payment identity audit check, rate-limiting & 3-angle biometric capture engine:
-    1. Enforces 15-minute IP lockout on 5 consecutive false/unmatched attempts.
-    2. Captures front, left, and right profile snapshots.
-    3. Returns opaque security response on mismatch without exposing network telemetry.
+    Pre-payment identity audit check, rate-limiting & 3-angle biometric capture engine.
     """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
@@ -322,14 +315,12 @@ def check_claimant_match_view(request):
     claimant_throttle_key = f"throttle_claimant_audit_{client_ip}"
     failed_attempts = cache.get(claimant_throttle_key, 0)
 
-    # Rate Limiting: Lock out IP after 5 failed identity attempts to halt automated brute-force attacks
     if failed_attempts >= 5:
         return JsonResponse({
             'status': 'error',
             'message': 'Too many failed identity verification attempts from this network. Access locked for 15 minutes.'
         }, status=429)
 
-    # Support both JSON and multipart/form-data for file uploads
     if request.content_type and 'multipart/form-data' in request.content_type:
         data = request.POST
     else:
@@ -357,7 +348,6 @@ def check_claimant_match_view(request):
     if not record_id or not claimant_name or not claimant_phone or not claimant_ghana_card:
         return JsonResponse({'status': 'error', 'message': 'All intake fields are required.'}, status=400)
 
-    # Mandatory Death Certificate Validation
     if not death_cert_file:
         return JsonResponse({
             'status': 'error',
@@ -388,7 +378,6 @@ def check_claimant_match_view(request):
             'message': 'This policy is already locked and undergoing claim processing.'
         }, status=400)
 
-    # Sovereign Ghana Card Lock: Remains globally enforced across all citizens and grants
     clean_card = claimant_ghana_card.replace('-', '').replace(' ', '').upper()
     if (
         CustomUser.objects.filter(
@@ -404,7 +393,6 @@ def check_claimant_match_view(request):
             'message': 'This Ghana Card ID is already registered in the system. Please verify your ID details.'
         })
 
-    # Claimed & Settled Exemption: Allows family members to reuse phone and email details from claimed estates
     claimed_policyholder_q = (
         Q(policies__policy_status__in=['CLAIM_IN_PROGRESS', 'SETTLED'])
         | Q(policies__unlock_grants__is_active=True)
@@ -523,7 +511,6 @@ def check_claimant_match_view(request):
         status='UNMATCHED_FLAGGED',
     )
 
-    # Increment throttle count: 15-minute (900s) timeout window
     new_fails = failed_attempts + 1
     cache.set(claimant_throttle_key, new_fails, timeout=900)
 
@@ -550,7 +537,7 @@ def verify_unlock_view(request):
 
     reference = data.get('reference')
     record_id = data.get('record_id')
-    claimant_email = data.get('email', 'claimant@mysikavault.com')
+    claimant_email = data.get('email', 'claimant@inheritancebox.com')
     claimant_name = data.get('claimant_name', '').strip()
     relationship = data.get('relationship', '').strip()
     claimant_phone = data.get('claimant_phone', '').strip()
@@ -565,7 +552,6 @@ def verify_unlock_view(request):
         return JsonResponse({'status': 'error', 'message': 'Security audit reference required.'}, status=403)
 
     with transaction.atomic():
-        # Enforce ACID row-level mutual exclusion lock (SELECT ... FOR UPDATE)
         policy = get_object_or_404(
             PolicyRecord.objects.select_for_update().select_related('policyholder', 'insurer'), 
             id=record_id
@@ -607,7 +593,6 @@ def verify_unlock_view(request):
             if amount_paid_pesewas and int(amount_paid_pesewas) >= platform_config.unlock_fee_pesewas:
                 payment_verified = True
     except Exception:
-        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
         if settings.DEBUG and reference.startswith('LT-'):
             payment_verified = True
         else:
@@ -622,7 +607,6 @@ def verify_unlock_view(request):
             id=record_id
         )
 
-        # TOCTOU Concurrency Guard: Re-verify lock state after external Paystack HTTP roundtrip
         if policy.is_claim_locked:
             return JsonResponse({
                 'status': 'error',
@@ -632,7 +616,6 @@ def verify_unlock_view(request):
         policyholder = policy.policyholder
         access_token = secrets.token_urlsafe(24)
 
-        # Collision-Proof Unique Username Generation
         while True:
             claimant_username = f"claimant_{secrets.token_hex(6)}"
             if not CustomUser.objects.filter(username=claimant_username).exists():
@@ -758,7 +741,6 @@ def claimant_dashboard_view(request):
             request.session['active_claimant_token'] = grant.access_token
             return redirect('vault:claimant_vault', access_token=grant.access_token)
 
-        # Break the loop: If authenticated but holding no claimant grant, return to citizen dashboard
         messages.info(request, "You are logged in as a citizen vault owner. Redirected to your personal dashboard.")
         return redirect('vault:dashboard')
 
@@ -769,12 +751,10 @@ def claimant_login_view(request):
     """
     Dedicated login page for claimants to enter their system-generated credentials.
     """
-    # If already logged in, verify if they actually own an active claimant grant
     if request.user.is_authenticated:
         has_grant = ClaimantAccessGrant.objects.filter(claimant_user=request.user, is_active=True).exists()
         if has_grant:
             return redirect('vault:claimant_dashboard')
-        # If logged in as a normal citizen/vault holder, send them to their citizen dashboard
         return redirect('vault:dashboard')
 
     if request.method == 'POST':
@@ -783,11 +763,9 @@ def claimant_login_view(request):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            # Enforce check: Does this user actually hold a verified claimant dossier?
             grant = ClaimantAccessGrant.objects.filter(claimant_user=user, is_active=True).first()
             
             if not grant:
-                # Do NOT log them in. Warn them clearly that this portal is only for next-of-kin claimants
                 messages.error(
                     request, 
                     "No active claimant docket found for these credentials. "
@@ -795,7 +773,6 @@ def claimant_login_view(request):
                 )
                 return render(request, 'registration/claimant_login.html')
 
-            # Only log in once claimant grant validity is guaranteed
             login(request, user)
             request.session[f'claimant_vault_{grant.access_token}'] = {
                 'grant_id': grant.id,
@@ -830,7 +807,6 @@ def claimant_vault_view(request, access_token):
         messages.error(request, "Access session expired or invalid. Please authenticate to open your vault.")
         return redirect('vault:claimant_login')
 
-    # Verify grant remains active
     if grant_record and not grant_record.is_active:
         messages.error(
             request, 
@@ -929,7 +905,8 @@ def claimant_vault_view(request, access_token):
 def signup_view(request):
     """
     Citizen registration endpoint:
-    Supports account creation and captures the 5-per-tier security questions if submitted during signup.
+    Atomically creates the citizen account, saves the 20 security recovery keys,
+    and redirects cleanly to sign in.
     """
     if request.user.is_authenticated:
         if (
@@ -946,24 +923,12 @@ def signup_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.user_type = 'POLICYHOLDER'
-            user.has_paid_registration_fee = False
-            user.save()
-            form.save_m2m()
-
-            # Automatically capture and save the 5-per-tier security answers if provided on signup
-            tier_keys = ['TIER_1', 'TIER_2', 'TIER_3', 'TIER_4']
-            for tier_code in tier_keys:
-                for slot in range(1, 6):
-                    q_id = request.POST.get(f"question_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_q_{slot}")
-                    ans = (request.POST.get(f"answer_{tier_code}_{slot}") or request.POST.get(f"tier_{tier_code}_a_{slot}") or "").strip()
-                    if q_id and ans:
-                        q_obj = SecurityQuestion.objects.filter(id=q_id, is_active=True).first()
-                        if q_obj:
-                            ans_record = UserSecurityAnswer(user=user, question=q_obj)
-                            ans_record.set_answer(ans)
-                            ans_record.save()
+            with transaction.atomic():
+                user = form.save(commit=False)
+                user.user_type = 'POLICYHOLDER'
+                user.has_paid_registration_fee = False
+                user.save()
+                form.save_m2m()  # Saves all 20 security keys safely
 
             method = form.cleaned_data.get('verification_method')
 
@@ -977,7 +942,7 @@ def signup_view(request):
                 email_subject = "InheritanceBox | Confirm Your Registration"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
-                    f"Thank you for registering your digital estate i-box on InheritanceBox.\n\n"
+                    f"Thank you for registering your digital estate i box on InheritanceBox.\n\n"
                     f"Please click the secure statutory link below to activate your account and configure your identity recovery keys:\n"
                     f"{activation_url}\n\n"
                     f"This link is valid for 24 hours. If you did not initiate this registration, please disregard this email.\n\n"
@@ -999,13 +964,13 @@ def signup_view(request):
                 except Exception:
                     messages.warning(
                         request,
-                        "i-Box created, but email dispatch timed out. Please try signing in."
+                        "i box created, but email dispatch timed out. Please try signing in."
                     )
                 return redirect('vault:login')
             else:
                 messages.success(
                     request,
-                    f"i-Box account created successfully, {user.first_name or user.username}! Please sign in to activate your i-box."
+                    f"i box account created successfully, {user.first_name or user.username}! Please sign in to activate your i box."
                 )
                 return redirect('vault:login')
     else:
@@ -1068,7 +1033,6 @@ def security_questions_setup_view(request):
     tier_keys = ['TIER_1', 'TIER_2', 'TIER_3', 'TIER_4']
 
     if request.method == 'POST':
-        # Check if submitted via the 5-per-tier modal selector
         has_tiered_submission = any(f"question_{t}_1" in request.POST or f"tier_{t}_q_1" in request.POST for t in tier_keys)
 
         if has_tiered_submission:
@@ -1112,7 +1076,7 @@ def security_questions_setup_view(request):
                 messages.success(request, "All 20 security recovery keys (5 per tier) saved successfully!")
 
                 if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
-                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i-box.")
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i box.")
                     return redirect('vault:login')
 
                 return redirect('vault:dashboard')
@@ -1120,13 +1084,12 @@ def security_questions_setup_view(request):
                 for err in errors[:5]:
                     messages.error(request, err)
         else:
-            # Fallback for standard form
             form = SecurityQuestionsSetupForm(request.POST)
             if form.is_valid():
                 form.save(user=user)
                 messages.success(request, "Security recovery keys configured successfully!")
                 if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
-                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i-box.")
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i box.")
                     return redirect('vault:login')
                 return redirect('vault:dashboard')
     else:
@@ -1207,7 +1170,6 @@ def login_view(request):
 
     action = request.POST.get('action')
 
-    # Stage 3: Validate the single question answered and log in
     if action == 'verify_security_challenge':
         challenge_data = request.session.get('login_security_challenge')
         if not challenge_data:
@@ -1239,7 +1201,6 @@ def login_view(request):
                 'next': next_destination,
             })
 
-    # Stage 2: Settle GHS 10.00 Fee -> Immediately serve 1 random saved question
     if action == 'confirm_registration_fee':
         user_id = request.session.get('login_pending_user_id')
         if not user_id:
@@ -1269,7 +1230,6 @@ def login_view(request):
             if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= platform_config.registration_fee_pesewas:
                 verified = True
         except Exception:
-            # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
             if settings.DEBUG and reference.startswith('REG-'):
                 verified = True
             else:
@@ -1293,7 +1253,6 @@ def login_view(request):
 
         return prompt_single_saved_question(user)
 
-    # Stage 1: Dual-Key Brute-Force Check (IP + Target Account)
     username_or_card = request.POST.get('username', '').strip()
     password = request.POST.get('password', '').strip()
     clean_card = username_or_card.replace('-', '').replace(' ', '')
@@ -1348,7 +1307,6 @@ def login_view(request):
         elif user.is_staff or user.user_type in ['STAFF', 'INSURER_ADMIN']:
             return redirect('vault:admin_login')
 
-        # If GHS 10 fee is unpaid, present fee card first
         if not user.has_paid_registration_fee:
             request.session['login_pending_user_id'] = user.id
             platform_config = PlatformConfiguration.get_solo()
@@ -1360,7 +1318,6 @@ def login_view(request):
                 'platform_config': platform_config,
             })
 
-        # Fee already paid -> Present 1 random saved question
         return prompt_single_saved_question(user)
 
     new_ip_fails = ip_fails + 1
@@ -1378,11 +1335,7 @@ def login_view(request):
 
 def forgot_password_view(request):
     """
-    Dual-Path Password Recovery Flow:
-    1. Resolves citizen account via Username, Email, or Ghana Card ID (via CustomUser.find_by_identifier).
-    2. Offers two distinct pathways:
-       - Route A (Email Reset Link): Dispatches a one-time cryptographic reset token to the user's email with zero questions asked.
-       - Route B (Statutory Security Questions): Prompts the user to answer all configured security recovery keys on-screen.
+    Dual-Path Password Recovery Flow.
     """
     if request.user.is_authenticated:
         return redirect('vault:dashboard')
@@ -1425,7 +1378,6 @@ def forgot_password_view(request):
 
     action = request.POST.get('action')
 
-    # Step 1: Identifier Resolution (Username, Email, or Ghana Card ID)
     if action == 'lookup_citizen':
         identifier = request.POST.get('identifier', '').strip()
         user = CustomUser.find_by_identifier(identifier)
@@ -1456,7 +1408,6 @@ def forgot_password_view(request):
             'has_questions': bool(user.get_security_questions()),
         })
 
-    # Route A: Send Direct Email Reset Link (Zero Questions Asked)
     elif action == 'send_email_link':
         user_id = request.session.get('pwd_recovery_user_id')
         user = get_object_or_404(CustomUser, id=user_id) if user_id else None
@@ -1471,21 +1422,21 @@ def forgot_password_view(request):
             reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
         )
 
-        email_subject = "mySikaVault | Password Reset Confirmation"
+        email_subject = "InheritanceBox | Password Reset Confirmation"
         email_message = (
             f"Hello {user.first_name or user.username},\n\n"
-            f"A password reset request was initiated for your mySikaVault digital vault.\n\n"
+            f"A password reset request was initiated for your InheritanceBox digital vault.\n\n"
             f"Click the link below to set your new password:\n"
             f"{reset_url}\n\n"
             f"This link is valid for 24 hours. If you did not request a password reset, you can safely ignore this email.\n\n"
-            f"mySikaVault National Registry Desk"
+            f"InheritanceBox National Registry Desk"
         )
 
         try:
             send_mail(
                 subject=email_subject,
                 message=email_message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@inheritancebox.com'),
                 recipient_list=[user.email],
                 fail_silently=False,
             )
@@ -1499,7 +1450,6 @@ def forgot_password_view(request):
             'user_email': user.email,
         })
 
-    # Route B: Load Statutory Security Questions
     elif action == 'start_security_questions':
         user_id = request.session.get('pwd_recovery_user_id')
         user = get_object_or_404(CustomUser, id=user_id) if user_id else None
@@ -1523,7 +1473,6 @@ def forgot_password_view(request):
             'target_user': user,
         })
 
-    # Route B Verification: Evaluate All Security Answers Concurrently
     elif action == 'verify_all_security_answers':
         user_id = request.session.get('pwd_recovery_user_id')
         questions = request.session.get('pwd_reset_questions', [])
@@ -1555,26 +1504,25 @@ def forgot_password_view(request):
         request.session.modified = True
 
         if attempts >= 3:
-            # Automatic fallback: dispatch reset email on 3rd failure
             if user.email:
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 reset_url = request.build_absolute_uri(
                     reverse('vault:reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
                 )
-                email_subject = "mySikaVault | Password Reset (Question Attempts Exceeded)"
+                email_subject = "InheritanceBox | Password Reset (Question Attempts Exceeded)"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
                     f"Three consecutive incorrect security answer attempts (3/3) were recorded for your vault.\n\n"
                     f"To restore your account securely, click the link below:\n"
                     f"{reset_url}\n\n"
-                    f"mySikaVault National Registry Desk"
+                    f"InheritanceBox National Registry Desk"
                 )
                 try:
                     send_mail(
                         subject=email_subject,
                         message=email_message,
-                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@inheritancebox.com'),
                         recipient_list=[user.email],
                         fail_silently=False,
                     )
@@ -1705,7 +1653,6 @@ def verify_registration_fee_view(request):
         if resp_data.get('status') and data_payload.get('status') == 'success' and int(paid_pesewas) >= platform_config.registration_fee_pesewas:
             verified = True
     except Exception:
-        # Strict Production Guard: Mock prefixes are ONLY permitted in local DEBUG environments
         if settings.DEBUG and reference.startswith('REG-'):
             verified = True
         else:
@@ -2128,7 +2075,6 @@ def dashboard_view(request):
 
     approved_prompts_count = MilestonePrompt.objects.filter(status='APPROVED', is_active=True).count()
 
-    # Query all 20 active security keys sorted by tier and display order
     security_answers = (
         user.security_answers.select_related('question')
         .order_by('question__tier', 'question__display_order', 'id')
@@ -2167,6 +2113,7 @@ def dashboard_view(request):
     }
     return render(request, 'dashboard.html', context)
 
+
 # ====================================================
 # Administrative Portals & National Oversight
 # ====================================================
@@ -2178,7 +2125,6 @@ def lead_admin_dashboard_view(request):
     Lead Admin Dashboard: National telemetry oversight, fraud investigations,
     3-angle biometric audit inspections, full policyholder estate inventories,
     and verified next-of-kin claimant dossiers.
-    Enforces active 'LEAD' session mode isolation.
     """
     active_role = request.session.get('active_admin_role')
     
@@ -2346,7 +2292,6 @@ def lead_admin_dashboard_view(request):
     total_audits = ClaimSecurityAuditLog.objects.count()
     flagged_audits_count = ClaimSecurityAuditLog.objects.filter(is_matched=False).count()
 
-    # Dynamic Statutory Disbursements (Option A with Claim Precision)
     settled_policies = PolicyRecord.objects.filter(policy_status='SETTLED').prefetch_related('claims')
     total_disbursed = sum(p.statutory_disbursement_value for p in settled_policies)
 
@@ -2482,7 +2427,6 @@ def staff_admin_dashboard_view(request):
     """
     Normal Administrator Dashboard: Policy synchronization, next-of-kin verification,
     operational claim audits, and full policyholder / claimant registry access.
-    Enforces active 'STAFF' session mode isolation.
     """
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "Staff clearance required to access the operations desk.")
@@ -2739,9 +2683,6 @@ def update_policy_status_view(request, policy_id):
 def admin_login_view(request):
     """
     Unified toggleable administration login portal for Lead Admin and Normal Admin.
-    Establishes isolated session role tokens upon successful authentication.
-    When an active admin switches portals (?role=...), their current session is
-    terminated immediately so they must re-authenticate for that specific role card.
     """
     requested_role = request.GET.get('role', '').strip().lower()
 
@@ -2813,7 +2754,6 @@ def delete_audit_log_view(request, log_id):
 def contact_view(request):
     """
     Public Contact and Support Desk for policyholders, claimants, and underwriters.
-    Saves inquiries to the database and dispatches alert emails to operations.
     """
     if request.method == 'POST':
         full_name = request.POST.get('full_name', '').strip()
@@ -2832,7 +2772,7 @@ def contact_view(request):
                 status='NEW'
             )
 
-            subject = f"[mySikaVault Desk] {inquiry.get_category_display()} - {full_name}"
+            subject = f"[InheritanceBox Desk] {inquiry.get_category_display()} - {full_name}"
             email_body = (
                 f"A new inquiry has been lodged through the contact portal:\n\n"
                 f"Full Name: {full_name}\n"
@@ -2849,8 +2789,8 @@ def contact_view(request):
                 send_mail(
                     subject=subject,
                     message=email_body,
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@mysikavault.com'),
-                    recipient_list=['mysikavault@gmail.com'],
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@inheritancebox.com'),
+                    recipient_list=['support@inheritancebox.com'],
                     fail_silently=True,
                 )
             except Exception:
@@ -2878,8 +2818,6 @@ def terms_view(request):
 def paystack_webhook_view(request):
     """
     Cryptographically authenticated Paystack webhook listener.
-    Enforces HMAC-SHA512 signature validation and performs live reverse
-    synchronization when plan pricing or subscription statuses are modified on Paystack.
     """
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
@@ -2890,7 +2828,6 @@ def paystack_webhook_view(request):
     if not paystack_signature or not secret_key:
         return JsonResponse({'status': 'error', 'message': 'Missing signature or secret key.'}, status=400)
 
-    # Compute HMAC-SHA512 over the raw request payload
     computed_signature = hmac.new(
         secret_key.encode('utf-8'),
         request.body,
@@ -2908,7 +2845,6 @@ def paystack_webhook_view(request):
     event = payload.get('event')
     data = payload.get('data', {}) or {}
 
-    # 1. Reverse Plan Synchronization (Paystack Dashboard -> Django PlatformConfiguration)
     if event in ['plan.update', 'plan.create']:
         plan_code = data.get('plan_code', '').strip()
         amount_pesewas = data.get('amount')
@@ -2919,7 +2855,6 @@ def paystack_webhook_view(request):
                 platform_config.annual_subscription_fee = float(amount_pesewas) / 100.0
                 platform_config.save(update_fields=['annual_subscription_fee'])
 
-    # 2. Subscription Lifecycle Synchronization
     elif event == 'subscription.disable':
         sub_code = data.get('subscription_code')
         if sub_code:
@@ -2928,6 +2863,7 @@ def paystack_webhook_view(request):
             ).update(status='CANCELLED', auto_renew=False)
 
     return JsonResponse({'status': 'success', 'message': 'Webhook processed successfully.'})
+
 
 @csrf_exempt
 def verify_claimant_security_questions_view(request):
@@ -2964,7 +2900,6 @@ def verify_claimant_security_questions_view(request):
 
     policyholder = get_object_or_404(CustomUser, id=policyholder_id, user_type='POLICYHOLDER')
 
-    # Verify each answer against cryptographically salted hashes
     all_passed = True
     for q_id, raw_answer in answers.items():
         if not policyholder.verify_security_answer(q_id, raw_answer):
@@ -3020,7 +2955,6 @@ def verify_policyholder_ghana_card_view(request):
     clean_input_digits = re.sub(r'\D', '', input_card)
     stored_digits = policyholder.clean_card_digits
 
-    # Verify matching format and digits
     is_card_matched = False
     if policyholder.ghana_card_number and policyholder.ghana_card_number.upper() == input_card:
         is_card_matched = True
