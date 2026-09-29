@@ -2911,25 +2911,29 @@
     }
 
     // ----------------------------------------------------
-    // Female Voice Guidance Notice (No Active Policy Located)
+    // Localized West African MP3 Audio Player (No Policy Found)
     // ----------------------------------------------------
-    window.playNoPolicyAudio = function () {
-      const queryName = "{{ query|escapejs }}".trim();
-      const spokenNotice = queryName 
-        ? `No active policy was located on the InheritanceBox clearinghouse registry for ${queryName}. Please verify the name details and try searching again.`
-        : "No active policy was located on the InheritanceBox clearinghouse registry. Please verify the policyholder name and try searching again.";
+    const noPolicyAudio = new Audio("{% static 'audio/no_policy_found.mp3' %}?v=" + new Date().getTime());
+    noPolicyAudio.preload = "auto";
 
-      speakFemaleVoice(spokenNotice);
+    window.playNoPolicyAudio = function () {
+      try {
+        noPolicyAudio.currentTime = 0;
+        noPolicyAudio.play().catch(function (err) {
+          console.log("Audio waiting for user gesture:", err);
+        });
+      } catch (e) {}
     };
 
     window.closeNoPolicyModal = function () {
       const modal = document.getElementById('no-policy-modal-backdrop');
       if (modal) modal.style.display = 'none';
 
-      // Immediately silence speech synthesis if user closes modal
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      // Silence the MP3 immediately when modal is closed
+      try {
+        noPolicyAudio.pause();
+        noPolicyAudio.currentTime = 0;
+      } catch (e) {}
 
       const input = document.getElementById('registry-search-firstname');
       if (input) {
@@ -2938,12 +2942,12 @@
       }
     };
 
-    // Automatically speak the notice in a woman's voice when the modal opens
+    // Play the generated MP3 file when the modal pops up
     const noPolicyModal = document.getElementById('no-policy-modal-backdrop');
     if (noPolicyModal) {
       setTimeout(() => {
         window.playNoPolicyAudio();
-      }, 450);
+      }, 350);
     }
 
     // ----------------------------------------------------
