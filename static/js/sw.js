@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
               <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📡</div>
               <h2>Network Reconnecting</h2>
               <p>A cellular connection shift interrupted the page. Tap below to resume.</p>
-              <button class="btn-retry" onclick="window.location.reload()">Reconnect i Box ⚡</button>
+              <button class="btn-retry" onclick="window.location.reload()">Reconnect ibox ⚡</button>
             </div>
           </body>
           </html>`,

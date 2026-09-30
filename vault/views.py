@@ -1042,7 +1042,7 @@ def signup_view(request):
                 email_subject = "InheritanceBox | Confirm Your Registration"
                 email_message = (
                     f"Hello {user.first_name or user.username},\n\n"
-                    f"Thank you for registering your digital estate i box on InheritanceBox.\n\n"
+                    f"Thank you for registering your digital estate ibox on InheritanceBox.\n\n"
                     f"Please click the secure statutory link below to activate your account and configure your identity recovery keys:\n"
                     f"{activation_url}\n\n"
                     f"This link is valid for 24 hours. If you did not initiate this registration, please disregard this email.\n\n"
@@ -1064,13 +1064,13 @@ def signup_view(request):
                 except Exception:
                     messages.warning(
                         request,
-                        "i box created, but email dispatch timed out. Please try signing in."
+                        "ibox created, but email dispatch timed out. Please try signing in."
                     )
                 return redirect('vault:login')
             else:
                 messages.success(
                     request,
-                    f"i box account created successfully, {user.first_name or user.username}! Please sign in to activate your i box."
+                    f"ibox account created successfully, {user.first_name or user.username}! Please sign in to activate your ibox."
                 )
                 return redirect('vault:login')
     else:
@@ -1176,7 +1176,7 @@ def security_questions_setup_view(request):
                 messages.success(request, "All 20 security recovery keys (5 per tier) saved successfully!")
 
                 if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
-                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i box.")
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your ibox.")
                     return redirect('vault:login')
 
                 return redirect('vault:dashboard')
@@ -1189,7 +1189,7 @@ def security_questions_setup_view(request):
                 form.save(user=user)
                 messages.success(request, "Security recovery keys configured successfully!")
                 if not user.has_paid_registration_fee and not (user.is_staff or user.is_superuser):
-                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your i box.")
+                    messages.info(request, "Please settle the statutory one-time onboarding fee (GHS 10.00) to open your ibox.")
                     return redirect('vault:login')
                 return redirect('vault:dashboard')
     else:

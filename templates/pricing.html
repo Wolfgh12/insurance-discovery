@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Estate Protection Plans | Sovereign Digital i Box{% endblock %}
+{% block title %}Estate Protection Plans | Sovereign Digital ibox{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -253,10 +253,10 @@
   <!-- Centered Single Card -->
   <div class="pricing-container" style="margin-top: 1rem;">
     <div class="pricing-card">
-      <div class="featured-ribbon" id="pricing-badge">Annual i Box Protection</div>
+      <div class="featured-ribbon" id="pricing-badge">Annual ibox Protection</div>
       <div>
         <div class="plan-name">Individual Estate Custody</div>
-        <div class="plan-desc">Standard digital asset i box retainer for policyholders securing statutory claims continuity.</div>
+        <div class="plan-desc">Standard digital asset ibox retainer for policyholders securing statutory claims continuity.</div>
         
         <div class="price-wrapper">
           <span class="price-currency">GHS</span>
@@ -291,9 +291,9 @@
         🔐
       </div>
 
-      <h3 id="auth-modal-title" style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.5rem;">i Box Access Required</h3>
+      <h3 id="auth-modal-title" style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.5rem;">ibox Access Required</h3>
       <p id="auth-modal-desc" style="font-size: 0.86rem; color: #94A3B8; line-height: 1.5; margin: 0 0 1.75rem;">
-        To link your payment and activate i box protection, please sign in or register your citizen account.
+        To link your payment and activate ibox protection, please sign in or register your citizen account.
       </p>
 
       <!-- Hidden Logout Dispatcher for Active Administrative Sessions -->
@@ -304,10 +304,10 @@
 
 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             <a id="auth-modal-login-btn" href="{% url 'login' %}?next={% url 'vault:pricing' %}" onclick="return handleAuthClick('login', event);" style="display: block; padding: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; font-weight: 800; font-size: 0.92rem; text-decoration: none; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35); transition: transform 0.15s ease;">
-              Sign In to Your i Box ➔
+              Sign In to Your ibox ➔
             </a>
             <a id="auth-modal-signup-btn" href="{% url 'vault:signup' %}?next={% url 'vault:pricing' %}" onclick="return handleAuthClick('signup', event);" style="display: block; padding: 0.85rem; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid #06B6D4; color: #38BDF8; font-weight: 800; font-size: 0.92rem; text-decoration: none; transition: background 0.15s ease;">
-              Create New i Box Account ⚡
+              Create New ibox Account ⚡
             </a>
           </div>
 
@@ -449,13 +449,13 @@
 
       if (isAdminOrStaff) {
         if (titleEl) titleEl.textContent = 'Citizen Account Required';
-        if (descEl) descEl.textContent = 'Administrator accounts cannot hold personal estate retainers. Please sign in with or register a personal citizen account to activate i box protection.';
+        if (descEl) descEl.textContent = 'Administrator accounts cannot hold personal estate retainers. Please sign in with or register a personal citizen account to activate ibox protection.';
       } else if (isClaimant) {
         if (titleEl) titleEl.textContent = 'Citizen Account Required';
-        if (descEl) descEl.textContent = 'Claimant dossier accounts cannot hold personal estate retainers. Please sign in with or register a personal citizen account to activate i box protection.';
+        if (descEl) descEl.textContent = 'Claimant dossier accounts cannot hold personal estate retainers. Please sign in with or register a personal citizen account to activate ibox protection.';
       } else {
-        if (titleEl) titleEl.textContent = 'i Box Access Required';
-        if (descEl) descEl.textContent = 'To link your payment and activate i box protection, please sign in or register your citizen account.';
+        if (titleEl) titleEl.textContent = 'ibox Access Required';
+        if (descEl) descEl.textContent = 'To link your payment and activate ibox protection, please sign in or register your citizen account.';
       }
 
       openAuthModal();

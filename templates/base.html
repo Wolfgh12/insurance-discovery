@@ -7,14 +7,14 @@
 <meta name="theme-color" content="#0A192F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>{% block title %}InheritanceBox | Digital Legacy My i Box{% endblock %}</title>
+<title>{% block title %}InheritanceBox | Digital Legacy My ibox{% endblock %}</title>
 
 <!-- WhatsApp, iMessage & Social Media Open Graph Previews -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="InheritanceBox">
 <meta property="og:url" content="https://inheritancebox.com/">
-<meta property="og:title" content="InheritanceBox | Digital Legacy My i Box">
-<meta property="og:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my i box.">
+<meta property="og:title" content="InheritanceBox | Digital Legacy My ibox">
+<meta property="og:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my ibox.">
 <meta property="og:image" content="https://inheritancebox.com{% static 'images/finale_logo.jpg' %}">
 <meta property="og:image:secure_url" content="https://inheritancebox.com{% static 'images/finale_logo.jpg' %}">
 <meta property="og:image:type" content="image/jpeg">
@@ -25,8 +25,8 @@
 
 <!-- Twitter Card Previews -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="InheritanceBox | Digital Legacy My i Box">
-<meta name="twitter:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my i box.">
+<meta name="twitter:title" content="InheritanceBox | Digital Legacy My ibox">
+<meta name="twitter:description" content="Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted my ibox.">
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/finale_logo.jpg' %}?v=9">
 
 <!-- Shield Favicon & Touch Icons --> 
@@ -765,8 +765,8 @@
 </head>
 <body>
 
-  <!-- Global Minimal Big-Logo My i Box Loader (Initial Load & Nav Transition) -->
-  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading my i box">
+  <!-- Global Minimal Big-Logo My ibox Loader (Initial Load & Nav Transition) -->
+  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading my ibox">
     <div class="vault-loader-card" style="flex-direction: column;">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
@@ -887,7 +887,7 @@
                 <a 
                   href="{% url 'vault:claimant_login' %}" 
                   class="nav-link-item nav-link-private"
-                  title="Authenticate to Private Estate My i Box"
+                  title="Authenticate to Private Estate My ibox"
                   style="white-space: nowrap;"
                 >
                   Private Dashboard 🔐
@@ -950,7 +950,7 @@
         {% else %}
           <!-- Guest View -->
           <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="white-space: nowrap;">Sign Up</a>
-          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Open My i Box 🔐</a>
+          <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="white-space: nowrap;">Open My ibox 🔐</a>
         {% endif %}
       </div>
 
@@ -992,16 +992,16 @@
           </p>
           <div class="footer-security-pill">
             <span class="security-dot"></span>
-            <span>256-Bit My i Box Encryption Active</span>
+            <span>256-Bit My ibox Encryption Active</span>
           </div>
         </div>
 
-<!-- Column 2: Quick My i Box Navigation -->
+<!-- Column 2: Quick My ibox Navigation -->
         <div>
-          <div class="footer-heading">My i Box Navigation</div>
+          <div class="footer-heading">My ibox Navigation</div>
           <ul class="footer-links">
             <li><a href="/#registry-search" class="footer-link">Search Registry</a></li>
-            <li><a href="/#vault-features" class="footer-link">My i Box Modules & Security</a></li>
+            <li><a href="/#vault-features" class="footer-link">My ibox Modules & Security</a></li>
             <li><a href="{% url 'vault:pricing' %}" class="footer-link">Protection Plans & Pricing</a></li>
             <li><a href="/#how-it-works" class="footer-link">Claims Verification Flow</a></li>
             <li><a href="/#faq" class="footer-link">Frequently Asked Questions</a></li>
@@ -1025,7 +1025,7 @@
           <ul class="footer-links">
             <li><a href="/#faq" class="footer-link">Data Protection Act 843</a></li>
             <li><a href="/#faq" class="footer-link">Ghana Card ID Standards</a></li>
-            <li><a href="/#faq" class="footer-link">Privacy & My i Box Encryption</a></li>
+            <li><a href="/#faq" class="footer-link">Privacy & My ibox Encryption</a></li>
             <li><a href="/#faq" class="footer-link">Anti-Fraud & Penal Code</a></li>
             <li><a href="{% url 'vault:terms' %}" class="footer-link">Terms of Service</a></li>
           </ul>
@@ -1038,7 +1038,7 @@
             <li><a href="/#registry-search" class="footer-link">🏛️ Life Underwriters Ghana</a></li>
             <li><a href="/#registry-search" class="footer-link">🇬🇭 National ID Integration</a></li>
             <li><a href="/#registry-search" class="footer-link">📜 Certified Probate Storage</a></li>
-            <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant My i Box Sync</a></li>
+            <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant My ibox Sync</a></li>
           </ul>
         </div>
 
@@ -1433,7 +1433,7 @@
           </form>
         {% else %}
           <a href="{% url 'vault:dashboard' %}" class="btn-nav-cta" style="justify-content: center; padding: 0.85rem; font-size: 0.9rem; width: 100%; border-radius: 12px;">
-            Open My i Box 🔐
+            Open My ibox 🔐
           </a>
           <a href="{% url 'vault:signup' %}" class="btn-nav-portal" style="justify-content: center; padding: 0.8rem; font-size: 0.9rem; width: 100%; border-radius: 12px; text-align: center;">
             Sign Up
@@ -1666,13 +1666,13 @@
         ⏳
       </div>
       <div style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
-        My i Box Inactivity Warning
+        My ibox Inactivity Warning
       </div>
       <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px;">
         Session Expiring Soon
       </h3>
       <p style="margin: 0 0 1.5rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        To protect confidential estate assets and policy records, your active my i box session will lock automatically in:
+        To protect confidential estate assets and policy records, your active my ibox session will lock automatically in:
       </p>
       <div style="font-size: 2.2rem; font-weight: 900; color: #38BDF8; font-variant-numeric: tabular-nums; margin-bottom: 1.75rem;">
         <span id="timeout-countdown-sec">30</span>s
@@ -2071,7 +2071,7 @@
           disabled
           style="width: 100%; background: rgba(255, 255, 255, 0.1); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: not-allowed; opacity: 0.7; font-family: inherit; transition: all 0.25s ease;"
         >
-          Packaging Offline i Box... ⏳
+          Packaging Offline ibox... ⏳
         </button>
 
         <button 
@@ -2217,7 +2217,7 @@
           installBtn.style.opacity = '0.7';
           installBtn.style.cursor = 'not-allowed';
           installBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-          installBtn.innerHTML = 'Packaging Offline i Box... ⏳';
+          installBtn.innerHTML = 'Packaging Offline ibox... ⏳';
         }
  
         // Stepper loop
