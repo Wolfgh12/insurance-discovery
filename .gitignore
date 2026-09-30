@@ -5,3 +5,7 @@ staticfiles/
 media/
 .env
 .vscode/
+
+venv/
+*.pyc
+__pycache__/
