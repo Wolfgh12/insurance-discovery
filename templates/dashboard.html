@@ -849,100 +849,100 @@
   </div>
 
   <div class="vault-stat-grid">
-    <!-- Policies Chip -->
+    <!-- Folder 01: Core Insurance Policies -->
     {% if platform_config.module_policies_enabled %}
       <div class="stat-chip">
         <div class="stat-chip-count">{{ policies.count }}</div>
-        <div class="stat-chip-label">Policies Linked</div>
+        <div class="stat-chip-label">Folder 01 • Policies</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
         <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Policies</div>
+        <div class="stat-chip-label">Folder 01 • Policies</div>
       </div>
     {% endif %}
 
-    <!-- Emergency Contacts (Core - Always Live) -->
+    <!-- Core: Emergency Contacts -->
     <div class="stat-chip">
       <div class="stat-chip-count">{{ emergency_contacts.count }}</div>
       <div class="stat-chip-label">Emergency Contacts</div>
     </div>
 
-    <!-- Memories Chip -->
-    {% if platform_config.module_memories_enabled %}
+    <!-- Folder 02: Memories & Keepsakes -->
+    {% if platform_config.module_memories_enabled or 'memories' in user_active_modules %}
       <div class="stat-chip" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35);">
         <div class="stat-chip-count" style="color: #38BDF8;">{{ memories.count }}</div>
-        <div class="stat-chip-label" style="color: #E0F2FE;">Keepsakes & Firsts</div>
+        <div class="stat-chip-label" style="color: #E0F2FE;">Folder 02 • Keepsakes</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Keepsakes</div>
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 02 • Keepsakes</div>
       </div>
     {% endif %}
 
-    <!-- Family Lineage Chip -->
-    {% if platform_config.module_family_tree_enabled %}
+    <!-- Folder 03: Family Tree & Lineage -->
+    {% if platform_config.module_family_tree_enabled or 'family_tree' in user_active_modules %}
       <div class="stat-chip" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35);">
         <div class="stat-chip-count" style="color: #34D399;">{{ family_members.count }}</div>
-        <div class="stat-chip-label" style="color: #ECFDF5;">Family Lineage</div>
+        <div class="stat-chip-label" style="color: #ECFDF5;">Folder 03 • Family Tree</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Family Tree</div>
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 03 • Family Tree</div>
       </div>
     {% endif %}
 
-    <!-- Bank Accounts Chip -->
-    {% if platform_config.module_banks_enabled %}
+    <!-- Folder 04: Bank Accounts -->
+    {% if platform_config.module_banks_enabled or 'bank_accounts' in user_active_modules %}
       <div class="stat-chip">
         <div class="stat-chip-count">{{ bank_accounts.count }}</div>
-        <div class="stat-chip-label">Bank Accounts</div>
+        <div class="stat-chip-label">Folder 04 • Banks</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Bank Accounts</div>
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 04 • Banks</div>
       </div>
     {% endif %}
 
-    <!-- Investments Chip -->
-    {% if platform_config.module_investments_enabled %}
+    <!-- Folder 05: Investments & T-Bills -->
+    {% if platform_config.module_investments_enabled or 'investments' in user_active_modules %}
       <div class="stat-chip">
         <div class="stat-chip-count">{{ investments.count }}</div>
-        <div class="stat-chip-label">Investments</div>
+        <div class="stat-chip-label">Folder 05 • Investments</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Investments</div>
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 05 • Investments</div>
       </div>
     {% endif %}
 
-    <!-- Assets Chip -->
-    {% if platform_config.module_assets_enabled %}
-      <div class="stat-chip">
-        <div class="stat-chip-count">{{ assets.count }}</div>
-        <div class="stat-chip-label">Property & Assets</div>
-      </div>
-    {% else %}
-      <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Property & Assets</div>
-      </div>
-    {% endif %}
-
-    <!-- Wills Chip -->
-    {% if platform_config.module_wills_enabled %}
+    <!-- Folder 06: Wills & Deeds -->
+    {% if platform_config.module_wills_enabled or 'wills_deeds' in user_active_modules %}
       <div class="stat-chip">
         <div class="stat-chip-count">{{ documents.count }}</div>
-        <div class="stat-chip-label">Wills & Deeds</div>
+        <div class="stat-chip-label">Folder 06 • Wills</div>
       </div>
     {% else %}
       <div class="stat-chip is-soon">
-        <div class="stat-chip-badge-soon">SOON</div>
-        <div class="stat-chip-label">Wills & Deeds</div>
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 06 • Wills</div>
+      </div>
+    {% endif %}
+
+    <!-- Folder 07: Properties & Physical Assets -->
+    {% if platform_config.module_assets_enabled or 'properties_assets' in user_active_modules %}
+      <div class="stat-chip">
+        <div class="stat-chip-count">{{ assets.count }}</div>
+        <div class="stat-chip-label">Folder 07 • Assets</div>
+      </div>
+    {% else %}
+      <div class="stat-chip is-soon">
+        <div class="stat-chip-badge-soon">ADD-ON SOON</div>
+        <div class="stat-chip-label">Folder 07 • Assets</div>
       </div>
     {% endif %}
 
@@ -967,7 +967,7 @@
 <div class="dashboard-layout-container">
   <!-- Left Sidebar Navigation -->
   <aside class="vault-sidebar">
-    <div class="sidebar-header-label">Vault Modules</div>
+    <div class="sidebar-header-label">ibox Vault Modules</div>
     <button type="button" class="sidebar-nav-btn {% if not has_searched %}active{% endif %}" onclick="switchTab(event, 'tab-profile')">
       <span>👤 Profile & Address</span>
       <span>➔</span>
@@ -976,94 +976,95 @@
       <span>🚨 Emergency Contact</span>
       <span>➔</span>
     </button>
-    <!-- Policies Button -->
+
+    <!-- Folder 01: Insurance Policies (Included with Base Plan) -->
     {% if platform_config.module_policies_enabled %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-policies')">
-        <span>📑 Insurance Policies</span>
+        <span>📑 Folder 01: Policies</span>
         <span>➔</span>
       </button>
     {% else %}
       <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Insurance policy management launching soon">
-        <span>📑 Insurance Policies</span>
+        <span>📑 Folder 01: Policies</span>
         <span class="badge-coming-soon">Coming Soon</span>
       </button>
     {% endif %}
 
-    <!-- Memories Button -->
-    {% if platform_config.module_memories_enabled %}
+    <!-- Folder 02: Memory Lane & Keepsakes (Recurring Add-on) -->
+    {% if platform_config.module_memories_enabled or 'memories' in user_active_modules %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-memories')">
-        <span>💎 Memory Lane & Keepsakes</span>
+        <span>💎 Folder 02: Keepsakes</span>
         <span>➔</span>
       </button>
     {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital time capsule launching soon">
-        <span>💎 Keepsakes</span>
-        <span class="badge-coming-soon">Coming Soon</span>
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Memory Lane & Keepsakes launching soon as a dedicated add-on module">
+        <span>💎 Folder 02: Keepsakes</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
       </button>
     {% endif %}
 
-    <!-- Family Tree Button -->
-    {% if platform_config.module_family_tree_enabled %}
+    <!-- Folder 03: Family Tree & Lineage (Recurring Add-on) -->
+    {% if platform_config.module_family_tree_enabled or 'family_tree' in user_active_modules %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-family')">
-        <span>🌳 Family Tree & Lineage</span>
+        <span>🌳 Folder 03: Family Tree</span>
         <span>➔</span>
       </button>
     {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Family tree mapping launching soon">
-        <span>🌳 Family Tree</span>
-        <span class="badge-coming-soon">Coming Soon</span>
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Family Tree & Lineage launching soon as a dedicated add-on module">
+        <span>🌳 Folder 03: Family Tree</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
       </button>
     {% endif %}
 
-    <!-- Bank Accounts Button -->
-    {% if platform_config.module_banks_enabled %}
+    <!-- Folder 04: Bank Accounts (Recurring Add-on) -->
+    {% if platform_config.module_banks_enabled or 'bank_accounts' in user_active_modules %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-banks')">
-        <span>🏦 Bank Accounts</span>
+        <span>🏦 Folder 04: Bank Accounts</span>
         <span>➔</span>
       </button>
     {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Commercial bank account discovery launching soon">
-        <span>🏦 Bank Accounts</span>
-        <span class="badge-coming-soon">Coming Soon</span>
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Commercial Bank Accounts launching soon as a dedicated add-on module">
+        <span>🏦 Folder 04: Banks</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
       </button>
     {% endif %}
 
-    <!-- Investments Button -->
-    {% if platform_config.module_investments_enabled %}
+    <!-- Folder 05: Investments & T-Bills (Recurring Add-on) -->
+    {% if platform_config.module_investments_enabled or 'investments' in user_active_modules %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-investments')">
-        <span>📈 Investments & T-Bills</span>
+        <span>📈 Folder 05: Investments</span>
         <span>➔</span>
       </button>
     {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="T-Bills and investment holdings launching soon">
-        <span>📈 Investments</span>
-        <span class="badge-coming-soon">Coming Soon</span>
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Investments & T-Bills launching soon as a dedicated add-on module">
+        <span>📈 Folder 05: Investments</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
       </button>
     {% endif %}
 
-    <!-- Property & Assets Button -->
-    {% if platform_config.module_assets_enabled %}
-      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-assets')">
-        <span>🏛️ Property & Assets</span>
-        <span>➔</span>
-      </button>
-    {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Real estate and land asset depository launching soon">
-        <span>🏛️ Property & Assets</span>
-        <span class="badge-coming-soon">Coming Soon</span>
-      </button>
-    {% endif %}
-
-    <!-- Wills & Deeds Button -->
-    {% if platform_config.module_wills_enabled %}
+    <!-- Folder 06: Wills & Deeds (Recurring Add-on) -->
+    {% if platform_config.module_wills_enabled or 'wills_deeds' in user_active_modules %}
       <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-wills')">
-        <span>📜 Wills & Deeds</span>
+        <span>📜 Folder 06: Wills & Deeds</span>
         <span>➔</span>
       </button>
     {% else %}
-      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital will depository launching soon">
-        <span>📜 Wills & Deeds</span>
-        <span class="badge-coming-soon">Coming Soon</span>
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Digital Wills & Deeds launching soon as a dedicated add-on module">
+        <span>📜 Folder 06: Wills</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
+      </button>
+    {% endif %}
+
+    <!-- Folder 07: Properties & Assets (Recurring Add-on) -->
+    {% if platform_config.module_assets_enabled or 'properties_assets' in user_active_modules %}
+      <button type="button" class="sidebar-nav-btn" onclick="switchTab(event, 'tab-assets')">
+        <span>🏛️ Folder 07: Assets</span>
+        <span>➔</span>
+      </button>
+    {% else %}
+      <button type="button" class="sidebar-nav-btn is-disabled" disabled title="Properties & Assets launching soon as a dedicated add-on module">
+        <span>🏛️ Folder 07: Assets</span>
+        <span class="badge-coming-soon">Add-on Soon</span>
       </button>
     {% endif %}
 

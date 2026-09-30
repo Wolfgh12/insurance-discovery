@@ -57,8 +57,10 @@ from .models import (
     PolicyClaim,
     PolicyRecord,
     SecurityQuestion,
+    UserModuleSubscription,
     UserSecurityAnswer,
     UserSubscription,
+    VaultModuleCatalog,
 )
 
 PAYSTACK_SECRET_KEY = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
@@ -164,12 +166,50 @@ def home_search_view(request):
 
 def pricing_view(request):
     """
-    Public pricing page presenting quarterly and annual digital estate vault plans.
+    Public pricing page presenting Core ibox retainers alongside
+    recurring add-on expansion modules (Folders 02 through 07).
     """
     platform_config = PlatformConfiguration.get_solo()
+
+    # Auto-seed the module catalog if empty so templates always have data
+    if not VaultModuleCatalog.objects.exists():
+        default_catalog = [
+            ('memories', '02', 'Memory Lane & Keepsakes', 'Digital time capsule preserving childhood stories, memorable events, and heirloom photos.', 250.00, False, 1),
+            ('family_tree', '03', 'Family Tree & Lineage', 'Connected generational tree mapping elders, siblings, niblings, spouses, and children for verified estate continuity.', 250.00, False, 2),
+            ('bank_accounts', '04', 'Commercial Bank Accounts', 'Commercial bank depository cataloging savings, fixed deposits, and certificates.', 250.00, False, 3),
+            ('investments', '05', 'Investments & T-Bills', 'Securities ledger tracking GoG Treasury Bills, mutual funds, listed shares, and pensions.', 250.00, False, 4),
+            ('wills_deeds', '06', 'Digital Wills & Deeds', 'Encrypted digital depository for Last Wills, testaments, and post-probate directives.', 250.00, False, 5),
+            ('properties_assets', '07', 'Properties & Physical Assets', 'Registry for real estate indentures, land titles, and major physical property holdings.', 250.00, False, 6),
+        ]
+        for slug, num, name, desc, price, released, order in default_catalog:
+            VaultModuleCatalog.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'folder_number': num,
+                    'name': name,
+                    'description': desc,
+                    'annual_price_ghs': price,
+                    'is_released': released,
+                    'display_order': order,
+                }
+            )
+
+    modules = VaultModuleCatalog.objects.all().order_by('display_order')
+
+    user_active_modules = set()
+    if request.user.is_authenticated:
+        user_active_modules = set(
+            request.user.module_subscriptions.filter(
+                status='ACTIVE',
+                current_period_end__gte=timezone.now()
+            ).values_list('module__slug', flat=True)
+        )
+
     context = {
         'paystack_public_key': getattr(settings, 'PAYSTACK_PUBLIC_KEY', 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3'),
         'platform_config': platform_config,
+        'modules': modules,
+        'user_active_modules': user_active_modules,
     }
     return render(request, 'pricing.html', context)
 
@@ -300,6 +340,91 @@ def verify_subscription_view(request):
         'tier': subscription.tier,
         'billing_cycle': subscription.billing_cycle,
         'expires_at': subscription.current_period_end.strftime('%Y-%m-%d'),
+    })
+
+
+def verify_module_subscription_view(request):
+    """
+    Verifies recurring Paystack add-on payment for a specific vault folder (Folders 02 through 07),
+    creates/renews the UserModuleSubscription, and unlocks the module on the dashboard.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Authentication required.'}, status=401)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        data = request.POST
+
+    reference = data.get('reference')
+    module_slug = data.get('module_slug', '').strip().lower()
+
+    if not reference or not module_slug:
+        return JsonResponse({'status': 'error', 'message': 'Reference and module slug required.'}, status=400)
+
+    module = get_object_or_404(VaultModuleCatalog, slug=module_slug)
+
+    secret_key = (getattr(settings, 'PAYSTACK_SECRET_KEY', None) or PAYSTACK_SECRET_KEY or '').strip()
+    paystack_url = f"https://api.paystack.co/transaction/verify/{reference}"
+    headers = {
+        "Authorization": f"Bearer {secret_key}",
+        "Content-Type": "application/json",
+    }
+
+    payment_verified = False
+    amount_paid = float(module.annual_price_ghs)
+    subscription_code = ''
+
+    try:
+        resp = requests.get(paystack_url, headers=headers, timeout=12)
+        resp_data = resp.json()
+        data_payload = resp_data.get('data', {}) or {}
+
+        if resp.status_code == 200 and data_payload.get('status') == 'success':
+            paid_pesewas = data_payload.get('amount', 0)
+            expected_pesewas = int(float(module.annual_price_ghs) * 100)
+            if int(paid_pesewas) >= expected_pesewas:
+                payment_verified = True
+                amount_paid = float(paid_pesewas) / 100.0
+                plan_obj = data_payload.get('plan_object') or {}
+                subscriptions_list = plan_obj.get('subscriptions', [])
+                if subscriptions_list:
+                    subscription_code = subscriptions_list[0].get('subscription_code', '')
+    except Exception as exc:
+        if settings.DEBUG and reference.startswith('MOD-'):
+            payment_verified = True
+        else:
+            payment_verified = False
+
+    if not payment_verified:
+        return JsonResponse({'status': 'error', 'message': 'Module payment verification failed.'}, status=400)
+
+    start_date = timezone.now()
+    end_date = start_date + timedelta(days=365)
+
+    with transaction.atomic():
+        mod_sub, _ = UserModuleSubscription.objects.update_or_create(
+            user=request.user,
+            module=module,
+            defaults={
+                'status': 'ACTIVE',
+                'paystack_subscription_code': subscription_code,
+                'amount_paid': amount_paid,
+                'current_period_start': start_date,
+                'current_period_end': end_date,
+                'auto_renew': True,
+            }
+        )
+
+    messages.success(request, f"Folder {module.folder_number}: {module.name} activated successfully!")
+    return JsonResponse({
+        'status': 'success',
+        'message': f'{module.name} unlocked successfully.',
+        'folder_number': module.folder_number,
+        'expires_at': mod_sub.current_period_end.strftime('%Y-%m-%d'),
     })
 
 
@@ -2180,6 +2305,14 @@ def dashboard_view(request):
         .order_by('question__tier', 'question__display_order', 'id')
     )
 
+    # Map which folder modules the current user has active recurring access to
+    user_active_modules = set(
+        user.module_subscriptions.filter(
+            status='ACTIVE',
+            current_period_end__gte=timezone.now()
+        ).values_list('module__slug', flat=True)
+    )
+
     context = {
         'profile_form': ProfileUpdateForm(instance=user),
         'contact_form': EmergencyContactForm(),
@@ -2208,6 +2341,7 @@ def dashboard_view(request):
         'has_searched': has_searched,
         'is_self_search': is_self_search,
         'has_active_subscription': has_active_subscription,
+        'user_active_modules': user_active_modules,
         'platform_config': platform_config,
         'paystack_public_key': getattr(settings, 'PAYSTACK_PUBLIC_KEY', 'pk_test_f74c99ee13063ecc39fd9af4be16f23de21a11b3'),
     }
@@ -2958,7 +3092,13 @@ def paystack_webhook_view(request):
     elif event == 'subscription.disable':
         sub_code = data.get('subscription_code')
         if sub_code:
+            # Check base account subscriptions
             UserSubscription.objects.filter(
+                paystack_subscription_code=sub_code
+            ).update(status='CANCELLED', auto_renew=False)
+
+            # Check individual folder module subscriptions
+            UserModuleSubscription.objects.filter(
                 paystack_subscription_code=sub_code
             ).update(status='CANCELLED', auto_renew=False)
 

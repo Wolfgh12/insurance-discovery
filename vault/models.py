@@ -330,6 +330,27 @@ class CustomUser(AbstractUser):
     def primary_emergency_contact(self):
         return self.emergency_contacts.filter(is_primary=True).first() or self.emergency_contacts.first()
 
+    def has_module_access(self, module_slug):
+        """
+        Verifies if the citizen has active access to a specific folder module.
+        Core Insurance Discovery ('POLICIES') is included with the base active subscription.
+        Folders 02-07 require an active recurring add-on subscription.
+        """
+        if self.is_superuser or self.user_type in ['STAFF', 'INSURER_ADMIN']:
+            return True
+
+        # Folder 01: Core Insurance Discovery
+        if module_slug.upper() in ['POLICIES', 'FOLDER_01']:
+            sub = getattr(self, 'subscription', None)
+            return bool(sub and sub.is_valid)
+
+        # Folders 02 through 07: Recurring Add-on Subscriptions
+        return self.module_subscriptions.filter(
+            module__slug=module_slug.lower(),
+            status='ACTIVE',
+            current_period_end__gte=timezone.now()
+        ).exists()
+
     def __str__(self):
         return f"{self.get_full_name() or self.username} ({self.get_user_type_display()})"
 
@@ -1201,6 +1222,97 @@ class UserSubscription(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.get_tier_display()} ({self.get_billing_cycle_display()}) [{self.status}]"
+
+
+# 13B. Add-on Module Directory (Folders 02 through 07)
+class VaultModuleCatalog(models.Model):
+    MODULE_SLUGS = (
+        ('memories', 'Folder 02: Memory Lane & Keepsakes'),
+        ('family_tree', 'Folder 03: Family Tree & Lineage'),
+        ('bank_accounts', 'Folder 04: Commercial Bank Accounts'),
+        ('investments', 'Folder 05: Investments & T-Bills'),
+        ('wills_deeds', 'Folder 06: Digital Wills & Deeds'),
+        ('properties_assets', 'Folder 07: Properties & Physical Assets'),
+    )
+
+    name = models.CharField(max_length=150)
+    slug = models.CharField(max_length=50, choices=MODULE_SLUGS, unique=True, db_index=True)
+    folder_number = models.CharField(max_length=10, help_text="e.g. '02', '03', '04', '05', '06', '07'")
+    description = models.TextField(help_text="Marketing and discovery summary displayed on pricing page.")
+    
+    # Add-on Recurring Pricing Structure
+    annual_price_ghs = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=250.00,
+        help_text="Recurring annual add-on fee in GHS"
+    )
+    paystack_plan_code = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        help_text="Paystack Plan Code for this specific recurring add-on (e.g. PLN_xxxx)"
+    )
+    is_released = models.BooleanField(
+        default=False,
+        help_text="False = Display as 'Coming Soon' / Waitlist. True = Unlocked for active purchase."
+    )
+    display_order = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ['display_order']
+        verbose_name = "Vault Module Catalog"
+        verbose_name_plural = "Vault Module Catalogs"
+
+    def __str__(self):
+        status = "Live" if self.is_released else "Coming Soon"
+        return f"Folder {self.folder_number}: {self.name} (GHS {self.annual_price_ghs}/yr) [{status}]"
+
+
+# 13C. Citizen Recurring Add-on Entitlements
+class UserModuleSubscription(models.Model):
+    STATUS_CHOICES = (
+        ('ACTIVE', 'Active & Current'),
+        ('PAST_DUE', 'Past Due'),
+        ('EXPIRED', 'Expired / Locked'),
+        ('CANCELLED', 'Cancelled'),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="module_subscriptions"
+    )
+    module = models.ForeignKey(
+        VaultModuleCatalog,
+        on_delete=models.CASCADE,
+        related_name="active_subscribers"
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
+    
+    # Paystack Subscription Identifiers for this Add-on
+    paystack_subscription_code = models.CharField(max_length=100, blank=True, null=True)
+    paystack_email_token = models.CharField(max_length=100, blank=True, null=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    current_period_start = models.DateTimeField(default=timezone.now)
+    current_period_end = models.DateTimeField()
+    auto_renew = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'module')
+        ordering = ['-created_at']
+        verbose_name = "User Module Subscription"
+        verbose_name_plural = "User Module Subscriptions"
+
+    @property
+    def is_valid(self):
+        return self.status == 'ACTIVE' and self.current_period_end >= timezone.now()
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.module.name} [{self.status}]"
 
 
 # 14. Inbound Contact Inquiries & Support Tickets
