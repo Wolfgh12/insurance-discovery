@@ -19,7 +19,7 @@
     color: #ffffff;
     text-align: center;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
   }
@@ -99,6 +99,49 @@
   .category-pill-btn:hover:not(.active) {
     color: #38BDF8;
     background: rgba(6, 182, 212, 0.12);
+  }
+
+  /* Informational Clearinghouse Guide Box */
+  .clearinghouse-guide-box {
+    background: #ffffff;
+    border: 1.5px solid rgba(6, 182, 212, 0.3);
+    border-radius: 20px;
+    padding: 1.75rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 10px 30px rgba(10, 25, 47, 0.05);
+  }
+
+  .guide-badge {
+    display: inline-block;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid #06B6D4;
+    color: #0284C7;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 768px) {
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .guide-col {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 1.2rem;
   }
 
   .search-wrapper {
@@ -236,9 +279,7 @@
     box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
   }
 
-  /* ----------------------------------------------------
-     Standardized 10-Item Pagination Bar (From base/dashboard)
-  ---------------------------------------------------- */
+  /* 10-Item Pagination Bar */
   .pagination-bar {
     display: flex;
     justify-content: space-between;
@@ -299,6 +340,16 @@
 {% block content %}
 <div class="insurers-shell">
 
+  <!-- Top Breadcrumb & Return to Home Navigation -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+    <a href="/" class="btn-nav-portal no-loader" style="background: rgba(10, 25, 47, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.35); color: #0284C7; font-weight: 800; border-radius: 10px; padding: 0.55rem 1.15rem; font-size: 0.84rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+      ← Return to Home
+    </a>
+    <span style="font-size: 0.78rem; font-weight: 700; color: #64748B;">
+      Sovereign Estate Registry • Informational Disbursement Platform
+    </span>
+  </div>
+
   <!-- Header Banner -->
   <div class="insurers-hero-banner">
     <span class="directory-tag">
@@ -322,6 +373,57 @@
       <button type="button" class="category-pill-btn no-loader" data-filter="GENERAL" onclick="switchCategory('GENERAL', this)">
         General / Non-Life (<span id="count-general">0</span>)
       </button>
+    </div>
+  </div>
+
+  <!-- Educational Clearinghouse Guide: Life vs General Underwriting -->
+  <div class="clearinghouse-guide-box">
+    <div class="guide-header">
+      <div class="guide-badge">📖 Statutory Guide for Families &amp; Executors</div>
+      <h3 style="margin: 0.4rem 0 0.5rem; font-size: 1.25rem; font-weight: 900; color: #0A192F;">
+        Understanding Insurance in Ghana: Life vs. General (Non-Life)
+      </h3>
+      <p style="margin: 0; font-size: 0.86rem; color: #64748B; line-height: 1.55;">
+        Under the <strong>Insurance Act of Ghana</strong> enforced by the <strong>National Insurance Commission (NIC)</strong>, composite insurers are strictly prohibited from mixing balance sheets. Life assurance funds cannot be pooled with vehicle or property risk. That is why licensed underwriters operate as distinct legal sister institutions.
+      </p>
+    </div>
+
+    <div class="guide-grid">
+      <!-- Life Column -->
+      <div class="guide-col" style="border-left: 3px solid #0284C7;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span style="font-size: 1.3rem;">🛡️</span>
+          <h4 style="margin: 0; font-size: 1rem; font-weight: 900; color: #0A192F;">Life Assurance (NIC/LF)</h4>
+        </div>
+        <p style="margin: 0 0 8px; font-size: 0.82rem; color: #475569; line-height: 1.5;">
+          Protects <strong>human life, health, and longevity</strong>. Covers funeral benefits, term life, whole life, child education endowments, and retirement annuities.
+        </p>
+        <div style="background: rgba(2, 132, 199, 0.08); border-radius: 8px; padding: 8px 10px; font-size: 0.77rem; color: #0369A1; font-weight: 700;">
+          💡 <strong>For Next-of-Kin:</strong> This is where cash death benefits and family payouts reside.
+        </div>
+      </div>
+
+      <!-- General Column -->
+      <div class="guide-col" style="border-left: 3px solid #D97706;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span style="font-size: 1.3rem;">🚗</span>
+          <h4 style="margin: 0; font-size: 1rem; font-weight: 900; color: #0A192F;">General / Non-Life (NIC/NL)</h4>
+        </div>
+        <p style="margin: 0 0 8px; font-size: 0.82rem; color: #475569; line-height: 1.5;">
+          Protects <strong>tangible assets and liabilities</strong> against physical damage, fire, or theft. Covers motor vehicles, residential properties, commercial cargo, and marine transit.
+        </p>
+        <div style="background: rgba(217, 119, 6, 0.08); border-radius: 8px; padding: 8px 10px; font-size: 0.77rem; color: #B45309; font-weight: 700;">
+          💡 <strong>For Executors:</strong> Helps administrators locate active policies guarding houses and vehicles.
+        </div>
+      </div>
+    </div>
+
+    <!-- Statutory Clearinghouse Clarification -->
+    <div style="margin-top: 1.25rem; background: #0A192F; border-radius: 12px; padding: 0.95rem 1.2rem; color: #CBD5E1; font-size: 0.8rem; line-height: 1.55; display: flex; align-items: flex-start; gap: 10px;">
+      <span style="font-size: 1.3rem; flex-shrink: 0;">⚡</span>
+      <div>
+        <strong style="color: #38BDF8;">InheritanceBox Sovereign Mandate:</strong> We are strictly an encrypted <strong>informational disbursement platform</strong>. We do not hold money or pay out claims directly. We disburse verified policy numbers, account records, and underwriter claim desk contacts directly to authenticated next-of-kin so families can claim what is legally theirs without middleman delays.
+      </div>
     </div>
   </div>
 
@@ -537,10 +639,8 @@
       const start = (currentPage - 1) * PAGE_SIZE;
       const end = start + PAGE_SIZE;
 
-      // Hide every card first
       allCards.forEach(c => { c.style.display = 'none'; });
 
-      // Show only cards belonging to the active page slice
       filteredCards.forEach((c, idx) => {
         if (idx >= start && idx < end) {
           c.style.display = 'flex';
