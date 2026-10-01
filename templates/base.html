@@ -165,7 +165,7 @@
     .nav-menu-links {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.25rem;
       list-style: none;
       margin: 0;
       padding: 0;
@@ -176,12 +176,59 @@
       text-decoration: none;
       font-size: 0.88rem;
       font-weight: 600;
-      transition: color 0.2s ease;
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .nav-link-item:hover {
-      color: var(--accent-cyan);
+      color: #ffffff;
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.25);
+    }
+
+    /* Illuminated Active State */
+    .nav-link-item.active {
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(2, 132, 199, 0.28) 100%) !important;
+      border: 1px solid rgba(6, 182, 212, 0.6) !important;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.32), inset 0 0 10px rgba(6, 182, 212, 0.15) !important;
+    }
+
+    .nav-link-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38BDF8, #06B6D4);
+      box-shadow: 0 0 8px #06B6D4;
+    }
+
+    /* Mobile Drawer Active State */
+    .mobile-nav-link.active {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%) !important;
+      border: 1.5px solid #06B6D4 !important;
+      color: #38BDF8 !important;
+      font-weight: 900 !important;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.25) !important;
+    }
+
+    .mobile-nav-link.active::before {
+      content: "●";
+      color: #06B6D4;
+      font-size: 0.75rem;
+      margin-right: 4px;
+      filter: drop-shadow(0 0 6px #06B6D4);
     }
 
     .nav-link-private {
@@ -893,12 +940,11 @@
       <!-- Desktop Section Links -->
       <nav>
         <ul class="nav-menu-links">
-          <li><a href="/" class="nav-link-item" style="white-space: nowrap;">Home</a></li>
-
+          <li><a href="/" class="nav-link-item {% if request.resolver_match.url_name == 'home' and not request.GET.cat %}active{% endif %}" style="white-space: nowrap;">Home</a></li>
           <!-- Role-Aware Active Workspace Indicator -->
           {% if user.is_authenticated and request.session.active_admin_role == 'LEAD' %}
             <li>
-              <a href="{% url 'vault:lead_admin_dashboard' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: gap: 5px;">
+              <a href="{% url 'vault:lead_admin_dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'lead_admin_dashboard' %}active{% endif %}" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                 👑 Lead Dashboard
               </a>
             </li>
@@ -928,7 +974,7 @@
             </li>
           {% elif user.is_authenticated and request.session.active_admin_role == 'STAFF' %}
             <li>
-              <a href="{% url 'vault:staff_admin_dashboard' %}" class="nav-link-item" style="color: #38BDF8; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+              <a href="{% url 'vault:staff_admin_dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'staff_admin_dashboard' %}active{% endif %}" style="color: #38BDF8; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
                 ⚙️ Operations Desk
               </a>
             </li>
@@ -958,14 +1004,14 @@
             </li>
           {% elif user.username|slice:":9" != 'claimant_' %}
             <li>
-              <a href="{% url 'vault:admin_login' %}" class="nav-link-item" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+              <a href="{% url 'vault:admin_login' %}" class="nav-link-item {% if request.resolver_match.url_name == 'admin_login' %}active{% endif %}" style="color: #F87171; font-weight: 800; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
                 🛡️ Admin
               </a>
             </li>
           {% endif %}
 
-          <li><a href="{% url 'vault:pricing' %}" class="nav-link-item" style="white-space: nowrap;">Plans & Pricing</a></li>
-          <li><a href="{% url 'vault:contact' %}" class="nav-link-item" style="white-space: nowrap;">Contact Us</a></li>
+          <li><a href="{% url 'vault:pricing' %}" class="nav-link-item {% if request.resolver_match.url_name == 'pricing' or '/pricing' in request.path %}active{% endif %}" style="white-space: nowrap;">Plans & Pricing</a></li>
+          <li><a href="{% url 'vault:contact' %}" class="nav-link-item {% if request.resolver_match.url_name == 'contact' or '/contact' in request.path %}active{% endif %}" style="white-space: nowrap;">Contact Us</a></li>
           <li><a href="/#faq" class="nav-link-item" style="white-space: nowrap;">FAQ</a></li>
 
           {% if not user.is_staff and not user.is_superuser %}
@@ -1146,7 +1192,6 @@
         <div>
           <div class="footer-heading">Underwriting & Trust</div>
           <ul class="footer-links">
-            <li><a href="/#registry-search" class="footer-link">🏛️ Life Underwriters Ghana</a></li>
             <li><a href="/#registry-search" class="footer-link">🇬🇭 National ID Integration</a></li>
             <li><a href="/#registry-search" class="footer-link">📜 Certified Probate Storage</a></li>
             <li><a href="/#registry-search" class="footer-link">⚡ 24/7 Redundant My ibox Sync</a></li>
@@ -1412,7 +1457,7 @@
         <!-- Navigation Links -->
         <ul class="mobile-nav-list">
           <li>
-            <a href="/" class="mobile-nav-link" onclick="closeMobileDrawer()">
+            <a href="/" class="mobile-nav-link {% if request.resolver_match.url_name == 'home' and not request.GET.cat %}active{% endif %}" onclick="closeMobileDrawer()">
               Home
             </a>
           </li>
@@ -2444,6 +2489,67 @@
         hideAllInstallButtons();
         window.closeIosInstallTooltip();
         deferredInstallPrompt = null;
+      });
+    })();
+  </script>
+
+  <!-- ====================================================
+       PWA Standalone Window Containment & Link Trap Engine
+  ==================================================== -->
+  <script>
+    (function () {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                           window.navigator.standalone === true;
+
+      if (isStandalone) {
+        document.documentElement.classList.add('pwa-standalone-active');
+        if (document.body) document.body.classList.add('pwa-standalone-active');
+
+        // Trap all same-origin links so the OS never spawns a new browser tab
+        document.addEventListener('click', function (e) {
+          const anchor = e.target.closest('a');
+          if (!anchor) return;
+
+          const href = anchor.getAttribute('href');
+          if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+          // Check if link points to InheritanceBox internally
+          const isInternal = (anchor.hostname === window.location.hostname) || href.startsWith('/');
+          if (isInternal) {
+            // Strip target="_blank" so the OS does not hand off to external Chrome/Safari
+            if (anchor.getAttribute('target') === '_blank') {
+              anchor.removeAttribute('target');
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = href;
+          }
+        }, true);
+      }
+    })();
+  </script>
+  <!-- ====================================================
+       Dynamic Navigation Active State Sync Engine
+  ==================================================== -->
+  <script>
+    (function () {
+      const currentPath = window.location.pathname;
+      const currentHash = window.location.hash;
+
+      document.querySelectorAll('.nav-link-item, .mobile-nav-link').forEach(function (link) {
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        if (href === currentPath || (href.length > 1 && currentPath.startsWith(href) && href !== '/')) {
+          link.classList.add('active');
+        } else if (currentPath === '/' && href === '/') {
+          if (!currentHash) link.classList.add('active');
+        }
+
+        if (currentHash === '#faq' && href.includes('#faq')) {
+          document.querySelectorAll('.nav-link-item, .mobile-nav-link').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        }
       });
     })();
   </script>
