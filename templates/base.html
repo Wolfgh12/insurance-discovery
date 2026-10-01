@@ -120,7 +120,6 @@
       gap: 6px;
     }
 
-    
     /* Exact InheritanceBox Dual-Tone Branding */
     .brand-inheritancebox, .brand-mysikavault {
       display: inline-flex !important;
@@ -941,6 +940,7 @@
       <nav>
         <ul class="nav-menu-links">
           <li><a href="/" class="nav-link-item {% if request.resolver_match.url_name == 'home' and not request.GET.cat %}active{% endif %}" style="white-space: nowrap;">Home</a></li>
+
           <!-- Role-Aware Active Workspace Indicator -->
           {% if user.is_authenticated and request.session.active_admin_role == 'LEAD' %}
             <li>
@@ -1856,14 +1856,14 @@
 
   <script>
     (function () {
-      const TOTAL_IDLE_LIMIT = 10 * 60 * 1000;
-      const WARNING_THRESHOLD = 9.5 * 60 * 1000;
+      // 30-minute idle threshold for active estate review
+      const TOTAL_IDLE_LIMIT = 30 * 60 * 1000;
+      const WARNING_THRESHOLD = 28 * 60 * 1000;
       let lastActiveTimestamp = Date.now();
 
       const modal = document.getElementById('session-timeout-modal');
       const countdownSec = document.getElementById('timeout-countdown-sec');
       const stayActiveBtn = document.getElementById('btn-keep-session-active');
-      const logoutForm = document.getElementById('auto-inactivity-logout-form');
 
       function resetIdleTimer() {
         lastActiveTimestamp = Date.now();
@@ -1880,34 +1880,18 @@
       }
 
       ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((event) => {
-        window.addEventListener(event, () => {
-          if (!modal || modal.style.display !== 'flex') {
-            lastActiveTimestamp = Date.now();
-          }
-        }, { passive: true });
+        window.addEventListener(event, resetIdleTimer, { passive: true });
       });
 
-      document.addEventListener('visibilitychange', function () {
-        if (document.visibilityState === 'visible') {
-          const elapsed = Date.now() - lastActiveTimestamp;
-          if (elapsed >= TOTAL_IDLE_LIMIT) {
-            if (logoutForm) logoutForm.submit();
-          } else if (elapsed >= WARNING_THRESHOLD) {
-            if (modal) modal.style.display = 'flex';
-          }
-        }
-      });
-
+      // Passive notification: Shows grace modal, but NEVER forces a sudden page reload
       setInterval(function () {
         const elapsed = Date.now() - lastActiveTimestamp;
 
-        if (elapsed >= TOTAL_IDLE_LIMIT) {
-          if (logoutForm) logoutForm.submit();
-        } else if (elapsed >= WARNING_THRESHOLD) {
+        if (elapsed >= WARNING_THRESHOLD && elapsed < TOTAL_IDLE_LIMIT) {
           if (modal) modal.style.display = 'flex';
           const remaining = Math.max(0, Math.ceil((TOTAL_IDLE_LIMIT - elapsed) / 1000));
           if (countdownSec) countdownSec.textContent = remaining;
-        } else {
+        } else if (elapsed < WARNING_THRESHOLD) {
           if (modal && modal.style.display === 'flex') {
             modal.style.display = 'none';
           }
@@ -2077,14 +2061,9 @@
 
         const isDesktopOS = /Windows NT|Macintosh|Linux x86_64/i.test(navigator.userAgent);
 
+        // Window geometry delta disabled to prevent false triggers on Windows display scaling (125%/150%) or split-screen snapping
         if (isDesktopOS) {
-          const widthDelta = Math.abs(window.outerWidth - window.innerWidth);
-          const heightDelta = Math.abs(window.outerHeight - window.innerHeight);
-
-          // Requires significant deviation (280px+) while window has active OS focus
-          if (widthDelta > 280 || heightDelta > 300) {
-            triggerSecurityLockdown("Docked DevTools on PC");
-          }
+          // Relies strictly on F12 key traps, debugger pauses, and context menu suppression
         }
       }
 
@@ -2556,4 +2535,4 @@
 
   {% block extra_js %}{% endblock %}
 </body>
-</html>  
+</html>
