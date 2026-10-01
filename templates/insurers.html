@@ -337,7 +337,7 @@
   }
 
   /* ----------------------------------------------------
-     In-App Portal Reader (Locks User Inside Window Frame)
+     In-App Portal Reader (Fully Responsive Sizing)
   ---------------------------------------------------- */
   .in-app-portal-modal {
     display: none;
@@ -357,11 +357,11 @@
     background: rgba(10, 25, 47, 0.98);
     backdrop-filter: blur(14px);
     border-bottom: 2px solid #06B6D4;
-    padding: 0.75rem 1.25rem;
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.25rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     flex-shrink: 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
@@ -371,8 +371,8 @@
     color: #ffffff;
     border: none;
     border-radius: 10px;
-    padding: 0.6rem 1.25rem;
-    font-size: 0.86rem;
+    padding: 0.55rem 1.15rem;
+    font-size: clamp(0.78rem, 2vw, 0.86rem);
     font-weight: 900;
     cursor: pointer;
     font-family: inherit;
@@ -380,15 +380,177 @@
     align-items: center;
     gap: 6px;
     box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+    white-space: nowrap;
   }
 
   .portal-modal-body {
     flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: clamp(1rem, 3vh, 2rem) clamp(0.75rem, 3vw, 1.5rem);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: radial-gradient(circle at 50% 20%, #0d264a 0%, #07162C 60%, #030a16 100%);
+  }
+
+  /* Compact Adaptive Card (Never Clips at Top) */
+  .portal-modal-card {
+    max-width: 580px;
+    width: 100%;
+    margin: clamp(0.5rem, 2vh, 1.25rem) auto;
+    background: #0B192C;
+    border: 2px solid #06B6D4;
+    border-radius: clamp(16px, 3vw, 24px);
+    padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.75rem);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.25);
+    text-align: center;
+    color: #ffffff;
+    box-sizing: border-box;
+  }
+
+  .portal-card-icon {
+    width: clamp(52px, 8vw, 64px);
+    height: clamp(52px, 8vw, 64px);
+    margin: 0 auto 0.85rem;
+    border-radius: 18px;
+    background: rgba(6, 182, 212, 0.15);
+    border: 2px solid #06B6D4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);
+  }
+
+  .portal-card-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid #10B981;
+    color: #34D399;
+    font-size: clamp(0.68rem, 1.8vw, 0.72rem);
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.65rem;
+  }
+
+  .portal-card-title {
+    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+    font-weight: 950;
+    margin: 0 0 0.35rem;
+    color: #ffffff;
+    letter-spacing: -0.4px;
+    line-height: 1.25;
+  }
+
+  .portal-card-license {
+    font-size: clamp(0.74rem, 2vw, 0.82rem);
+    color: #38BDF8;
+    font-family: monospace;
+    font-weight: 800;
+    margin-bottom: 1.15rem;
+  }
+
+  .portal-roster-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 14px;
+    padding: clamp(0.85rem, 2vw, 1.15rem);
+    margin-bottom: 1rem;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    position: relative;
-    background: #07162C;
-    overflow-y: auto;
+    gap: 8px;
+    font-size: clamp(0.76rem, 2vw, 0.82rem);
+  }
+
+  .portal-roster-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .portal-advice-pill {
+    background: rgba(6, 182, 212, 0.06);
+    border: 1px dashed rgba(6, 182, 212, 0.35);
+    border-radius: 12px;
+    padding: clamp(0.75rem, 2vw, 0.95rem);
+    margin-bottom: 1rem;
+    text-align: left;
+    font-size: clamp(0.74rem, 1.8vw, 0.79rem);
+    color: #CBD5E1;
+    line-height: 1.5;
+  }
+
+  .portal-advisory-pill {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    padding: clamp(0.75rem, 2vw, 0.95rem);
+    margin-bottom: 1.25rem;
+    text-align: left;
+    font-size: clamp(0.73rem, 1.8vw, 0.78rem);
+    color: #CBD5E1;
+    line-height: 1.5;
+  }
+
+  .portal-btn-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: clamp(0.85rem, 2.2vw, 0.92rem);
+    padding: clamp(0.8rem, 2vh, 0.92rem) 1rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 18px rgba(6, 182, 212, 0.45);
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .portal-btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #94A3B8;
+    font-weight: 800;
+    font-size: clamp(0.78rem, 2vw, 0.84rem);
+    padding: 0.75rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .portal-btn-secondary:hover {
+    color: #ffffff;
+    border-color: #38BDF8;
+    background: rgba(6, 182, 212, 0.1);
+  }
+
+  @media (max-width: 480px) {
+    .portal-modal-header {
+      padding: 0.5rem 0.75rem;
+    }
+    .btn-portal-back {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.75rem;
+    }
+    #portal-modal-name {
+      max-width: 150px;
+      font-size: 0.82rem;
+    }
   }
 </style>
 {% endblock %}
@@ -594,33 +756,33 @@
 </div>
 
 <!-- ====================================================
-     In-App Clearance Dossier Modal
+     In-App Clearance Dossier Modal (Fully Responsive Card)
 ==================================================== -->
 <div id="in-app-portal-viewer" class="in-app-portal-modal">
   <div class="portal-modal-header">
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
       <button type="button" class="btn-portal-back no-loader" onclick="closeInAppPortal()">
         ← Back to InheritanceBox
       </button>
       <div style="display: flex; flex-direction: column;">
-        <span id="portal-modal-name" style="font-size: 0.95rem; font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;">
+        <span id="portal-modal-name" style="font-size: clamp(0.85rem, 2vw, 0.95rem); font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: clamp(160px, 35vw, 320px);">
           Underwriter Portal
         </span>
-        <span id="portal-modal-meta" style="font-size: 0.72rem; color: #38BDF8; font-family: monospace;">
+        <span id="portal-modal-meta" style="font-size: 0.7rem; color: #38BDF8; font-family: monospace;">
           NIC Verified Gateway
         </span>
       </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 8px;">
-      <button type="button" class="no-loader" onclick="closeInAppPortal()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; width: 36px; height: 36px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">
+      <button type="button" class="no-loader" onclick="closeInAppPortal()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; width: 34px; height: 34px; border-radius: 8px; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">
         ✕
       </button>
     </div>
   </div>
 
   <!-- Telemetry Sub-Bar -->
-  <div style="background: #0B192C; border-bottom: 1px solid rgba(6, 182, 212, 0.25); padding: 0.6rem 1.25rem; font-size: 0.78rem; color: #94A3B8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+  <div style="background: #0B192C; border-bottom: 1px solid rgba(6, 182, 212, 0.25); padding: 0.5rem clamp(0.75rem, 2vw, 1.25rem); font-size: clamp(0.72rem, 1.8vw, 0.78rem); color: #94A3B8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <div>
       <span style="color: #64748B;">Direct Claims Hotline:</span>
       <strong id="portal-modal-hotline" style="color: #38BDF8; margin-left: 4px;"></strong>
@@ -631,53 +793,54 @@
     </div>
   </div>
 
-  <!-- Verified Institutional Clearance Body -->
-  <div class="portal-modal-body" style="padding: 2.5rem 1.25rem; display: flex; align-items: center; justify-content: center;">
-    <div style="max-width: 620px; width: 100%; background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.25); text-align: center; color: #ffffff;">
+  <!-- Verified Institutional Clearance Body (Never Clips at Top) -->
+  <div class="portal-modal-body">
+    <div class="portal-modal-card">
       
-      <div style="width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: 20px; background: rgba(6, 182, 212, 0.15); border: 2px solid #06B6D4; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
-        🏛️
+      <!-- Scaled Emblem Icon -->
+      <div class="portal-card-icon">
+        🏛️️
       </div>
 
-      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.18); border: 1px solid #10B981; color: #34D399; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.85rem;">
+      <div class="portal-card-pill">
         ✓ NIC Verified Underwriting Institution
       </div>
 
-      <h2 id="portal-hub-name" style="font-size: clamp(1.4rem, 3.5vw, 1.85rem); font-weight: 950; margin: 0 0 0.4rem; color: #ffffff; letter-spacing: -0.4px;">
+      <h2 id="portal-hub-name" class="portal-card-title">
         Underwriter Portal
       </h2>
 
-      <div id="portal-hub-license" style="font-size: 0.82rem; color: #38BDF8; font-family: monospace; font-weight: 800; margin-bottom: 1.5rem;">
+      <div id="portal-hub-license" class="portal-card-license">
         NIC License Number
       </div>
 
       <!-- Institutional Contact Roster -->
-      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.35rem; text-align: left; display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Direct Claims Line:</span>
-          <a id="portal-hub-phone" href="#" style="color: #38BDF8; font-size: 0.92rem; font-weight: 900; text-decoration: none; font-family: monospace;"></a>
+      <div class="portal-roster-box">
+        <div class="portal-roster-row">
+          <span style="color: #94A3B8; font-weight: 700;">Direct Claims Line:</span>
+          <a id="portal-hub-phone" href="#" style="color: #38BDF8; font-weight: 900; text-decoration: none; font-family: monospace;"></a>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Official Claims Desk:</span>
-          <a id="portal-hub-email" href="#" style="color: #38BDF8; font-size: 0.92rem; font-weight: 900; text-decoration: none;"></a>
+        <div class="portal-roster-row">
+          <span style="color: #94A3B8; font-weight: 700;">Official Claims Desk:</span>
+          <a id="portal-hub-email" href="#" style="color: #38BDF8; font-weight: 900; text-decoration: none;"></a>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Statutory Regulator:</span>
-          <span style="color: #CBD5E1; font-size: 0.82rem; font-weight: 800;">National Insurance Commission (Ghana)</span>
+        <div class="portal-roster-row">
+          <span style="color: #94A3B8; font-weight: 700;">Statutory Regulator:</span>
+          <span style="color: #CBD5E1; font-weight: 800;">National Insurance Commission (Ghana)</span>
         </div>
       </div>
 
       <!-- Next-of-Kin Advice Pill -->
-      <div style="background: rgba(6, 182, 212, 0.06); border: 1px dashed rgba(6, 182, 212, 0.35); border-radius: 12px; padding: 0.95rem 1rem; margin-bottom: 1.15rem; text-align: left; font-size: 0.8rem; color: #CBD5E1; line-height: 1.55;">
+      <div class="portal-advice-pill">
         <strong style="color: #38BDF8;">📋 Claim Lodgement Protocol:</strong>
-        <p style="margin: 4px 0 0; color: #94A3B8;">
+        <p style="margin: 3px 0 0; color: #94A3B8;">
           When approaching this underwriter, present your verified policy number, deceased policyholder Ghana Card, and certified Letters of Administration. InheritanceBox does not hold claim funds.
         </p>
       </div>
 
       <!-- Professional Browser Transition Advisory -->
-      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1.75rem; text-align: left; font-size: 0.79rem; color: #CBD5E1; line-height: 1.55;">
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #38BDF8; font-weight: 800; font-size: 0.82rem;">
+      <div class="portal-advisory-pill">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: #38BDF8; font-weight: 800;">
           <span>🌐 External Portal Transition Notice</span>
         </div>
         <p style="margin: 0; color: #94A3B8;">
@@ -686,23 +849,21 @@
       </div>
 
       <!-- Actions -->
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
         <a 
           id="portal-hub-launch-btn" 
           href="#" 
           target="_blank" 
           rel="noopener noreferrer" 
           referrerpolicy="no-referrer"
-          class="no-loader" 
-          style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; font-weight: 900; font-size: 0.95rem; padding: 1rem; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.45);"
+          class="portal-btn-primary no-loader"
         >
           Open in Dedicated Browser Window ↗
         </a>
         <button 
           type="button" 
-          class="no-loader" 
-          onclick="closeInAppPortal()" 
-          style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #94A3B8; font-weight: 800; font-size: 0.85rem; padding: 0.8rem; border-radius: 12px; cursor: pointer;"
+          class="portal-btn-secondary no-loader" 
+          onclick="closeInAppPortal()"
         >
           ← Return to InheritanceBox Directory
         </button>
@@ -752,7 +913,6 @@
     const hotline = btn.getAttribute('data-hotline') || '';
     const email = btn.getAttribute('data-email') || '';
 
-    // Direct authentic URL
     const directUrl = DIRECT_OFFICIAL_URLS[slug] || `https://www.${slug}.com.gh/`;
 
     const viewer = document.getElementById('in-app-portal-viewer');
@@ -787,6 +947,8 @@
     if (viewer) {
       viewer.classList.add('active');
       document.body.style.overflow = 'hidden';
+      const bodyEl = viewer.querySelector('.portal-modal-body');
+      if (bodyEl) bodyEl.scrollTop = 0;
     }
   }
 
@@ -948,5 +1110,5 @@
 
     applyFilters();
   })();
-</script> 
-{% endblock %} 
+</script>
+{% endblock %}
