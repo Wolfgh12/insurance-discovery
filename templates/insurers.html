@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Licensed Underwriting Partners | InheritanceBox Directory{% endblock %}
+
+{% block content %}
+<div style="max-width: 1080px; margin: 1.5rem auto 4rem; padding: 0 1rem;">
+  
+  <!-- Header Title -->
+  <div style="text-align: center; max-width: 720px; margin: 0 auto 2.5rem;">
+    <span style="display: inline-block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #06B6D4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); padding: 4px 14px; border-radius: 999px; margin-bottom: 0.85rem;">
+      🇬🇭 National Underwriters Directory
+    </span>
+    <h1 style="font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; color: #0A192F; margin: 0 0 0.75rem; letter-spacing: -0.5px;">
+      Licensed Insurance Partners in Ghana
+    </h1>
+    <p style="font-size: 0.95rem; color: #64748B; line-height: 1.6; margin: 0;">
+      Browse verified insurance companies integrated across the InheritanceBox registry. Policyholders can link coverage from any of these institutions, and claimants can use these direct contacts to submit verified payout dossiers.
+    </p>
+  </div>
+
+  <!-- Search Filter Input -->
+  <div style="max-width: 600px; margin: 0 auto 2.5rem;">
+    <form method="GET" action="{% url 'vault:insurers' %}" style="display: flex; gap: 8px; background: #ffffff; border: 1.5px solid #06B6D4; border-radius: 14px; padding: 6px; box-shadow: 0 6px 20px rgba(6, 182, 212, 0.15);">
+      <input 
+        type="text" 
+        name="q" 
+        value="{{ search_q|default:'' }}" 
+        placeholder="Search insurer by name, license number, or phone..." 
+        style="flex: 1; border: none; outline: none; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit;"
+      >
+      <button type="submit" style="background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; border-radius: 10px; padding: 0 1.5rem; font-weight: 800; cursor: pointer; font-family: inherit;">
+        Search 🔍
+      </button>
+      {% if search_q %}
+        <a href="{% url 'vault:insurers' %}" style="display: flex; align-items: center; justify-content: center; background: #FEE2E2; color: #DC2626; border-radius: 10px; padding: 0 1rem; text-decoration: none; font-weight: 800; font-size: 0.85rem;">
+          ✕ Clear
+        </a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Insurers Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+    {% for insurer in insurers %}
+      <div style="background: #ffffff; border: 1.5px solid rgba(6, 182, 212, 0.25); border-radius: 18px; padding: 1.6rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 24px rgba(10, 25, 47, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(6, 182, 212, 0.16)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 8px 24px rgba(10, 25, 47, 0.04)';">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 0.85rem;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              🏛️
+            </div>
+            <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+              ✓ Licensed Partner
+            </span>
+          </div>
+
+          <h3 style="font-size: 1.15rem; font-weight: 900; color: #0A192F; margin: 0 0 0.5rem; letter-spacing: -0.3px;">
+            {{ insurer.name }}
+          </h3>
+          <div style="font-size: 0.76rem; color: #64748B; font-family: monospace; margin-bottom: 1rem;">
+            License: <strong style="color: #0284C7;">{{ insurer.license_number }}</strong>
+          </div>
+
+          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+            <div>
+              <span style="color: #64748B; font-weight: 700;">Claims Hotline:</span>
+              <a href="tel:{{ insurer.claims_hotline }}" style="color: #0284C7; font-weight: 800; text-decoration: none; margin-left: 4px;">{{ insurer.claims_hotline }}</a>
+            </div>
+            <div>
+              <span style="color: #64748B; font-weight: 700;">Official Email:</span>
+              <a href="mailto:{{ insurer.contact_email }}" style="color: #0284C7; font-weight: 700; text-decoration: none; margin-left: 4px;">{{ insurer.contact_email }}</a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <a href="https://www.google.com/search?q={{ insurer.name|urlencode }}+Ghana" target="_blank" rel="noopener noreferrer" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-content; background: #0A192F; color: #38BDF8; border: 1.5px solid rgba(6, 182, 212, 0.4); padding: 0.75rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.background='#0284C7'; this.style.color='#ffffff';" onmouseout="this.style.background='#0A192F'; this.style.color='#38BDF8';">
+            Visit Official Website ↗
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 20px;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: #0A192F; margin: 0 0 0.4rem;">No Underwriters Match Your Search</h3>
+        <p style="font-size: 0.85rem; color: #64748B; margin: 0 0 1rem;">Try searching by part of the company name or clear your query.</p>
+        <a href="{% url 'vault:insurers' %}" style="display: inline-block; background: #0284C7; color: #ffffff; padding: 0.65rem 1.4rem; border-radius: 8px; font-weight: 800; text-decoration: none; font-size: 0.85rem;">
+          View All Insurance Partners
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

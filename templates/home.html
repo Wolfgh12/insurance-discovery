@@ -1335,7 +1335,7 @@
 
       <h1 class="hero-headline">Securing Generational Wealth & <span>Legacies</span></h1>
       <p class="hero-subhead">
-        An encrypted legacy registry and information disbursement platform. We empower citizens to catalog information on active policy records, bank accounts, investment locations, registered land titles, and digital wills in lifetime secrecy—guaranteeing that vital estate intelligence is disbursed directly to authenticated next-of-kin when needed most.
+        An encrypted legacy registry and information disbursement platform. We empower citizens to catalog information on active policy records, bank accounts, investment locations, registered land titles, digital wills, and family tree and or lineage in lifetime secrecy—guaranteeing that vital estate intelligence is disbursed directly to authenticated next-of-kin when needed most.
       </p>
 
       <div class="hero-actions">
@@ -1511,13 +1511,13 @@
 <div class="insurer-trust-strip">
   <div class="insurer-trust-title">Integrated Across Licensed Underwriting Partners in Ghana</div>
   <div class="insurer-badges-container">
-    <span class="insurer-pill">Enterprise Life</span>
-    <span class="insurer-pill">SIC Insurance</span>
-    <span class="insurer-pill">StarLife Assurance</span>
-    <span class="insurer-pill">GLICO General</span>
-    <span class="insurer-pill">Hollard Insurance</span>
-    <span class="insurer-pill">Vanguard Assurance</span>
-    <span class="insurer-pill">and more...</span>
+    <a href="https://enterprisegroup.com.gh/life/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">Enterprise Life ↗</a>
+    <a href="https://sic-gh.com/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">SIC Insurance ↗</a>
+    <a href="https://starlife.com.gh/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">StarLife Assurance ↗</a>
+    <a href="https://glicogroup.com/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">GLICO General ↗</a>
+    <a href="https://www.hollard.com.gh/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">Hollard Insurance ↗</a>
+    <a href="https://vanguardassurance.com/" target="_blank" rel="noopener noreferrer" class="insurer-pill" style="text-decoration: none; transition: all 0.2s ease;">Vanguard Assurance ↗</a>
+    <a href="{% url 'vault:insurers' %}" target="_blank" class="insurer-pill" style="background: rgba(6, 182, 212, 0.18); border-color: #06B6D4; color: #0284C7; font-weight: 800; text-decoration: none; box-shadow: 0 2px 8px rgba(6, 182, 212, 0.25);">and more... ➔</a>
   </div>
 </div>
 
@@ -1991,7 +1991,7 @@
       <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Connected generational tree mapping elders, siblings, niblings, spouses, and children for verified estate continuity.</div>
     </div>
 
-    <!-- ROW 2 / Col 1: Folder 04 - Bank Accounts -->
+    <!-- ROW 2 / Col 1: Folder 04 - Bank Accounts & Fixed Deposits -->
     <div style="background: {% if platform_config.module_banks_enabled %}#F0F9FF; border: 1.5px solid #0284C7;{% else %}#F8FAFC; border: 1.5px dashed #CBD5E1; opacity: 0.88;{% endif %} border-radius: 16px; padding: 1.25rem; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
         <span style="font-size: 1.75rem;">🏦</span>
@@ -2006,8 +2006,8 @@
         {% endif %}
       </div>
       <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_banks_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 04</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Bank Accounts</div>
-      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Commercial bank depository cataloging savings, fixed deposits, and certificates.</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Bank Accounts &amp; Fixed Deposits</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Commercial bank depository cataloging savings accounts, fixed deposits, and call certificates.</div>
     </div>
 
     <!-- ROW 2 / Col 2: Folder 05 - Investments & T-Bills -->
@@ -2045,7 +2045,7 @@
       </div>
       <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_wills_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 06</div>
       <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Wills &amp; Deeds</div>
-      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Encrypted digital depository for Last Wills, testaments, and post-probate directives.</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Encrypted digital depository for wills, testaments, and post-probate directives.</div>
     </div>
 
     <!-- ROW 3 / Col 1: Left Decorative Accent Box -->
@@ -2076,8 +2076,8 @@
         {% endif %}
       </div>
       <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: {% if platform_config.module_assets_enabled %}#0284C7{% else %}#64748B{% endif %}; letter-spacing: 0.6px;">Folder 07</div>
-      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Properties &amp; Assets</div>
-      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Keep a running record of your achievements and valuables—safeguarding registered land titles, indentures, residential property, and vehicle logbooks.</div>
+      <div style="font-size: 1.05rem; font-weight: 900; color: var(--primary-deep-navy); margin: 0.2rem 0;">Properties, Vehicles &amp; Valuables</div>
+      <div style="font-size: 0.8rem; color: #64748B; line-height: 1.45;">Keep a running record of your achievements and valuables—safeguarding registered land titles, indentures, residential property, vehicle logbooks, and other valuables.</div>
     </div>
 
     <!-- ROW 3 / Col 3: Right Decorative Accent Box -->
@@ -2333,7 +2333,7 @@
         <span class="lifecycle-icon">🛡️</span>
       </div>
       <h4 class="lifecycle-title">Identity Intake & Retrieval Fee</h4>
-      <p class="lifecycle-body">Submit biometric verification and settle the standard statutory verification fee securely via Paystack.</p>
+      <p class="lifecycle-body">Submit biometric verification and settle the standard verification fee securely via Paystack.</p>
       <div class="lifecycle-connector" aria-hidden="true">→</div>
     </div>
 
@@ -2462,12 +2462,12 @@
   <div class="faq-container">
     <div class="faq-item">
       <div class="faq-q">Can a policyholder hold policies from different insurance companies on one profile?</div>
-      <div class="faq-a">Yes. <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> allows policyholders to aggregate life, health, vehicle, and property insurance policies across different underwriting companies into a single encrypted dashboard.</div>
+      <div class="faq-a">Yes. <span class="brand-inheritancebox dark-contrast"><span class="p-inheritance">inheritance</span><span class="p-box">box</span></span> allows policyholders to aggregate life, health, vehicle, and property insurance policies, private documents and other valuables across different underwriting companies into a single encrypted dashboard.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">Information regarding sensitive documents, digital wills, and estate records: who is permitted access?</div>
-      <div class="faq-a">Information regarding sensitive documents, deeds, and digital wills remains locked under AES-256 cryptographic protection. These records are strictly accessible by the policyholder during their lifetime and are released exclusively to verified next-of-kin following mandatory biometric calibration and identity authentication.</div>
+      <div class="faq-a">Information regarding sensitive documents, deeds, and digital wills remains locked under AES-256 cryptographic protection. These records are strictly accessible by the policyholder <b>ONLY</b> during their lifetime, unless incapacitated and/or permits others and are released exclusively to <b>VERFIED PERSONS</b> following mandatory biometric calibration and identity authentication.</div>
     </div>
 
     <div class="faq-item">
@@ -2477,7 +2477,7 @@
 
     <div class="faq-item">
       <div class="faq-q">Why is a 3-angle biometric facial capture required before unlocking an ibox?</div>
-      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the statutory audit my ibox.</div>
+      <div class="faq-a">To prevent fraudulent liquidation, impersonation, and estate diversion, Ghanaian data and estate regulations require front, left, and right facial verification. Each capture is matched against registered next-of-kin records and permanently logged into the audit ibox.</div>
     </div>
 
     <div class="faq-item">
@@ -2495,19 +2495,6 @@
       <div class="faq-a">For corporate or family group policies, the registered Policy Admin has distinct privileges to update beneficiary rosters, oversee renewals, and coordinate claims.</div>
     </div>   
   </div>
-
-  <!-- Wolvatarr Active Intercept Intimidating Red Footer Shield -->
-  <div style="text-align: center; margin: 3rem 0 1.5rem 0;">
-    <div class="wolvatarr-footer-shield">
-      <div class="wolvatarr-round-frame">
-        <img src="{% static 'images/hacker.png' %}" alt="Wolvatarr Active Intercept Shield">
-      </div>
-      <div class="wolvatarr-shield-text">
-        Protected by <span>Wolvatarr Active Intercept</span><span class="wolvatarr-tm">™</span>
-      </div>
-    </div>
-  </div> 
-</div>
 
 <!-- ====================================================
      Statutory Modals (Centered Fixed Overlays)
@@ -2772,7 +2759,7 @@
       <div style="color: #F87171; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
         🔒 Security Audit Notice:
       </div>
-      <div>• Your full identity submission, session details, and 3-angle facial verifications have been permanently recorded into the statutory audit vault.</div>
+      <div>• Your full identity submission, session details, and 3-angle facial verifications have been permanently recorded into the audit ibox.</div>
       <div style="margin-top: 4px;">• If you hold legitimate Letters of Administration from the High Court, you may proceed—your docket will be routed for manual desk review.</div>
     </div>
 

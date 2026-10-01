@@ -760,6 +760,104 @@
     .app-is-installed .pwa-install-element {
       display: none !important;
     }
+
+    /* ----------------------------------------------------
+       In-Flow Bottom-Center Wolvatarr Active Intercept Badge
+    ---------------------------------------------------- */
+    .wolvatarr-bottom-badge-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 3rem auto 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .wolvatarr-trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(180deg, #130305 0%, #060102 100%);
+      border: 1.5px solid #EF4444;
+      border-radius: 9999px;
+      padding: 5px 22px 5px 6px;
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5);
+      user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: default;
+    }
+
+    .wolvatarr-trust-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.7), 0 12px 30px rgba(0, 0, 0, 0.65);
+    }
+
+    .wolvatarr-badge-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1.5px solid #EF4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #000000;
+    }
+
+    .wolvatarr-badge-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .wolvatarr-badge-text {
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .wolvatarr-text-prefix {
+      color: #FFFFFF;
+      font-weight: 800;
+    }
+
+    .wolvatarr-text-brand {
+      color: #EF4444;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    .wolvatarr-text-tm {
+      color: #EF4444;
+      font-size: 0.62em;
+      font-weight: 900;
+      margin-left: 1px;
+    }
+
+    @media (max-width: 480px) {
+      .wolvatarr-bottom-badge-wrapper {
+        margin: 2rem auto 1rem;
+      }
+      .wolvatarr-trust-badge {
+        padding: 4px 16px 4px 5px;
+        gap: 9px;
+      }
+      .wolvatarr-badge-avatar {
+        width: 28px;
+        height: 28px;
+      }
+      .wolvatarr-badge-text {
+        font-size: 0.76rem;
+      }
+    }
   </style>
   {% block extra_css %}{% endblock %}
 </head>
@@ -972,6 +1070,19 @@
   <main class="main-content">
     {% block content %}
     {% endblock %}
+
+    <!-- Centered In-Flow Bottom-of-Page Trust Badge -->
+    <div class="wolvatarr-bottom-badge-wrapper">
+      <div class="wolvatarr-trust-badge" title="Active anti-tamper security verified by Wolvatarr">
+        <div class="wolvatarr-badge-avatar">
+          <img src="{% static 'images/hacker.png' %}?v=1" alt="Wolvatarr Active Intercept">
+        </div>
+        <div class="wolvatarr-badge-text">
+          <span class="wolvatarr-text-prefix">Protected by</span>
+          <span class="wolvatarr-text-brand">Wolvatarr Active Intercept<sup class="wolvatarr-text-tm">™</sup></span>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Enterprise Glassmorphic Multi-Column Footer -->
@@ -992,7 +1103,7 @@
           </p>
           <div class="footer-security-pill">
             <span class="security-dot"></span>
-            <span>256-Bit My ibox Encryption Active</span>
+            <span>256-Bit ibox Encryption Active • Protected by Wolvatarr Active Intercept ⚡</span>
           </div>
         </div>
 
@@ -1904,16 +2015,20 @@
         }, 50);
       }
 
-      // 1. DOCKED DEVTOOLS & GEOMETRY VERIFICATION (Hardened Against Windows Scaling & Lag)
+      // 1. DOCKED DEVTOOLS & GEOMETRY VERIFICATION (Hardened Against Windows Scaling & Sleep)
       let pageFullySettled = false;
       window.addEventListener('load', function () {
         setTimeout(function () {
           pageFullySettled = true;
-        }, 1200);
+        }, 1500);
       });
 
       function checkDevToolsGeometry() {
-        if (isLockdownActive || !pageFullySettled) return;
+        // Strict Idle & Background Bypass: Never evaluate when tab is inactive, hidden, or display is off
+        if (isLockdownActive || !pageFullySettled || document.hidden || !document.hasFocus()) return;
+
+        // Ignore display sleep / screen lock collapsed dimensions
+        if (window.outerWidth === 0 || window.innerWidth === 0 || window.outerHeight === 0 || window.innerHeight === 0) return;
 
         const isDesktopOS = /Windows NT|Macintosh|Linux x86_64/i.test(navigator.userAgent);
 
@@ -1921,7 +2036,7 @@
           const widthDelta = Math.abs(window.outerWidth - window.innerWidth);
           const heightDelta = Math.abs(window.outerHeight - window.innerHeight);
 
-          // Requires significant deviation (280px+) to avoid false triggers from Windows 125%/150% DPI scaling
+          // Requires significant deviation (280px+) while window has active OS focus
           if (widthDelta > 280 || heightDelta > 300) {
             triggerSecurityLockdown("Docked DevTools on PC");
           }
@@ -1929,18 +2044,35 @@
       }
 
       window.addEventListener('resize', checkDevToolsGeometry, { passive: true });
-      setInterval(checkDevToolsGeometry, 1000);
+      setInterval(checkDevToolsGeometry, 1200);
 
-      // 2. PASSIVE DEBUGGER LATENCY TRAP (Consecutive Confirmation Guard)
+      // 2. PASSIVE DEBUGGER LATENCY TRAP (Sleep-Proof & Idle-Protected)
       let consecutiveDelayCount = 0;
+      let lastExecutionTick = Date.now();
+
       function executeDebuggerTrap() {
-        if (isLockdownActive || !pageFullySettled) return;
+        const now = Date.now();
+        const timeSinceLastTick = now - lastExecutionTick;
+        lastExecutionTick = now;
+
+        // If the tick interval jumped past 2500ms, the system went to sleep, locked, or background-throttled.
+        // Immediately reset counters and abort check to prevent false positives.
+        if (timeSinceLastTick > 2500) {
+          consecutiveDelayCount = 0;
+          return;
+        }
+
+        // Suspend inspection check completely if user switched tabs, minimized, or lost focus
+        if (isLockdownActive || !pageFullySettled || document.hidden || !document.hasFocus()) {
+          consecutiveDelayCount = 0;
+          return;
+        }
 
         const startTime = performance.now();
         (function () { return false; })['constructor']('debugger')();
         const delta = performance.now() - startTime;
 
-        // High threshold + double verification eliminates false alarms from TensorFlow & image compilation
+        // Requires two consecutive active debugger pauses while the tab is actively focused
         if (delta > 500) {
           consecutiveDelayCount++;
           if (consecutiveDelayCount >= 2) {
