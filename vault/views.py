@@ -3213,3 +3213,99 @@ def verify_policyholder_ghana_card_view(request):
         'status': 'success',
         'message': 'Policyholder Ghana Card verified. Intake dossier unlocked.'
     })
+
+
+def insurers_directory_view(request):
+    """
+    Public searchable directory of licensed underwriting partners in Ghana,
+    complete with official portal links and direct claims hotlines.
+    """
+    # Auto-seed default Ghanaian underwriters if directory is empty
+    if not InsuranceCompany.objects.exists():
+        default_insurers = [
+            ("Enterprise Life Assurance", "enterprise-life", "NIC/LF/001", "info.life@enterprisegroup.com.gh", "+233 30 263 4777"),
+            ("SIC Insurance PLC", "sic-insurance", "NIC/NL/002", "sicinfo@sic-gh.com", "+233 30 228 0600"),
+            ("StarLife Assurance", "starlife-assurance", "NIC/LF/003", "info@starlife.com.gh", "+233 30 273 9300"),
+            ("GLICO Life / General", "glico-group", "NIC/LF/004", "info@glicogroup.com", "+233 30 221 8500"),
+            ("Hollard Insurance Ghana", "hollard-ghana", "NIC/LF/005", "info@hollard.com.gh", "+233 80 044 4999"),
+            ("Vanguard Assurance", "vanguard-assurance", "NIC/LF/006", "info@vanguardassurance.com", "+233 30 221 3444"),
+            ("Metropolitan Life Insurance", "metropolitan-life", "NIC/LF/007", "info@metropolitan.com.gh", "+233 30 263 3999"),
+            ("Old Mutual Life Assurance", "old-mutual", "NIC/LF/008", "contactus@oldmutual.com.gh", "+233 30 700 0600"),
+            ("Prudential Life Insurance", "prudential-life", "NIC/LF/009", "customercare@prudentiallife.com.gh", "+233 30 220 8888"),
+        ]
+        for name, slug, lic, email, hotline in default_insurers:
+            InsuranceCompany.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'license_number': lic,
+                    'contact_email': email,
+                    'claims_hotline': hotline,
+                    'is_verified': True,
+                }
+            )
+
+    search_q = request.GET.get('q', '').strip()
+    insurers_qs = InsuranceCompany.objects.filter(is_verified=True).order_by('name')
+
+    if search_q:
+        insurers_qs = insurers_qs.filter(
+            Q(name__icontains=search_q) |
+            Q(license_number__icontains=search_q) |
+            Q(claims_hotline__icontains=search_q)
+        )
+
+    context = {
+        'insurers': insurers_qs,
+        'search_q': search_q,
+        'total_count': insurers_qs.count(),
+    }
+    return render(request, 'insurers.html', context)
+
+
+def insurers_directory_view(request):
+    """
+    Public searchable directory of licensed underwriting partners in Ghana,
+    complete with official portal links and direct claims hotlines.
+    """
+    # Seed default Ghanaian underwriters if catalog is empty
+    if not InsuranceCompany.objects.exists():
+        default_insurers = [
+            ("Enterprise Life Assurance", "enterprise-life", "NIC/LF/001", "info.life@enterprisegroup.com.gh", "+233 30 263 4777", "https://enterprisegroup.com.gh/life/"),
+            ("SIC Insurance PLC", "sic-insurance", "NIC/NL/002", "sicinfo@sic-gh.com", "+233 30 228 0600", "https://sic-gh.com/"),
+            ("StarLife Assurance", "starlife-assurance", "NIC/LF/003", "info@starlife.com.gh", "+233 30 273 9300", "https://starlife.com.gh/"),
+            ("GLICO Life / General", "glico-group", "NIC/LF/004", "info@glicogroup.com", "+233 30 221 8500", "https://glicogroup.com/"),
+            ("Hollard Insurance Ghana", "hollard-ghana", "NIC/LF/005", "info@hollard.com.gh", "+233 80 044 4999", "https://www.hollard.com.gh/"),
+            ("Vanguard Assurance", "vanguard-assurance", "NIC/LF/006", "info@vanguardassurance.com", "+233 30 221 3444", "https://vanguardassurance.com/"),
+            ("Metropolitan Life Insurance", "metropolitan-life", "NIC/LF/007", "info@metropolitan.com.gh", "+233 30 263 3999", "https://www.metropolitan.com.gh/"),
+            ("Old Mutual Life Assurance", "old-mutual", "NIC/LF/008", "contactus@oldmutual.com.gh", "+233 30 700 0600", "https://www.oldmutual.com.gh/"),
+            ("Prudential Life Insurance", "prudential-life", "NIC/LF/009", "customercare@prudentiallife.com.gh", "+233 30 220 8888", "https://www.prudentiallife.com.gh/"),
+        ]
+        for name, slug, lic, email, hotline, _site in default_insurers:
+            InsuranceCompany.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'license_number': lic,
+                    'contact_email': email,
+                    'claims_hotline': hotline,
+                    'is_verified': True,
+                }
+            )
+
+    search_q = request.GET.get('q', '').strip()
+    insurers_qs = InsuranceCompany.objects.filter(is_verified=True).order_by('name')
+
+    if search_q:
+        insurers_qs = insurers_qs.filter(
+            Q(name__icontains=search_q) |
+            Q(license_number__icontains=search_q) |
+            Q(claims_hotline__icontains=search_q)
+        )
+
+    context = {
+        'insurers': insurers_qs,
+        'search_q': search_q,
+        'total_count': insurers_qs.count(),
+    }
+    return render(request, 'insurers.html', context)

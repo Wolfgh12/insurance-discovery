@@ -9,6 +9,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('pricing/', views.pricing_view, name='pricing'),
+    path('insurers/', views.insurers_directory_view, name='insurers'),
     path('contact/', views.contact_view, name='contact'),
     path('terms/', views.terms_view, name='terms'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
@@ -31,6 +32,7 @@ urlpatterns = [
     # Paystack payment verifications & automated webhook sync
     path('api/verify-unlock/', views.verify_unlock_view, name='verify_unlock'),
     path('api/verify-subscription/', views.verify_subscription_view, name='verify_subscription'),
+    path('api/verify-module-subscription/', views.verify_module_subscription_view, name='verify_module_subscription'),
     path('api/verify-registration-fee/', views.verify_registration_fee_view, name='verify_registration_fee'),
     path('api/paystack-webhook/', views.paystack_webhook_view, name='paystack_webhook'),
     
