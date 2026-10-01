@@ -268,7 +268,8 @@
     border-radius: 12px;
     font-weight: 800;
     font-size: 0.85rem;
-    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
     transition: all 0.2s ease;
   }
 
@@ -333,6 +334,61 @@
     border: 1px solid #E2E8F0;
     padding: 6px 14px;
     border-radius: 8px;
+  }
+
+  /* ----------------------------------------------------
+     In-App Portal Reader (Locks User Inside Window Frame)
+  ---------------------------------------------------- */
+  .in-app-portal-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    background: #0A192F;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .in-app-portal-modal.active {
+    display: flex;
+  }
+
+  .portal-modal-header {
+    background: rgba(10, 25, 47, 0.98);
+    backdrop-filter: blur(14px);
+    border-bottom: 2px solid #06B6D4;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .btn-portal-back {
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.86rem;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+  }
+
+  .portal-modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #07162C;
+    overflow-y: auto;
   }
 </style>
 {% endblock %}
@@ -487,89 +543,20 @@
           </div>
         </div>
 
-        <!-- Official External Website Link (Hardened with referrerpolicy="no-referrer") -->
+        <!-- Direct Portal Button (Opens In-App Reader with Instant Return) -->
         <div>
-          {% if 'glico' in insurer.slug %}
-            <a href="https://glicogroup.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'enterprise' in insurer.slug %}
-            <a href="https://enterprisegroup.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'sic-life' in insurer.slug %}
-            <a href="https://siclife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'sic' in insurer.slug %}
-            <a href="https://www.sic-gh.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'starlife' in insurer.slug %}
-            <a href="https://starlife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'star-assurance' in insurer.slug %}
-            <a href="https://starassurance.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'hollard' in insurer.slug %}
-            <a href="https://www.hollard.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'vanguard' in insurer.slug %}
-            <a href="https://vanguardassurance.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'prudential' in insurer.slug %}
-            <a href="https://www.prudentiallife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'sanlam' in insurer.slug %}
-            <a href="https://www.sanlam.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'old-mutual' in insurer.slug %}
-            <a href="https://www.oldmutual.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'metropolitan' in insurer.slug %}
-            <a href="https://www.metropolitan.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'milife' in insurer.slug %}
-            <a href="https://milifeghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'activa' in insurer.slug %}
-            <a href="https://activa-ghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'qic' in insurer.slug or 'quality-insurance' in insurer.slug %}
-            <a href="https://qicghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'qlac' in insurer.slug %}
-            <a href="https://qlaclife.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'priority' in insurer.slug %}
-            <a href="https://priorityinsurancegh.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'serene' in insurer.slug %}
-            <a href="https://sereneinsurance.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% elif 'sunu' in insurer.slug %}
-            <a href="https://sunu-group.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% else %}
-            <a href="https://www.google.com/search?q={{ insurer.name|urlencode }}+Ghana+official+portal" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
-              Visit Official Portal ↗
-            </a>
-          {% endif %}
+          <button 
+            type="button" 
+            class="btn-portal-direct no-loader" 
+            data-slug="{{ insurer.slug }}"
+            data-name="{{ insurer.name }}"
+            data-license="{{ insurer.license_number }}"
+            data-hotline="{{ insurer.claims_hotline }}"
+            data-email="{{ insurer.contact_email }}"
+            onclick="launchInsurerPortal(this)"
+          >
+            Visit Official Portal ↗
+          </button>
         </div>
       </div>
     {% empty %}
@@ -605,10 +592,218 @@
   </div>
 
 </div>
+
+<!-- ====================================================
+     In-App Clearance Dossier Modal
+==================================================== -->
+<div id="in-app-portal-viewer" class="in-app-portal-modal">
+  <div class="portal-modal-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button type="button" class="btn-portal-back no-loader" onclick="closeInAppPortal()">
+        ← Back to InheritanceBox
+      </button>
+      <div style="display: flex; flex-direction: column;">
+        <span id="portal-modal-name" style="font-size: 0.95rem; font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;">
+          Underwriter Portal
+        </span>
+        <span id="portal-modal-meta" style="font-size: 0.72rem; color: #38BDF8; font-family: monospace;">
+          NIC Verified Gateway
+        </span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="no-loader" onclick="closeInAppPortal()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; width: 36px; height: 36px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Telemetry Sub-Bar -->
+  <div style="background: #0B192C; border-bottom: 1px solid rgba(6, 182, 212, 0.25); padding: 0.6rem 1.25rem; font-size: 0.78rem; color: #94A3B8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+    <div>
+      <span style="color: #64748B;">Direct Claims Hotline:</span>
+      <strong id="portal-modal-hotline" style="color: #38BDF8; margin-left: 4px;"></strong>
+    </div>
+    <div>
+      <span style="color: #64748B;">Official Claims Desk:</span>
+      <strong id="portal-modal-email" style="color: #38BDF8; margin-left: 4px;"></strong>
+    </div>
+  </div>
+
+  <!-- Verified Institutional Clearance Body -->
+  <div class="portal-modal-body" style="padding: 2.5rem 1.25rem; display: flex; align-items: center; justify-content: center;">
+    <div style="max-width: 620px; width: 100%; background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.5rem 2rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.25); text-align: center; color: #ffffff;">
+      
+      <div style="width: 72px; height: 72px; margin: 0 auto 1.25rem; border-radius: 20px; background: rgba(6, 182, 212, 0.15); border: 2px solid #06B6D4; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);">
+        🏛️
+      </div>
+
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.18); border: 1px solid #10B981; color: #34D399; font-size: 0.72rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.85rem;">
+        ✓ NIC Verified Underwriting Institution
+      </div>
+
+      <h2 id="portal-hub-name" style="font-size: clamp(1.4rem, 3.5vw, 1.85rem); font-weight: 950; margin: 0 0 0.4rem; color: #ffffff; letter-spacing: -0.4px;">
+        Underwriter Portal
+      </h2>
+
+      <div id="portal-hub-license" style="font-size: 0.82rem; color: #38BDF8; font-family: monospace; font-weight: 800; margin-bottom: 1.5rem;">
+        NIC License Number
+      </div>
+
+      <!-- Institutional Contact Roster -->
+      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.35rem; text-align: left; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Direct Claims Line:</span>
+          <a id="portal-hub-phone" href="#" style="color: #38BDF8; font-size: 0.92rem; font-weight: 900; text-decoration: none; font-family: monospace;"></a>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Official Claims Desk:</span>
+          <a id="portal-hub-email" href="#" style="color: #38BDF8; font-size: 0.92rem; font-weight: 900; text-decoration: none;"></a>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+          <span style="font-size: 0.8rem; color: #94A3B8; font-weight: 700;">Statutory Regulator:</span>
+          <span style="color: #CBD5E1; font-size: 0.82rem; font-weight: 800;">National Insurance Commission (Ghana)</span>
+        </div>
+      </div>
+
+      <!-- Next-of-Kin Advice Pill -->
+      <div style="background: rgba(6, 182, 212, 0.06); border: 1px dashed rgba(6, 182, 212, 0.35); border-radius: 12px; padding: 0.95rem 1rem; margin-bottom: 1.15rem; text-align: left; font-size: 0.8rem; color: #CBD5E1; line-height: 1.55;">
+        <strong style="color: #38BDF8;">📋 Claim Lodgement Protocol:</strong>
+        <p style="margin: 4px 0 0; color: #94A3B8;">
+          When approaching this underwriter, present your verified policy number, deceased policyholder Ghana Card, and certified Letters of Administration. InheritanceBox does not hold claim funds.
+        </p>
+      </div>
+
+      <!-- Professional Browser Transition Advisory -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 1.75rem; text-align: left; font-size: 0.79rem; color: #CBD5E1; line-height: 1.55;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #38BDF8; font-weight: 800; font-size: 0.82rem;">
+          <span>🌐 External Portal Transition Notice</span>
+        </div>
+        <p style="margin: 0; color: #94A3B8;">
+          To guarantee uninterrupted access to this underwriter's corporate features—such as live staffing directories, real-time policy claim forms, chat desks, and authenticated document uploads without in-app sandbox restrictions—opening this portal will launch your system's default browser (Chrome, Safari, Edge, or Firefox). Your active InheritanceBox session remains preserved and ready for immediate return.
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a 
+          id="portal-hub-launch-btn" 
+          href="#" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          referrerpolicy="no-referrer"
+          class="no-loader" 
+          style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; font-weight: 900; font-size: 0.95rem; padding: 1rem; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.45);"
+        >
+          Open in Dedicated Browser Window ↗
+        </a>
+        <button 
+          type="button" 
+          class="no-loader" 
+          onclick="closeInAppPortal()" 
+          style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #94A3B8; font-weight: 800; font-size: 0.85rem; padding: 0.8rem; border-radius: 12px; cursor: pointer;"
+        >
+          ← Return to InheritanceBox Directory
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+  // 100% Direct Official Corporate Web Portals for all 26 Licensed Ghanaian Insurers
+  const DIRECT_OFFICIAL_URLS = {
+    'glico-life': 'https://glicogroup.com/',
+    'glico-general': 'https://glicogroup.com/',
+    'enterprise-life': 'https://enterprisegroup.com.gh/',
+    'enterprise-insurance': 'https://enterprisegroup.com.gh/',
+    'sic-life': 'https://siclife.com.gh/',
+    'sic-insurance': 'https://www.sic-gh.com/',
+    'starlife-assurance': 'https://starlife.com.gh/',
+    'star-assurance': 'https://starassurance.com/',
+    'hollard-life': 'https://www.hollard.com.gh/',
+    'hollard-general': 'https://www.hollard.com.gh/',
+    'vanguard-life': 'https://vanguardassurance.com/',
+    'vanguard-assurance': 'https://vanguardassurance.com/',
+    'prudential-life': 'https://www.prudentiallife.com.gh/',
+    'sanlam-life': 'https://www.sanlam.com.gh/',
+    'old-mutual-life': 'https://www.oldmutual.com.gh/',
+    'metropolitan-life': 'https://www.metropolitan.com.gh/',
+    'milife-insurance': 'https://milifeghana.com/',
+    'activa-ghana': 'https://activa-ghana.com/',
+    'quality-insurance': 'https://qicghana.com/',
+    'qlac-insurance': 'https://qlaclife.com/',
+    'priority-insurance': 'https://priorityinsurancegh.com/',
+    'serene-insurance': 'https://sereneinsurance.com.gh/',
+    'sunu-assurances': 'https://sunu-group.com/',
+    'prime-insurance': 'https://primeinsuranceghana.com/',
+    'first-national-life': 'https://firstnationallife.com/',
+    'donewell-life': 'https://donewelllife.com.gh/'
+  };
+
+  function launchInsurerPortal(btn) {
+    const slug = btn.getAttribute('data-slug') || '';
+    const name = btn.getAttribute('data-name') || 'Official Portal';
+    const license = btn.getAttribute('data-license') || '';
+    const hotline = btn.getAttribute('data-hotline') || '';
+    const email = btn.getAttribute('data-email') || '';
+
+    // Direct authentic URL
+    const directUrl = DIRECT_OFFICIAL_URLS[slug] || `https://www.${slug}.com.gh/`;
+
+    const viewer = document.getElementById('in-app-portal-viewer');
+    const nameEl = document.getElementById('portal-modal-name');
+    const metaEl = document.getElementById('portal-modal-meta');
+    const hotlineEl = document.getElementById('portal-modal-hotline');
+    const emailEl = document.getElementById('portal-modal-email');
+
+    if (nameEl) nameEl.textContent = name;
+    if (metaEl) metaEl.textContent = `NIC License: ${license}`;
+    if (hotlineEl) hotlineEl.textContent = hotline;
+    if (emailEl) emailEl.textContent = email;
+
+    const hubName = document.getElementById('portal-hub-name');
+    const hubLic = document.getElementById('portal-hub-license');
+    const hubPhone = document.getElementById('portal-hub-phone');
+    const hubEmail = document.getElementById('portal-hub-email');
+    const hubBtn = document.getElementById('portal-hub-launch-btn');
+
+    if (hubName) hubName.textContent = name;
+    if (hubLic) hubLic.textContent = `Accredited NIC Registration: ${license}`;
+    if (hubPhone) {
+      hubPhone.textContent = hotline;
+      hubPhone.href = `tel:${hotline}`;
+    }
+    if (hubEmail) {
+      hubEmail.textContent = email;
+      hubEmail.href = `mailto:${email}`;
+    }
+    if (hubBtn) hubBtn.href = directUrl;
+
+    if (viewer) {
+      viewer.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeInAppPortal() {
+    const viewer = document.getElementById('in-app-portal-viewer');
+    if (viewer) {
+      viewer.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeInAppPortal();
+    }
+  });
+
   (function () {
     const allCards = Array.from(document.querySelectorAll('.page-item-insurer'));
     const searchInput = document.getElementById('insurers-search-input');
@@ -617,12 +812,11 @@
     const noMatchBox = document.getElementById('insurers-no-match');
     const paginationControls = document.getElementById('insurers-pagination');
 
-    const PAGE_SIZE = 10; // Strictly paginates 10 cards per page
+    const PAGE_SIZE = 10;
     let currentCategory = 'ALL';
     let currentPage = 1;
     let filteredCards = [...allCards];
 
-    // Compute and populate live category counts
     const lifeCount = allCards.filter(c => c.getAttribute('data-category') === 'LIFE').length;
     const generalCount = allCards.filter(c => c.getAttribute('data-category') === 'GENERAL').length;
     const lifeCountEl = document.getElementById('count-life');
@@ -653,7 +847,6 @@
         noMatchBox.style.display = total === 0 ? 'block' : 'none';
       }
 
-      // Manage 10-Item Pagination Controls
       if (paginationControls) {
         if (total <= PAGE_SIZE) {
           paginationControls.style.display = 'none';
@@ -694,7 +887,6 @@
       renderPage();
     }
 
-    // Instant Category Switcher
     window.switchCategory = function (category, btnElement) {
       currentCategory = category;
 
@@ -754,8 +946,7 @@
       }
     }
 
-    // Initial render
     applyFilters();
   })();
-</script>
-{% endblock %}
+</script> 
+{% endblock %} 
