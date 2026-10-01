@@ -1,94 +1,521 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Licensed Underwriting Partners | InheritanceBox Directory{% endblock %}
+{% block title %}National Underwriters Directory | InheritanceBox{% endblock %}
+
+{% block extra_css %}
+<style>
+  .insurers-shell {
+    max-width: 1180px;
+    margin: 1.5rem auto 4.5rem;
+    padding: 0 1.25rem;
+  }
+
+  .insurers-hero-banner {
+    background: radial-gradient(circle at 50% 30%, #0d264a 0%, #06152a 70%, #030a16 100%);
+    border: 1.5px solid rgba(6, 182, 212, 0.4);
+    border-radius: 24px;
+    padding: clamp(2rem, 5vw, 3.25rem) clamp(1.25rem, 4vw, 2.5rem);
+    color: #ffffff;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .insurers-hero-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .directory-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #38BDF8;
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    padding: 4px 14px;
+    border-radius: 999px;
+    margin-bottom: 0.85rem;
+  }
+
+  .directory-title {
+    font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.6px;
+  }
+
+  .directory-subtitle {
+    font-size: 0.95rem;
+    color: #CBD5E1;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 660px;
+  }
+
+  .category-pill-group {
+    display: inline-flex;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .category-pill-btn {
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-decoration: none;
+    color: #94A3B8;
+    transition: all 0.2s ease;
+  }
+
+  .category-pill-btn.active {
+    background: #0284C7;
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+  }
+
+  .category-pill-btn:hover:not(.active) {
+    color: #38BDF8;
+    background: rgba(6, 182, 212, 0.1);
+  }
+
+  .search-wrapper {
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .search-input-group {
+    display: flex;
+    gap: 8px;
+    background: #ffffff;
+    border: 2px solid #06B6D4;
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+  }
+
+  .search-input-field {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #0F172A;
+    min-width: 0;
+  }
+
+  .search-submit-btn {
+    background: linear-content;
+    background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0 1.6rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .search-submit-btn:hover {
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .search-clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FEE2E2;
+    color: #DC2626;
+    border-radius: 12px;
+    padding: 0 1.1rem;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+
+  .results-counter-strip {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #64748B;
+    margin-top: 8px;
+  }
+
+  .insurer-card-premium {
+    background: #ffffff;
+    border: 1.5px solid rgba(6, 182, 212, 0.22);
+    border-radius: 20px;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 24px rgba(10, 25, 47, 0.05);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  .insurer-card-premium:hover {
+    transform: translateY(-4px);
+    border-color: #06B6D4;
+    box-shadow: 0 16px 36px rgba(6, 182, 212, 0.18);
+  }
+
+  .insurer-type-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .badge-life {
+    background: #E0F2FE;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+  }
+
+  .badge-general {
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+  }
+
+  .telemetry-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0.9rem;
+    margin-bottom: 1.35rem;
+    font-size: 0.82rem;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .telemetry-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-portal-direct {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #0A192F;
+    color: #38BDF8;
+    border: 1.5px solid rgba(6, 182, 212, 0.4);
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-portal-direct:hover {
+    background: #0284C7;
+    color: #ffffff;
+    border-color: #0284C7;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3.5rem;
+    flex-wrap: wrap;
+  }
+
+  .page-nav-btn {
+    background: #ffffff;
+    border: 1.5px solid #CBD5E1;
+    color: #334155;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .page-nav-btn:hover {
+    border-color: #0284C7;
+    background: #F0F9FF;
+    color: #0284C7;
+  }
+
+  .page-num-pill {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1.5px solid #CBD5E1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .page-num-pill.active {
+    background: #0284C7;
+    border-color: #0284C7;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div style="max-width: 1080px; margin: 1.5rem auto 4rem; padding: 0 1rem;">
-  
-  <!-- Header Title -->
-  <div style="text-align: center; max-width: 720px; margin: 0 auto 2.5rem;">
-    <span style="display: inline-block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #06B6D4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); padding: 4px 14px; border-radius: 999px; margin-bottom: 0.85rem;">
-      🇬🇭 National Underwriters Directory
+<div class="insurers-shell">
+
+  <!-- Header Banner -->
+  <div class="insurers-hero-banner">
+    <span class="directory-tag">
+      🏛️ National Insurance Commission (NIC) Registered Directory
     </span>
-    <h1 style="font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; color: #0A192F; margin: 0 0 0.75rem; letter-spacing: -0.5px;">
-      Licensed Insurance Partners in Ghana
+    <h1 class="directory-title">
+      Licensed Underwriters in Ghana
     </h1>
-    <p style="font-size: 0.95rem; color: #64748B; line-height: 1.6; margin: 0;">
-      Browse verified insurance companies integrated across the InheritanceBox registry. Policyholders can link coverage from any of these institutions, and claimants can use these direct contacts to submit verified payout dossiers.
+    <p class="directory-subtitle">
+      Direct institutional clearinghouse for policyholders, executors, and bereaved families. Query institutional claim numbers, licensed registrations, and verified corporate websites across Ghana.
     </p>
+
+    <!-- Category Filter Switcher -->
+    <div class="category-pill-group">
+      <a href="{% url 'vault:insurers' %}{% if search_q %}?q={{ search_q }}{% endif %}" class="category-pill-btn {% if not current_cat %}active{% endif %}">
+        All Underwriters ({{ total_unfiltered_count|default:"26" }})
+      </a>
+      <a href="{% url 'vault:insurers' %}?cat=LIFE{% if search_q %}&q={{ search_q }}{% endif %}" class="category-pill-btn {% if current_cat == 'LIFE' %}active{% endif %}">
+        Life Assurance
+      </a>
+      <a href="{% url 'vault:insurers' %}?cat=GENERAL{% if search_q %}&q={{ search_q }}{% endif %}" class="category-pill-btn {% if current_cat == 'GENERAL' %}active{% endif %}">
+        General / Non-Life
+      </a>
+    </div>
   </div>
 
-  <!-- Search Filter Input -->
-  <div style="max-width: 600px; margin: 0 auto 2.5rem;">
-    <form method="GET" action="{% url 'vault:insurers' %}" style="display: flex; gap: 8px; background: #ffffff; border: 1.5px solid #06B6D4; border-radius: 14px; padding: 6px; box-shadow: 0 6px 20px rgba(6, 182, 212, 0.15);">
+  <!-- Search Filter Control -->
+  <div class="search-wrapper">
+    <form method="GET" action="{% url 'vault:insurers' %}" class="search-input-group">
+      {% if current_cat %}
+        <input type="hidden" name="cat" value="{{ current_cat }}">
+      {% endif %}
       <input 
         type="text" 
         name="q" 
         value="{{ search_q|default:'' }}" 
-        placeholder="Search insurer by name, license number, or phone..." 
-        style="flex: 1; border: none; outline: none; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit;"
+        placeholder="Search by company name, license ID, hotline, or email..." 
+        class="search-input-field"
       >
-      <button type="submit" style="background: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%); color: #ffffff; border: none; border-radius: 10px; padding: 0 1.5rem; font-weight: 800; cursor: pointer; font-family: inherit;">
+      <button type="submit" class="search-submit-btn">
         Search 🔍
       </button>
       {% if search_q %}
-        <a href="{% url 'vault:insurers' %}" style="display: flex; align-items: center; justify-content: center; background: #FEE2E2; color: #DC2626; border-radius: 10px; padding: 0 1rem; text-decoration: none; font-weight: 800; font-size: 0.85rem;">
-          ✕ Clear
+        <a href="{% url 'vault:insurers' %}{% if current_cat %}?cat={{ current_cat }}{% endif %}" class="search-clear-btn" title="Clear query">
+          ✕
         </a>
       {% endif %}
     </form>
+    <div class="results-counter-strip">
+      Showing <strong>{{ total_matching_count|default:insurers|length }}</strong> verified underwriting partner{{ total_matching_count|pluralize }}
+    </div>
   </div>
 
-  <!-- Insurers Grid -->
+  <!-- Insurers Grid (Paginated 3x3 Cards) -->
   <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
     {% for insurer in insurers %}
-      <div style="background: #ffffff; border: 1.5px solid rgba(6, 182, 212, 0.25); border-radius: 18px; padding: 1.6rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 24px rgba(10, 25, 47, 0.04); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(6, 182, 212, 0.16)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 8px 24px rgba(10, 25, 47, 0.04)';">
+      <div class="insurer-card-premium">
         <div>
+          <!-- Header Card Metadata -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 0.85rem;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(6, 182, 212, 0.12); border: 1.5px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
               🏛️
             </div>
-            <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
-              ✓ Licensed Partner
-            </span>
+            {% if '/LF/' in insurer.license_number or 'Life' in insurer.name %}
+              <span class="insurer-type-badge badge-life">Life Assurance</span>
+            {% else %}
+              <span class="insurer-type-badge badge-general">General / Non-Life</span>
+            {% endif %}
           </div>
 
-          <h3 style="font-size: 1.15rem; font-weight: 900; color: #0A192F; margin: 0 0 0.5rem; letter-spacing: -0.3px;">
+          <h3 style="font-size: 1.2rem; font-weight: 900; color: #0A192F; margin: 0 0 0.35rem; letter-spacing: -0.3px;">
             {{ insurer.name }}
           </h3>
           <div style="font-size: 0.76rem; color: #64748B; font-family: monospace; margin-bottom: 1rem;">
-            License: <strong style="color: #0284C7;">{{ insurer.license_number }}</strong>
+            NIC Registration: <strong style="color: #0284C7;">{{ insurer.license_number }}</strong>
           </div>
 
-          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
-            <div>
+          <!-- Contact Telemetry Box -->
+          <div class="telemetry-box">
+            <div class="telemetry-row">
               <span style="color: #64748B; font-weight: 700;">Claims Hotline:</span>
-              <a href="tel:{{ insurer.claims_hotline }}" style="color: #0284C7; font-weight: 800; text-decoration: none; margin-left: 4px;">{{ insurer.claims_hotline }}</a>
+              <a href="tel:{{ insurer.claims_hotline }}" style="color: #0284C7; font-weight: 800; text-decoration: none;">{{ insurer.claims_hotline }}</a>
             </div>
-            <div>
-              <span style="color: #64748B; font-weight: 700;">Official Email:</span>
-              <a href="mailto:{{ insurer.contact_email }}" style="color: #0284C7; font-weight: 700; text-decoration: none; margin-left: 4px;">{{ insurer.contact_email }}</a>
+            <div class="telemetry-row" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <span style="color: #64748B; font-weight: 700;">Official Desk:</span>
+              <a href="mailto:{{ insurer.contact_email }}" style="color: #0284C7; font-weight: 700; text-decoration: none; overflow: hidden; text-overflow: ellipsis;">{{ insurer.contact_email }}</a>
             </div>
           </div>
         </div>
 
+        <!-- Official External Website Link (Hardened with referrerpolicy="no-referrer") -->
         <div>
-          <a href="https://www.google.com/search?q={{ insurer.name|urlencode }}+Ghana" target="_blank" rel="noopener noreferrer" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-content; background: #0A192F; color: #38BDF8; border: 1.5px solid rgba(6, 182, 212, 0.4); padding: 0.75rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.background='#0284C7'; this.style.color='#ffffff';" onmouseout="this.style.background='#0A192F'; this.style.color='#38BDF8';">
-            Visit Official Website ↗
-          </a>
+          {% if 'glico' in insurer.slug %}
+            <a href="https://glicogroup.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'enterprise-life' in insurer.slug %}
+            <a href="https://enterprisegroup.com.gh/life/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'enterprise' in insurer.slug %}
+            <a href="https://enterprisegroup.com.gh/insurance/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'sic-life' in insurer.slug %}
+            <a href="https://www.siclife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'sic' in insurer.slug %}
+            <a href="https://sic-gh.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'starlife' in insurer.slug %}
+            <a href="https://starlife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'star-assurance' in insurer.slug %}
+            <a href="https://starassurance.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'hollard' in insurer.slug %}
+            <a href="https://www.hollard.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'vanguard' in insurer.slug %}
+            <a href="https://vanguardassurance.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'prudential' in insurer.slug %}
+            <a href="https://www.prudentiallife.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'sanlam' in insurer.slug %}
+            <a href="https://www.sanlam.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'old-mutual' in insurer.slug %}
+            <a href="https://www.oldmutual.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'metropolitan' in insurer.slug %}
+            <a href="https://www.metropolitan.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'milife' in insurer.slug %}
+            <a href="https://milifeghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'activa' in insurer.slug %}
+            <a href="https://activa-ghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'qic' in insurer.slug or 'quality-insurance' in insurer.slug %}
+            <a href="https://qicghana.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'qlac' in insurer.slug %}
+            <a href="https://qlaclife.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'priority' in insurer.slug %}
+            <a href="https://priorityinsurancegh.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'serene' in insurer.slug %}
+            <a href="https://sereneinsurance.com.gh/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% elif 'sunu' in insurer.slug %}
+            <a href="https://sunu-group.com/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% else %}
+            <a href="https://www.google.com/search?q={{ insurer.name|urlencode }}+Ghana+official+portal" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" class="btn-portal-direct">
+              Visit Official Portal ↗
+            </a>
+          {% endif %}
         </div>
       </div>
     {% empty %}
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 20px;">
-        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
-        <h3 style="font-size: 1.2rem; font-weight: 800; color: #0A192F; margin: 0 0 0.4rem;">No Underwriters Match Your Search</h3>
-        <p style="font-size: 0.85rem; color: #64748B; margin: 0 0 1rem;">Try searching by part of the company name or clear your query.</p>
-        <a href="{% url 'vault:insurers' %}" style="display: inline-block; background: #0284C7; color: #ffffff; padding: 0.65rem 1.4rem; border-radius: 8px; font-weight: 800; text-decoration: none; font-size: 0.85rem;">
-          View All Insurance Partners
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4.5rem 1.5rem; background: #ffffff; border: 2px dashed #CBD5E1; border-radius: 24px;">
+        <div style="font-size: 2.8rem; margin-bottom: 0.6rem;">🔍</div>
+        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0A192F; margin: 0 0 0.5rem;">No Underwriters Match Your Criteria</h3>
+        <p style="font-size: 0.88rem; color: #64748B; margin: 0 auto 1.5rem; max-width: 440px;">
+          We could not locate any licensed company matching your search term or category filter.
+        </p>
+        <a href="{% url 'vault:insurers' %}" style="display: inline-flex; align-items: center; gap: 6px; background: #0284C7; color: #ffffff; padding: 0.75rem 1.6rem; border-radius: 10px; font-weight: 800; font-size: 0.88rem; text-decoration: none;">
+          View All Underwriters
         </a>
       </div>
     {% endfor %}
   </div>
+
+  <!-- Pagination Bar -->
+  {% if page_obj.has_other_pages %}
+    <div class="pagination-container">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_q %}&q={{ search_q }}{% endif %}{% if current_cat %}&cat={{ current_cat }}{% endif %}" class="page-nav-btn">
+          ‹ Previous
+        </a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span class="page-num-pill active">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?page={{ num }}{% if search_q %}&q={{ search_q }}{% endif %}{% if current_cat %}&cat={{ current_cat }}{% endif %}" class="page-num-pill">
+            {{ num }}
+          </a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_q %}&q={{ search_q }}{% endif %}{% if current_cat %}&cat={{ current_cat }}{% endif %}" class="page-nav-btn">
+          Next ›
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
 </div>
 {% endblock %}

@@ -3220,30 +3220,34 @@ def insurers_directory_view(request):
     Public searchable directory of licensed underwriting partners in Ghana,
     complete with official portal links and direct claims hotlines.
     """
-    # Auto-seed default Ghanaian underwriters if directory is empty
-    if not InsuranceCompany.objects.exists():
-        default_insurers = [
-            ("Enterprise Life Assurance", "enterprise-life", "NIC/LF/001", "info.life@enterprisegroup.com.gh", "+233 30 263 4777"),
-            ("SIC Insurance PLC", "sic-insurance", "NIC/NL/002", "sicinfo@sic-gh.com", "+233 30 228 0600"),
-            ("StarLife Assurance", "starlife-assurance", "NIC/LF/003", "info@starlife.com.gh", "+233 30 273 9300"),
-            ("GLICO Life / General", "glico-group", "NIC/LF/004", "info@glicogroup.com", "+233 30 221 8500"),
-            ("Hollard Insurance Ghana", "hollard-ghana", "NIC/LF/005", "info@hollard.com.gh", "+233 80 044 4999"),
-            ("Vanguard Assurance", "vanguard-assurance", "NIC/LF/006", "info@vanguardassurance.com", "+233 30 221 3444"),
-            ("Metropolitan Life Insurance", "metropolitan-life", "NIC/LF/007", "info@metropolitan.com.gh", "+233 30 263 3999"),
-            ("Old Mutual Life Assurance", "old-mutual", "NIC/LF/008", "contactus@oldmutual.com.gh", "+233 30 700 0600"),
-            ("Prudential Life Insurance", "prudential-life", "NIC/LF/009", "customercare@prudentiallife.com.gh", "+233 30 220 8888"),
-        ]
-        for name, slug, lic, email, hotline in default_insurers:
-            InsuranceCompany.objects.get_or_create(
-                slug=slug,
-                defaults={
-                    'name': name,
-                    'license_number': lic,
-                    'contact_email': email,
-                    'claims_hotline': hotline,
-                    'is_verified': True,
-                }
-            )
+    default_insurers = [
+        ("Enterprise Life Assurance", "enterprise-life", "NIC/LF/001", "info.life@enterprisegroup.com.gh", "+233 30 263 4777"),
+        ("SIC Insurance PLC", "sic-insurance", "NIC/NL/002", "sicinfo@sic-gh.com", "+233 30 228 0600"),
+        ("StarLife Assurance", "starlife-assurance", "NIC/LF/003", "info@starlife.com.gh", "+233 30 273 9300"),
+        ("GLICO Life / General", "glico-group", "NIC/LF/004", "info@glicogroup.com", "+233 30 221 8500"),
+        ("Hollard Insurance Ghana", "hollard-ghana", "NIC/LF/005", "info@hollard.com.gh", "+233 80 044 4999"),
+        ("Vanguard Assurance", "vanguard-assurance", "NIC/LF/006", "info@vanguardassurance.com", "+233 30 221 3444"),
+        ("Metropolitan Life Insurance", "metropolitan-life", "NIC/LF/007", "info@metropolitan.com.gh", "+233 30 263 3999"),
+        ("Old Mutual Life Assurance", "old-mutual", "NIC/LF/008", "contactus@oldmutual.com.gh", "+233 30 700 0600"),
+        ("Prudential Life Insurance", "prudential-life", "NIC/LF/009", "customercare@prudentiallife.com.gh", "+233 30 220 8888"),
+        ("Activa International Insurance", "activa-ghana", "NIC/NL/010", "info@activa-ghana.com", "+233 30 268 7338"),
+        ("Sanlam Life Insurance", "sanlam-ghana", "NIC/LF/011", "clientcare@sanlam.com.gh", "+233 30 276 9623"),
+    ]
+
+    for name, slug, lic, email, hotline in default_insurers:
+        obj, _ = InsuranceCompany.objects.get_or_create(
+            slug=slug,
+            defaults={
+                'name': name,
+                'license_number': lic,
+                'contact_email': email,
+                'claims_hotline': hotline,
+                'is_verified': True,
+            }
+        )
+        if not obj.is_verified:
+            obj.is_verified = True
+            obj.save(update_fields=['is_verified'])
 
     search_q = request.GET.get('q', '').strip()
     insurers_qs = InsuranceCompany.objects.filter(is_verified=True).order_by('name')
