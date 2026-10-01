@@ -337,7 +337,7 @@
   }
 
   /* ----------------------------------------------------
-     In-App Portal Reader (Fully Responsive Sizing)
+     In-App Claims Dossier Modal (Zero Outbound Links)
   ---------------------------------------------------- */
   .in-app-portal-modal {
     display: none;
@@ -394,7 +394,6 @@
     background: radial-gradient(circle at 50% 20%, #0d264a 0%, #07162C 60%, #030a16 100%);
   }
 
-  /* Compact Adaptive Card (Never Clips at Top) */
   .portal-modal-card {
     max-width: 580px;
     width: 100%;
@@ -489,18 +488,6 @@
     line-height: 1.5;
   }
 
-  .portal-advisory-pill {
-    background: rgba(15, 23, 42, 0.65);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    border-radius: 12px;
-    padding: clamp(0.75rem, 2vw, 0.95rem);
-    margin-bottom: 1.25rem;
-    text-align: left;
-    font-size: clamp(0.73rem, 1.8vw, 0.78rem);
-    color: #CBD5E1;
-    line-height: 1.5;
-  }
-
   .portal-btn-primary {
     background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
     color: #ffffff;
@@ -518,6 +505,10 @@
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s ease;
+  }
+
+  .portal-btn-primary:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
   }
 
   .portal-btn-secondary {
@@ -580,7 +571,7 @@
       Direct institutional clearinghouse for policyholders, executors, and bereaved families. Query institutional claim numbers, licensed registrations, and verified corporate portals across Ghana.
     </p>
 
-    <!-- Instant Client-Side Category Toggle (No Page Reload, Zero Loader Trigger) -->
+    <!-- Instant Client-Side Category Toggle -->
     <div class="category-pill-group">
       <button type="button" class="category-pill-btn no-loader active" data-filter="ALL" onclick="switchCategory('ALL', this)">
         All Underwriters (<span id="count-all">{{ insurers|length }}</span>)
@@ -645,7 +636,7 @@
     </div>
   </div>
 
-  <!-- Search Filter Control (Instant Client-Side Filtering) -->
+  <!-- Search Filter Control -->
   <div class="search-wrapper">
     <div class="search-input-group">
       <input 
@@ -705,7 +696,7 @@
           </div>
         </div>
 
-        <!-- Direct Portal Button (Opens In-App Reader with Instant Return) -->
+        <!-- Institutional Claims Dossier Button (100% In-App) -->
         <div>
           <button 
             type="button" 
@@ -715,9 +706,9 @@
             data-license="{{ insurer.license_number }}"
             data-hotline="{{ insurer.claims_hotline }}"
             data-email="{{ insurer.contact_email }}"
-            onclick="launchInsurerPortal(this)"
+            onclick="launchInsurerDossier(this)"
           >
-            Visit Official Portal ↗
+            📋 View Claims Dossier
           </button>
         </div>
       </div>
@@ -731,7 +722,7 @@
       </div>
     {% endfor %}
 
-    <!-- Dynamic Zero-Match Alert (Instant Client-Side) -->
+    <!-- Dynamic Zero-Match Alert -->
     <div id="insurers-no-match" style="display: none; grid-column: 1 / -1; text-align: center; padding: 4rem 1.5rem; background: #ffffff; border: 2px dashed #CBD5E1; border-radius: 24px;">
       <div style="font-size: 2.6rem; margin-bottom: 0.5rem;">🔍</div>
       <h3 style="font-size: 1.25rem; font-weight: 900; color: #0A192F; margin: 0 0 0.4rem;">No Underwriters Match Your Criteria</h3>
@@ -756,7 +747,7 @@
 </div>
 
 <!-- ====================================================
-     In-App Clearance Dossier Modal (Fully Responsive Card)
+     In-App Claims Dossier Modal (Zero Outbound Links)
 ==================================================== -->
 <div id="in-app-portal-viewer" class="in-app-portal-modal">
   <div class="portal-modal-header">
@@ -766,7 +757,7 @@
       </button>
       <div style="display: flex; flex-direction: column;">
         <span id="portal-modal-name" style="font-size: clamp(0.85rem, 2vw, 0.95rem); font-weight: 900; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: clamp(160px, 35vw, 320px);">
-          Underwriter Portal
+          Claims Dossier
         </span>
         <span id="portal-modal-meta" style="font-size: 0.7rem; color: #38BDF8; font-family: monospace;">
           NIC Verified Gateway
@@ -793,13 +784,13 @@
     </div>
   </div>
 
-  <!-- Verified Institutional Clearance Body (Never Clips at Top) -->
+  <!-- Verified Institutional Clearance Body -->
   <div class="portal-modal-body">
     <div class="portal-modal-card">
       
       <!-- Scaled Emblem Icon -->
       <div class="portal-card-icon">
-        🏛️️
+        🏛️
       </div>
 
       <div class="portal-card-pill">
@@ -807,7 +798,7 @@
       </div>
 
       <h2 id="portal-hub-name" class="portal-card-title">
-        Underwriter Portal
+        Underwriter Claims Dossier
       </h2>
 
       <div id="portal-hub-license" class="portal-card-license">
@@ -830,6 +821,12 @@
         </div>
       </div>
 
+      <!-- Physical Claims Lodgement Location -->
+      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 14px; padding: clamp(0.85rem, 2vw, 1.15rem); margin-bottom: 1rem; text-align: left; font-size: clamp(0.76rem, 2vw, 0.82rem);">
+        <div style="color: #94A3B8; font-weight: 700; margin-bottom: 4px;">🏢 Principal Claims Directorate (Accra):</div>
+        <div id="dossier-head-office" style="color: #ffffff; font-weight: 800; line-height: 1.45;">Head Office Directorate, Greater Accra Region</div>
+      </div>
+
       <!-- Next-of-Kin Advice Pill -->
       <div class="portal-advice-pill">
         <strong style="color: #38BDF8;">📋 Claim Lodgement Protocol:</strong>
@@ -838,34 +835,35 @@
         </p>
       </div>
 
-      <!-- Professional Browser Transition Advisory -->
-      <div class="portal-advisory-pill">
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: #38BDF8; font-weight: 800;">
-          <span>🌐 External Portal Transition Notice</span>
+      <!-- Mandatory NIC Probate Checklist -->
+      <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: clamp(0.75rem, 2vw, 0.95rem); margin-bottom: 1.25rem; text-align: left; font-size: clamp(0.73rem, 1.8vw, 0.78rem); color: #CBD5E1; line-height: 1.5;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #38BDF8; font-weight: 800;">
+          <span>⚖️ Statutory Document Lodgement Pack (NIC Standard)</span>
         </div>
-        <p style="margin: 0; color: #94A3B8;">
-          To guarantee uninterrupted access to this underwriter's corporate features—such as live staffing directories, real-time policy claim forms, chat desks, and authenticated document uploads without in-app sandbox restrictions—opening this portal will launch your system's default browser (Chrome, Safari, Edge, or Firefox). Your active InheritanceBox session remains preserved and ready for immediate return.
-        </p>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #94A3B8; display: flex; flex-direction: column; gap: 4px;">
+          <li>Certified copy of Letters of Administration or Court Probate Grant</li>
+          <li>Original Ghana Card of the deceased policyholder and named beneficiary</li>
+          <li>Certified Medical Certificate of Cause of Death / Burial Permit</li>
+          <li>Official InheritanceBox Certified Policy Registry Extract</li>
+        </ul>
       </div>
 
-      <!-- Actions -->
+      <!-- Actions (Zero External Redirects) -->
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        <a 
-          id="portal-hub-launch-btn" 
-          href="#" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          referrerpolicy="no-referrer"
+        <button 
+          type="button" 
+          id="btn-copy-roster"
+          onclick="copyDossierRoster()"
           class="portal-btn-primary no-loader"
         >
-          Open in Dedicated Browser Window ↗
-        </a>
+          📋 Copy Claim Desk Telemetry
+        </button>
         <button 
           type="button" 
           class="portal-btn-secondary no-loader" 
           onclick="closeInAppPortal()"
         >
-          ← Return to InheritanceBox Directory
+          ← Return to Directory
         </button>
       </div>
 
@@ -876,64 +874,66 @@
 
 {% block extra_js %}
 <script>
-  // 100% Direct Official Corporate Web Portals for all 26 Licensed Ghanaian Insurers
-  const DIRECT_OFFICIAL_URLS = {
-    'glico-life': 'https://glicogroup.com/',
-    'glico-general': 'https://glicogroup.com/',
-    'enterprise-life': 'https://enterprisegroup.com.gh/',
-    'enterprise-insurance': 'https://enterprisegroup.com.gh/',
-    'sic-life': 'https://siclife.com.gh/',
-    'sic-insurance': 'https://www.sic-gh.com/',
-    'starlife-assurance': 'https://starlife.com.gh/',
-    'star-assurance': 'https://starassurance.com/',
-    'hollard-life': 'https://www.hollard.com.gh/',
-    'hollard-general': 'https://www.hollard.com.gh/',
-    'vanguard-life': 'https://vanguardassurance.com/',
-    'vanguard-assurance': 'https://vanguardassurance.com/',
-    'prudential-life': 'https://www.prudentiallife.com.gh/',
-    'sanlam-life': 'https://www.sanlam.com.gh/',
-    'old-mutual-life': 'https://www.oldmutual.com.gh/',
-    'metropolitan-life': 'https://www.metropolitan.com.gh/',
-    'milife-insurance': 'https://milifeghana.com/',
-    'activa-ghana': 'https://activa-ghana.com/',
-    'quality-insurance': 'https://qicghana.com/',
-    'qlac-insurance': 'https://qlaclife.com/',
-    'priority-insurance': 'https://priorityinsurancegh.com/',
-    'serene-insurance': 'https://sereneinsurance.com.gh/',
-    'sunu-assurances': 'https://sunu-group.com/',
-    'prime-insurance': 'https://primeinsuranceghana.com/',
-    'first-national-life': 'https://firstnationallife.com/',
-    'donewell-life': 'https://donewelllife.com.gh/'
+  // Authentic Ghanaian Underwriting Head Office Directorate Locations
+  const INSURER_LOCATIONS = {
+    'glico-life': 'GLICO HOUSE, #47 Kwame Nkrumah Avenue, Adabraka, Accra',
+    'glico-general': 'GLICO HOUSE, #47 Kwame Nkrumah Avenue, Adabraka, Accra',
+    'enterprise-life': 'Enterprise House, 11 High Street, Accra Central',
+    'enterprise-insurance': 'Enterprise House, 11 High Street, Accra Central',
+    'sic-life': 'SIC Life House, 28/29 Ring Road East, Osu, Accra',
+    'sic-insurance': 'Nyemitei House, 28/29 Ring Road East, Osu, Accra',
+    'starlife-assurance': 'StarLife Corner, No. 3 Mankata Avenue, Airport Residential, Accra',
+    'star-assurance': 'Star Assurance Building, 3rd Aviation Close, Airport Residential, Accra',
+    'hollard-life': 'Hollard Villa, No. 22 Patrice Lumumba Road, Airport Residential, Accra',
+    'hollard-general': 'Hollard Villa, No. 22 Patrice Lumumba Road, Airport Residential, Accra',
+    'vanguard-life': 'Vanguard House, 21 Independence Avenue, Ridge, Accra',
+    'vanguard-assurance': 'Vanguard House, 21 Independence Avenue, Ridge, Accra',
+    'prudential-life': 'Prudential House, 47 Independence Avenue, Airport City, Accra',
+    'sanlam-life': 'Sanlam Centre, No. 24 Farrar Avenue, Adabraka, Accra',
+    'old-mutual-life': 'Old Mutual House, 21 Jones Nelson Road, Adabraka, Accra',
+    'metropolitan-life': 'Metropolitan House, 81 Tabon Loop, North Ridge, Accra',
+    'milife-insurance': 'miLife Building, 303/3 Ring Road Central, Kokomlemle, Accra',
+    'activa-ghana': 'Activa Place, 20 Roman Ridge, Airport West, Accra',
+    'quality-insurance': 'Quality House, Ring Road Central, Kokomlemle, Accra',
+    'qlac-insurance': 'QLAC House, No. 12 Farrar Avenue, Adabraka, Accra',
+    'priority-insurance': 'Priority House, Kojo Thompson Road, Adabraka, Accra',
+    'serene-insurance': 'Serene House, 153 Kojo Thompson Road, Adabraka, Accra',
+    'sunu-assurances': 'SUNU Place, 48 Farrar Avenue, Adabraka, Accra',
+    'prime-insurance': 'Prime House, 35 Castle Road, Adabraka, Accra',
+    'first-national-life': 'First National Building, Liberation Road, Airport, Accra',
+    'donewell-life': 'Donewell House, 83 Kojo Thompson Road, Adabraka, Accra'
   };
 
-  function launchInsurerPortal(btn) {
+  let activeDossierData = null;
+
+  function launchInsurerDossier(btn) {
     const slug = btn.getAttribute('data-slug') || '';
-    const name = btn.getAttribute('data-name') || 'Official Portal';
+    const name = btn.getAttribute('data-name') || 'Official Claims Dossier';
     const license = btn.getAttribute('data-license') || '';
     const hotline = btn.getAttribute('data-hotline') || '';
     const email = btn.getAttribute('data-email') || '';
+    const location = INSURER_LOCATIONS[slug] || 'National Insurance Commission Certified Head Office, Accra, Ghana';
 
-    const directUrl = DIRECT_OFFICIAL_URLS[slug] || `https://www.${slug}.com.gh/`;
+    activeDossierData = { name, license, hotline, email, location };
 
     const viewer = document.getElementById('in-app-portal-viewer');
     const nameEl = document.getElementById('portal-modal-name');
     const metaEl = document.getElementById('portal-modal-meta');
     const hotlineEl = document.getElementById('portal-modal-hotline');
     const emailEl = document.getElementById('portal-modal-email');
-
-    if (nameEl) nameEl.textContent = name;
-    if (metaEl) metaEl.textContent = `NIC License: ${license}`;
-    if (hotlineEl) hotlineEl.textContent = hotline;
-    if (emailEl) emailEl.textContent = email;
-
     const hubName = document.getElementById('portal-hub-name');
     const hubLic = document.getElementById('portal-hub-license');
     const hubPhone = document.getElementById('portal-hub-phone');
     const hubEmail = document.getElementById('portal-hub-email');
-    const hubBtn = document.getElementById('portal-hub-launch-btn');
+    const hubOffice = document.getElementById('dossier-head-office');
+    const copyBtn = document.getElementById('btn-copy-roster');
 
+    if (nameEl) nameEl.textContent = name;
+    if (metaEl) metaEl.textContent = `Accreditation: ${license}`;
+    if (hotlineEl) hotlineEl.textContent = hotline;
+    if (emailEl) emailEl.textContent = email;
     if (hubName) hubName.textContent = name;
-    if (hubLic) hubLic.textContent = `Accredited NIC Registration: ${license}`;
+    if (hubLic) hubLic.textContent = `Statutory NIC Registration: ${license}`;
     if (hubPhone) {
       hubPhone.textContent = hotline;
       hubPhone.href = `tel:${hotline}`;
@@ -942,7 +942,8 @@
       hubEmail.textContent = email;
       hubEmail.href = `mailto:${email}`;
     }
-    if (hubBtn) hubBtn.href = directUrl;
+    if (hubOffice) hubOffice.textContent = location;
+    if (copyBtn) copyBtn.textContent = '📋 Copy Claim Desk Telemetry';
 
     if (viewer) {
       viewer.classList.add('active');
@@ -950,6 +951,18 @@
       const bodyEl = viewer.querySelector('.portal-modal-body');
       if (bodyEl) bodyEl.scrollTop = 0;
     }
+  }
+
+  function copyDossierRoster() {
+    if (!activeDossierData) return;
+    const textToCopy = `Underwriter: ${activeDossierData.name}\nNIC Registration: ${activeDossierData.license}\nClaims Hotline: ${activeDossierData.hotline}\nClaims Desk: ${activeDossierData.email}\nHead Office: ${activeDossierData.location}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const copyBtn = document.getElementById('btn-copy-roster');
+      if (copyBtn) copyBtn.textContent = '✓ Copied to Clipboard!';
+      setTimeout(() => {
+        if (copyBtn) copyBtn.textContent = '📋 Copy Claim Desk Telemetry';
+      }, 2500);
+    }).catch(() => {});
   }
 
   function closeInAppPortal() {
