@@ -904,6 +904,26 @@
         font-size: 0.76rem;
       }
     }
+
+    /* In-Place Zero-Reload Privacy Blur Curtain */
+    .privacy-curtain-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999999;
+      background: rgba(10, 25, 47, 0.75);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      animation: curtainFadeIn 0.35s ease forwards;
+    }
+
+    @keyframes curtainFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
   {% block extra_css %}{% endblock %}
 </head>
@@ -1856,47 +1876,46 @@
 
   <script>
     (function () {
-      // 30-minute idle threshold for active estate review
-      const TOTAL_IDLE_LIMIT = 30 * 60 * 1000;
-      const WARNING_THRESHOLD = 28 * 60 * 1000;
+      // 20-minute idle threshold before applying privacy blur
+      const IDLE_BLUR_THRESHOLD = 20 * 60 * 1000;
       let lastActiveTimestamp = Date.now();
+      let isShieldActive = false;
 
-      const modal = document.getElementById('session-timeout-modal');
-      const countdownSec = document.getElementById('timeout-countdown-sec');
-      const stayActiveBtn = document.getElementById('btn-keep-session-active');
+      const curtain = document.getElementById('privacy-curtain-shield');
+      const unlockBtn = document.getElementById('btn-unlock-privacy-curtain');
 
-      function resetIdleTimer() {
+      function liftPrivacyCurtain() {
         lastActiveTimestamp = Date.now();
-        if (modal && modal.style.display === 'flex') {
-          modal.style.display = 'none';
+        isShieldActive = false;
+        if (curtain) {
+          curtain.style.display = 'none';
         }
+        // Silent ping keeps the Django session active with ZERO page reload
+        fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).catch(() => {});
       }
 
-      if (stayActiveBtn) {
-        stayActiveBtn.addEventListener('click', function () {
-          resetIdleTimer();
-          fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).catch(() => {});
-        });
+      if (unlockBtn) {
+        unlockBtn.addEventListener('click', liftPrivacyCurtain);
       }
 
+      // User interaction resets timer as long as the curtain is not already engaged
       ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((event) => {
-        window.addEventListener(event, resetIdleTimer, { passive: true });
+        window.addEventListener(event, () => {
+          if (!isShieldActive) {
+            lastActiveTimestamp = Date.now();
+          }
+        }, { passive: true });
       });
 
-      // Passive notification: Shows grace modal, but NEVER forces a sudden page reload
+      // Periodically checks idle state; engages curtain without reloading
       setInterval(function () {
-        const elapsed = Date.now() - lastActiveTimestamp;
-
-        if (elapsed >= WARNING_THRESHOLD && elapsed < TOTAL_IDLE_LIMIT) {
-          if (modal) modal.style.display = 'flex';
-          const remaining = Math.max(0, Math.ceil((TOTAL_IDLE_LIMIT - elapsed) / 1000));
-          if (countdownSec) countdownSec.textContent = remaining;
-        } else if (elapsed < WARNING_THRESHOLD) {
-          if (modal && modal.style.display === 'flex') {
-            modal.style.display = 'none';
+        if (!isShieldActive && (Date.now() - lastActiveTimestamp >= IDLE_BLUR_THRESHOLD)) {
+          isShieldActive = true;
+          if (curtain) {
+            curtain.style.display = 'flex';
           }
         }
-      }, 1000);
+      }, 2000);
     })();
   </script>
   {% endif %}
