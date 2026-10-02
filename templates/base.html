@@ -41,7 +41,7 @@
 <!-- PWA Manifest -->
 <link rel="manifest" href="{% static 'manifest.json' %}?v=2026.12">
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=5.0">
   
   <style>
     :root {
@@ -2525,6 +2525,41 @@
           link.classList.add('active');
         }
       });
+    })();
+  </script>
+
+  <!-- Universal Input Darkening & High-Contrast Caret Script -->
+  <script>
+    (function () {
+      function applyInputContrast() {
+        const textInputs = document.querySelectorAll(
+          'input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="hidden"]), select, textarea'
+        );
+
+        textInputs.forEach(function (el) {
+          // Applies sleek dark navy slate styling so white and black cursors are 100% visible
+          el.style.setProperty('background-color', '#162A45', 'important');
+          el.style.setProperty('color', '#FFFFFF', 'important');
+          el.style.setProperty('border', '1.5px solid #06B6D4', 'important');
+          el.style.setProperty('caret-color', '#38BDF8', 'important');
+
+          el.addEventListener('focus', function () {
+            this.style.setProperty('background-color', '#0F1E33', 'important');
+            this.style.setProperty('box-shadow', '0 0 0 3px rgba(6, 182, 212, 0.35)', 'important');
+          });
+
+          el.addEventListener('blur', function () {
+            this.style.setProperty('background-color', '#162A45', 'important');
+            this.style.removeProperty('box-shadow');
+          });
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyInputContrast);
+      } else {
+        applyInputContrast();
+      }
     })();
   </script>
 
