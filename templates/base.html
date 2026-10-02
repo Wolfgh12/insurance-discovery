@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0A192F">
+<meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>{% block title %}InheritanceBox | Digital Legacy My ibox{% endblock %}</title>
@@ -44,6 +45,7 @@
   
   <style>
     :root {
+      color-scheme: light;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -929,12 +931,30 @@
 </head>
 <body>
 
+  {% if not user.is_authenticated %}
+  <!-- Cold-Start Hero Reset Controller (Unauthenticated Guest Only) -->
+  <script>
+    (function () {
+      const isOngoingSession = sessionStorage.getItem('ibox_session_active');
+
+      if (!isOngoingSession) {
+        sessionStorage.setItem('ibox_session_active', 'true');
+        if (window.location.pathname !== '/' || window.location.hash) {
+          window.location.replace('/');
+        } else {
+          window.scrollTo(0, 0);
+        }
+      }
+    })();
+  </script>
+  {% endif %}
+
   <!-- Global Minimal Big-Logo My ibox Loader (Initial Load & Nav Transition) -->
   <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading my ibox">
     <div class="vault-loader-card" style="flex-direction: column;">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
-<div class="vault-loader-icon" id="vault-loader-icon">
+        <div class="vault-loader-icon" id="vault-loader-icon">
           <img src="{% static 'images/finale_logo.jpg' %}?v=9" alt="InheritanceBox Shield Logo">
         </div>
       </div>
@@ -1173,7 +1193,7 @@
           </div>
         </div>
 
-<!-- Column 2: Quick My ibox Navigation -->
+        <!-- Column 2: Quick My ibox Navigation -->
         <div>
           <div class="footer-heading">My ibox Navigation</div>
           <ul class="footer-links">
@@ -1188,7 +1208,7 @@
                 🔐 Claimant Private Dashboard
               </a>
             </li>
-<li class="pwa-install-element">
+            <li class="pwa-install-element">
               <a href="javascript:void(0)" onclick="triggerPwaInstall()" class="footer-link no-loader" style="color: #38BDF8; font-weight: 700;">
                 📲 Download App (PWA)
               </a>
@@ -1239,7 +1259,7 @@
   <!-- Core Scripts -->
   <script src="{% static 'js/app.js' %}?v=4.1"></script>
   
-  <!-- Nav & Action Route Transition Loader (Snappy & Responsive) -->
+  <!-- Nav & Action Route Transition Loader -->
   <script> 
     (function () {
       const loader = document.getElementById('vault-page-loader');
@@ -1257,7 +1277,6 @@
         loader.setAttribute('aria-hidden', 'true');
       }
 
-      // Keep loader visible for exactly 3 seconds (3000ms)
       function scheduleLoaderDismissal() {
         setTimeout(hideNavLoader, 3000);
       }
@@ -1496,7 +1515,7 @@
                   class="mobile-nav-link" 
                   style="color: #64748B; font-weight: 600;"
                 >
-                  ⚙️ Switch to Staff
+                  ⚙️️ Switch to Staff
                 </a>
               {% else %}
                 <button 
@@ -1834,9 +1853,9 @@
     });
   </script>
 
-  {{% if user.is_authenticated %}
+  {% if user.is_authenticated %}
   <!-- In-Place Zero-Reload Privacy Shield Curtain -->
-  <div id="privacy-curtain-shield" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.75); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); align-items: center; justify-content: center; padding: 1.25rem;">
+  <div id="privacy-curtain-shield" class="privacy-curtain-overlay">
     <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(6, 182, 212, 0.3);">
       
       <div style="width: 60px; height: 60px; background: rgba(6, 182, 212, 0.15); border: 2px solid #06B6D4; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.25);">
@@ -1972,7 +1991,6 @@
       const isPoisoningEnabled = {{ platform_config.security_dom_poisoning_enabled|yesno:"true,false" }};
       const poisonDensity = {{ platform_config.security_poison_density|default:30 }};
 
-      // Synthetic Forensic Honey-Pot & Simulated Kernel Memory Dump Generator
       function buildPoisonTree(densityCount) {
         const hexChars = "0123456789ABCDEF";
         const registers = ["RAX", "RBX", "RCX", "RDX", "RSI", "RDI", "RBP", "RSP", "RIP", "CR0", "CR3", "EFLAGS"];
@@ -2002,18 +2020,16 @@
         return dump;
       }
 
-      // Master Security Purge: Annihilates DOM, destroys comments, locks storage, and injects memory dump
       function triggerSecurityLockdown(reason) {
         if (isLockdownActive) return;
         isLockdownActive = true;
 
         try { window.stop(); } catch (e) {}
 
-        // Global Event Freeze: Drops all clicks, taps, context menus, and keys in the capture phase
         ['click', 'mousedown', 'mouseup', 'pointerdown', 'touchstart', 'touchend', 'keydown', 'contextmenu'].forEach(function (evt) {
           window.addEventListener(evt, function (e) {
             if (e.target && e.target.closest && e.target.closest('#btn-sovereign-exit')) {
-              return; // Allow exit link to work
+              return;
             }
             e.stopImmediatePropagation();
             e.preventDefault();
@@ -2021,14 +2037,12 @@
           }, true);
         });
 
-        // Client-side storage purge
         try {
           sessionStorage.clear();
           localStorage.clear();
         } catch (e) {}
 
-        // Terminate authenticated session immediately
-        const autoLogoutForm = document.getElementById('auto-inactivity-logout-form') || document.getElementById('session-conflict-logout-form');
+        const autoLogoutForm = document.getElementById('session-conflict-logout-form');
         if (autoLogoutForm) {
           try { autoLogoutForm.submit(); } catch (e) {}
         }
@@ -2038,7 +2052,6 @@
         const cardMarkup = shield ? shield.outerHTML : '';
         const poisonMarkup = isPoisoningEnabled ? buildPoisonTree(poisonDensity) : '';
 
-        // Vaporize every single comment, script, and HTML node in the document
         document.documentElement.innerHTML = `
           <head>
             <meta charset="UTF-8">
@@ -2062,13 +2075,11 @@
           activeShield.style.setProperty('pointer-events', 'all', 'important');
         }
 
-        // Freeze in permanent debugger lock once the card and poison tree are mounted
         setInterval(function () {
           (function () { return false; })['constructor']('debugger')();
         }, 50);
       }
 
-      // 1. DOCKED DEVTOOLS & GEOMETRY VERIFICATION (Hardened Against Windows Scaling & Sleep)
       let pageFullySettled = false;
       window.addEventListener('load', function () {
         setTimeout(function () {
@@ -2077,24 +2088,13 @@
       });
 
       function checkDevToolsGeometry() {
-        // Strict Idle & Background Bypass: Never evaluate when tab is inactive, hidden, or display is off
         if (isLockdownActive || !pageFullySettled || document.hidden || !document.hasFocus()) return;
-
-        // Ignore display sleep / screen lock collapsed dimensions
         if (window.outerWidth === 0 || window.innerWidth === 0 || window.outerHeight === 0 || window.innerHeight === 0) return;
-
-        const isDesktopOS = /Windows NT|Macintosh|Linux x86_64/i.test(navigator.userAgent);
-
-        // Window geometry delta disabled to prevent false triggers on Windows display scaling (125%/150%) or split-screen snapping
-        if (isDesktopOS) {
-          // Relies strictly on F12 key traps, debugger pauses, and context menu suppression
-        }
       }
 
       window.addEventListener('resize', checkDevToolsGeometry, { passive: true });
       setInterval(checkDevToolsGeometry, 1200);
 
-      // 2. PASSIVE DEBUGGER LATENCY TRAP (Sleep-Proof & Idle-Protected)
       let consecutiveDelayCount = 0;
       let lastExecutionTick = Date.now();
 
@@ -2103,14 +2103,11 @@
         const timeSinceLastTick = now - lastExecutionTick;
         lastExecutionTick = now;
 
-        // If the tick interval jumped past 2500ms, the system went to sleep, locked, or background-throttled.
-        // Immediately reset counters and abort check to prevent false positives.
         if (timeSinceLastTick > 2500) {
           consecutiveDelayCount = 0;
           return;
         }
 
-        // Suspend inspection check completely if user switched tabs, minimized, or lost focus
         if (isLockdownActive || !pageFullySettled || document.hidden || !document.hasFocus()) {
           consecutiveDelayCount = 0;
           return;
@@ -2120,7 +2117,6 @@
         (function () { return false; })['constructor']('debugger')();
         const delta = performance.now() - startTime;
 
-        // Requires two consecutive active debugger pauses while the tab is actively focused
         if (delta > 500) {
           consecutiveDelayCount++;
           if (consecutiveDelayCount >= 2) {
@@ -2133,7 +2129,6 @@
  
       setInterval(executeDebuggerTrap, 1200);
 
-      // 3. Blindfold console methods
       const _nativeLog = (window.console && window.console.log) ? window.console.log.bind(window.console) : function () {};
       const noop = function () {};
       const methods = ['debug', 'info', 'warn', 'error', 'table', 'trace', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count'];
@@ -2141,14 +2136,12 @@
         try { window.console[methods[i]] = noop; } catch (e) {}
       }
 
-      // 4. Suppress Context Menu
       document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }, { capture: true });
 
-      // 5. Intercept F12 & inspection shortcuts
       window.addEventListener('keydown', function (e) {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const metaOrCtrl = isMac ? e.metaKey : e.ctrlKey;
@@ -2189,7 +2182,6 @@
         }
       }, { capture: true });
 
-      // 6. Active Memory Object Probe
       const probeElement = new Image();
       Object.defineProperty(probeElement, 'id', {
         get: function () { triggerSecurityLockdown("Console Object Inspection"); }
@@ -2233,7 +2225,7 @@
         <div id="pwa-download-file" style="margin-top: 6px; font-size: 0.7rem; color: #94A3B8; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Initializing offline packages...</div>
       </div>
 
-      <!-- Trust & Verification Guidance Pill: Samsung, Tecno, Infinix & All Android Devices -->
+      <!-- Trust & Verification Guidance Pill -->
       <div id="pwa-guidance-pill" style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.45); border-radius: 14px; padding: 1rem; margin-bottom: 1.4rem; text-align: left;">
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #38BDF8; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;">
           <span>🛡️ Android, Samsung, Tecno &amp; Infinix Safety Notice</span>
@@ -2304,9 +2296,7 @@
     }
   </style>
 
-  <!-- ====================================================
-       PWA Native Installation Pipeline (Primer First & Trigger Handoff)
-  ==================================================== -->
+  <!-- PWA Native Installation Pipeline -->
   <script>
     (function () {
       let deferredInstallPrompt = null;
@@ -2327,7 +2317,6 @@
         });
       }
 
-      // 1. Reset installation states
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
       if (isStandalone) {
@@ -2337,7 +2326,6 @@
         showAllInstallButtons();
       }
 
-      // 2. Capture the install prompt token
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
@@ -2346,7 +2334,6 @@
         }
       });
 
-      // Voice prompt audio controller - strictly plays the generated West African female MP3
       const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=" + new Date().getTime());
       installVoiceAudio.preload = "auto";
 
@@ -2359,7 +2346,6 @@
         } catch (e) {}
       }
 
-      // 3. Pre-package assets and transition to ready state
       async function runPrePackagingAnimation() {
         const progressBar = document.getElementById('pwa-progress-bar');
         const percentText = document.getElementById('pwa-download-percent');
@@ -2367,15 +2353,13 @@
         const fileText = document.getElementById('pwa-download-file');
         const installBtn = document.getElementById('btn-execute-pwa-install');
 
-        // Removed colliding audio fetch so the active audio decoder stream is never aborted
         const packageItems = [
-          { label: "App Manifest", url: "{% static 'manifest.json' %}?v=2026.9" },
+          { label: "App Manifest", url: "{% static 'manifest.json' %}?v=2026.12" },
           { label: "Core Stylesheet", url: "{% static 'css/theme.css' %}" },
           { label: "Security Emblems", url: "{% static 'images/finale_logo.jpg' %}?v=9" },
           { label: "Offline Shell", url: "{% static 'images/hacker.png' %}" }
         ];
 
-        // Background caching
         try {
           if ('caches' in window) {
             caches.open('inheritancebox-runtime-v1').then(function (cache) {
@@ -2388,7 +2372,6 @@
           }
         } catch (err) {}  
 
-        // Reset elements
         if (progressBar) progressBar.style.width = '0%';
         if (percentText) percentText.textContent = '0%';
         if (statusText) statusText.textContent = 'CAPTURING PACKAGES...';
@@ -2400,7 +2383,6 @@
           installBtn.innerHTML = 'Packaging Offline ibox... ⏳';
         }
  
-        // Stepper loop
         for (let i = 0; i < packageItems.length; i++) {
           const percent = Math.round(((i + 1) / packageItems.length) * 100);
           if (progressBar) progressBar.style.width = percent + '%';
@@ -2409,7 +2391,6 @@
           await new Promise(function (resolve) { setTimeout(resolve, 220); });
         }
 
-        // Enable button for immediate native prompt trigger
         if (statusText) statusText.textContent = 'PACKAGES READY';
         if (fileText) fileText.textContent = 'Ready for device installation.';
         if (installBtn) {
@@ -2427,8 +2408,6 @@
         if (modal) {
           modal.style.display = 'flex';
           runPrePackagingAnimation();
-
-          // Play the localized female voice prompt
           playPwaInstallVoicePrompt();
         }
       };
@@ -2437,7 +2416,6 @@
         const modal = document.getElementById('pwa-install-success-modal');
         if (modal) modal.style.display = 'none';
 
-        // Immediately kill and rewind voice audio and silence speech synthesis
         try {
           if (installVoiceAudio) {
             installVoiceAudio.pause();
@@ -2463,7 +2441,6 @@
         window.openPwaSuccessModal();
       };
 
-      // 4. Direct prompt execution on user tap (no async timers)
       window.confirmAndExecuteInstall = function () {
         window.closePwaSuccessModal();
 
@@ -2496,9 +2473,7 @@
     })();
   </script>
 
-  <!-- ====================================================
-       PWA Standalone Window Containment & Link Trap Engine
-  ==================================================== -->
+  <!-- PWA Standalone Window Containment & Link Trap Engine -->
   <script>
     (function () {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
@@ -2508,7 +2483,6 @@
         document.documentElement.classList.add('pwa-standalone-active');
         if (document.body) document.body.classList.add('pwa-standalone-active');
 
-        // Trap all same-origin links so the OS never spawns a new browser tab
         document.addEventListener('click', function (e) {
           const anchor = e.target.closest('a');
           if (!anchor) return;
@@ -2516,10 +2490,8 @@
           const href = anchor.getAttribute('href');
           if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
 
-          // Check if link points to InheritanceBox internally
           const isInternal = (anchor.hostname === window.location.hostname) || href.startsWith('/');
           if (isInternal) {
-            // Strip target="_blank" so the OS does not hand off to external Chrome/Safari
             if (anchor.getAttribute('target') === '_blank') {
               anchor.removeAttribute('target');
             }
@@ -2531,9 +2503,8 @@
       }
     })();
   </script>
-  <!-- ====================================================
-       Dynamic Navigation Active State Sync Engine
-  ==================================================== -->
+
+  <!-- Dynamic Navigation Active State Sync Engine -->
   <script>
     (function () {
       const currentPath = window.location.pathname;

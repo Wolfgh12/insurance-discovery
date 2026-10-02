@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light;
+
   /* Oceanic & Cyan Color Palette */
   --primary-deep-navy: #0A192F;
   --secondary-sea-blue: #0284C7;
@@ -20,6 +22,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html,
+body {
+  color-scheme: light;
 }
 
 body {
@@ -47,36 +54,51 @@ textarea {
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   
-  /* Forces the browser to treat this field as a light control */
-  color-scheme: light;
+  /* Forces light rendering across Windows Dark Mode */
+  color-scheme: light !important;
   
   /* Locks the typing vertical bar strictly to solid black */
   caret-color: #000000 !important;
-  cursor: text;
+  cursor: text !important;
 }
 
 select {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 /* Hover and Focus States */
 input:hover,
-textarea:hover,
-select:hover {
+textarea:hover {
   background-color: #FFFFFF !important;
   color: var(--text-dark) !important;
   border-color: var(--secondary-sea-blue);
   caret-color: #000000 !important;
+  cursor: text !important;
+}
+
+select:hover {
+  background-color: #FFFFFF !important;
+  color: var(--text-dark) !important;
+  border-color: var(--secondary-sea-blue);
+  cursor: pointer !important;
 }
 
 input:focus,
-textarea:focus,
-select:focus {
+textarea:focus {
   background-color: #FFFFFF !important;
   color: var(--text-dark) !important;
   border-color: var(--accent-cyan) !important;
   box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
   caret-color: #000000 !important;
+  cursor: text !important;
+}
+
+select:focus {
+  background-color: #FFFFFF !important;
+  color: var(--text-dark) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
+  cursor: pointer !important;
 }
 
 /* Placeholder Styling */
