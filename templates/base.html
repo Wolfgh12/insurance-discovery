@@ -38,7 +38,7 @@
 <meta name="application-name" content="InheritanceBox">
 
 <!-- PWA Manifest -->
-<link rel="manifest" href="{% static 'manifest.json' %}?v=2026.11">
+<link rel="manifest" href="{% static 'manifest.json' %}?v=2026.12">
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   
@@ -1834,49 +1834,54 @@
     });
   </script>
 
-  {% if user.is_authenticated %}
-  <!-- Automated Inactivity Warning Modal (10 Min Window / 30s Grace) -->
-  <div id="session-timeout-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
-    <div style="background: #0B192C; border: 1.5px solid #F59E0B; border-radius: 24px; padding: 2.25rem 2rem; max-width: 420px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.25);">
-      <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.15); border: 2px solid #F59E0B; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem;">
-        ⏳
+  {{% if user.is_authenticated %}
+  <!-- In-Place Zero-Reload Privacy Shield Curtain -->
+  <div id="privacy-curtain-shield" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.75); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 2px solid #06B6D4; border-radius: 24px; padding: 2.25rem 2rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(6, 182, 212, 0.3);">
+      
+      <div style="width: 60px; height: 60px; background: rgba(6, 182, 212, 0.15); border: 2px solid #06B6D4; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.25);">
+        🛡️
       </div>
-      <div style="background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
-        My ibox Inactivity Warning
+
+      <div style="background: rgba(6, 182, 212, 0.18); color: #38BDF8; border: 1px solid #06B6D4; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.75rem;">
+        Confidential View Shielded
       </div>
-      <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px;">
-        Session Expiring Soon
+
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.3px;">
+        Estate Privacy Curtain Active
       </h3>
-      <p style="margin: 0 0 1.5rem; font-size: 0.86rem; color: #94A3B8; line-height: 1.55;">
-        To protect confidential estate assets and policy records, your active my ibox session will lock automatically in:
+
+      <p style="margin: 0 0 1.5rem; font-size: 0.85rem; color: #94A3B8; line-height: 1.55;">
+        You have been idle for over 20 minutes. Sensitive records on this screen have been frosted to protect your estate privacy.
       </p>
-      <div style="font-size: 2.2rem; font-weight: 900; color: #38BDF8; font-variant-numeric: tabular-nums; margin-bottom: 1.75rem;">
-        <span id="timeout-countdown-sec">30</span>s
-      </div>
+
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <button 
           type="button" 
-          id="btn-keep-session-active" 
-          style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; padding: 0.85rem; border-radius: 12px; font-size: 0.92rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35); font-family: inherit;"
+          id="btn-unlock-privacy-curtain" 
+          class="no-loader"
+          style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; border: none; padding: 0.9rem; border-radius: 12px; font-size: 0.92rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35); font-family: inherit;"
         >
-          Keep Working ⚡
+          Resume Session ⚡
         </button>
-        <form id="auto-inactivity-logout-form" method="POST" action="{% url 'vault:logout' %}?reason=inactivity" style="margin: 0; width: 100%;">
+
+        <form method="POST" action="{% url 'vault:logout' %}" style="margin: 0; width: 100%;">
           {% csrf_token %}
           <button 
             type="submit" 
-            style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; padding: 0.75rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;"
+            style="width: 100%; background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; padding: 0.75rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;"
           >
-            Log Out Now 🔒
+            Log Out Securely 🔒
           </button>
         </form>
       </div>
+
     </div>
   </div>
 
   <script>
     (function () {
-      // 20-minute idle threshold before applying privacy blur
+      // 20-minute idle threshold before applying privacy curtain
       const IDLE_BLUR_THRESHOLD = 20 * 60 * 1000;
       let lastActiveTimestamp = Date.now();
       let isShieldActive = false;
@@ -1890,7 +1895,7 @@
         if (curtain) {
           curtain.style.display = 'none';
         }
-        // Silent ping keeps the Django session active with ZERO page reload
+        // Background ping keeps Django backend session alive without page reload
         fetch(window.location.href, { method: 'HEAD', cache: 'no-store' }).catch(() => {});
       }
 
@@ -1898,7 +1903,7 @@
         unlockBtn.addEventListener('click', liftPrivacyCurtain);
       }
 
-      // User interaction resets timer as long as the curtain is not already engaged
+      // Any mouse move, keypress, or touch resets the timer while uncurtained
       ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach((event) => {
         window.addEventListener(event, () => {
           if (!isShieldActive) {
@@ -1907,7 +1912,7 @@
         }, { passive: true });
       });
 
-      // Periodically checks idle state; engages curtain without reloading
+      // Periodically checks idle status; engages overlay in-place without page reloads
       setInterval(function () {
         if (!isShieldActive && (Date.now() - lastActiveTimestamp >= IDLE_BLUR_THRESHOLD)) {
           isShieldActive = true;
