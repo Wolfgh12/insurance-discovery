@@ -91,16 +91,29 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = DATA_DIR / 'media'
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
-# 6. Hardened SQLite Database Engine
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATA_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 60,  # 60-second mutex lock ceiling for concurrent Gunicorn workers
-        },
+# 6. Enterprise Database Engine (Dynamic PostgreSQL with Local SQLite Fallback)
+if os.environ.get('DB_HOST') or os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': {
+            'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.environ.get('DB_NAME', 'inheritancebox'),
+            'USER': os.environ.get('DB_USER', 'ibox_admin'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', 600)),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': DATA_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 60,  # 60-second mutex lock ceiling for concurrent Gunicorn workers
+            },
+        }
+    }
 
 # 7. Reverse Proxy & HTTPS Redirection (Terminated by Traefik/Coolify)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
