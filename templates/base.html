@@ -38,8 +38,8 @@
 <meta name="apple-mobile-web-app-title" content="InheritanceBox">
 <meta name="application-name" content="InheritanceBox">
 
-<!-- PWA Manifest -->
-<link rel="manifest" href="{% static 'manifest.json' %}?v=2026.12">
+<!-- PWA Manifest (Never append ?v= query strings here or browsers create duplicate apps) -->
+<link rel="manifest" href="{% static 'manifest.json' %}">
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=5.0">
   
@@ -2296,10 +2296,11 @@
     }
   </style>
 
-  <!-- PWA Native Installation Pipeline -->
+  <!-- PWA Native Installation Pipeline (Duplicate-Proof) -->
   <script>
     (function () {
       let deferredInstallPrompt = null;
+      const INSTALL_STORAGE_KEY = 'ibox_pwa_installed_v1';
 
       function hideAllInstallButtons() {
         document.documentElement.classList.add('app-is-installed');
@@ -2318,31 +2319,67 @@
       }
 
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-      if (isStandalone) {
-        hideAllInstallButtons();
-      } else {
-        localStorage.removeItem('mysika_vault_installed');
+      async function syncInstallationState() {
+        // 1. Running inside the installed app window
+        if (isStandalone) {
+          localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
+          hideAllInstallButtons();
+          return true;
+        }
+
+        // 2. Ask Chromium browsers (Android/Windows/Mac) if the PWA is already installed on this device
+        if ('getInstalledRelatedApps' in navigator) {
+          try {
+            const relatedApps = await navigator.getInstalledRelatedApps();
+            if (relatedApps && relatedApps.length > 0) {
+              localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
+              hideAllInstallButtons();
+              return true;
+            } else {
+              // User uninstalled the app from their device -> allow reinstall
+              localStorage.removeItem(INSTALL_STORAGE_KEY);
+            }
+          } catch (e) {}
+        }
+
+        // 3. Fallback check for Safari/iOS or browsers without getInstalledRelatedApps
+        if (localStorage.getItem(INSTALL_STORAGE_KEY) === 'true') {
+          hideAllInstallButtons();
+          return true;
+        }
+
+        // 4. For non-iOS browsers, keep install buttons hidden until browser confirms app is installable
+        if (!isIOS && !deferredInstallPrompt) {
+          hideAllInstallButtons();
+          return false;
+        }
+
         showAllInstallButtons();
+        return false;
       }
 
+      // Run initial state check immediately
+      syncInstallationState();
+
+      // Browser fires this ONLY when the app is NOT currently installed
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
+        localStorage.removeItem(INSTALL_STORAGE_KEY);
         if (!isStandalone) {
           showAllInstallButtons();
         }
       });
 
-      const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=" + new Date().getTime());
+      const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=1");
       installVoiceAudio.preload = "auto";
 
       function playPwaInstallVoicePrompt() {
         try {
           installVoiceAudio.currentTime = 0;
-          installVoiceAudio.play().catch(function (err) {
-            console.log("Audio waiting for user gesture:", err);
-          });
+          installVoiceAudio.play().catch(function () {});
         } catch (e) {}
       }
 
@@ -2354,7 +2391,7 @@
         const installBtn = document.getElementById('btn-execute-pwa-install');
 
         const packageItems = [
-          { label: "App Manifest", url: "{% static 'manifest.json' %}?v=2026.12" },
+          { label: "App Manifest", url: "{% static 'manifest.json' %}" },
           { label: "Core Stylesheet", url: "{% static 'css/theme.css' %}" },
           { label: "Security Emblems", url: "{% static 'images/finale_logo.jpg' %}?v=9" },
           { label: "Offline Shell", url: "{% static 'images/hacker.png' %}" }
@@ -2370,7 +2407,7 @@
               });
             }).catch(function () {});
           }
-        } catch (err) {}  
+        } catch (err) {}
 
         if (progressBar) progressBar.style.width = '0%';
         if (percentText) percentText.textContent = '0%';
@@ -2382,7 +2419,7 @@
           installBtn.style.background = 'rgba(255, 255, 255, 0.1)';
           installBtn.innerHTML = 'Packaging Offline ibox... ⏳';
         }
- 
+
         for (let i = 0; i < packageItems.length; i++) {
           const percent = Math.round(((i + 1) / packageItems.length) * 100);
           if (progressBar) progressBar.style.width = percent + '%';
@@ -2425,7 +2462,7 @@
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
         }
-      };   
+      };
 
       window.openIosInstallTooltip = function () {
         const tooltip = document.getElementById('ios-install-tooltip');
@@ -2437,129 +2474,44 @@
         if (tooltip) tooltip.style.display = 'none';
       };
 
-      window.triggerPwaInstall = function () {
+      window.triggerPwaInstall = async function () {
+        const alreadyInstalled = await syncInstallationState();
+        if (alreadyInstalled) {
+          alert("InheritanceBox is already installed on this device. Open it directly from your Home Screen or Apps menu.");
+          return;
+        }
         window.openPwaSuccessModal();
       };
 
       window.confirmAndExecuteInstall = function () {
         window.closePwaSuccessModal();
 
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
         if (deferredInstallPrompt) {
           deferredInstallPrompt.prompt();
           deferredInstallPrompt.userChoice.then(function (choiceResult) {
             if (choiceResult.outcome === 'accepted') {
+              localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
+              hideAllInstallButtons();
               deferredInstallPrompt = null;
             }
           }).catch(function () {
             deferredInstallPrompt = null;
           });
         } else if (isIOS) {
+          localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
           window.openIosInstallTooltip();
-        } else if (isMobileDevice) {
-          alert("To add the app to your home screen: tap your mobile browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
         } else {
-          alert("To add the app to your desktop: click the Install icon (⊕) on the right side of the address bar or select 'Install InheritanceBox' in the browser menu (⋮).");
-        } 
+          alert("InheritanceBox is already installed or your browser does not support direct installation. Check your Home Screen or Apps list.");
+          hideAllInstallButtons();
+        }
       };
 
       window.addEventListener('appinstalled', function () {
+        localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
         hideAllInstallButtons();
         window.closeIosInstallTooltip();
         deferredInstallPrompt = null;
       });
-    })();
-  </script>
-
-  <!-- PWA Standalone Window Containment & Link Trap Engine -->
-  <script>
-    (function () {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                           window.navigator.standalone === true;
-
-      if (isStandalone) {
-        document.documentElement.classList.add('pwa-standalone-active');
-        if (document.body) document.body.classList.add('pwa-standalone-active');
-
-        document.addEventListener('click', function (e) {
-          const anchor = e.target.closest('a');
-          if (!anchor) return;
-
-          const href = anchor.getAttribute('href');
-          if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-
-          const isInternal = (anchor.hostname === window.location.hostname) || href.startsWith('/');
-          if (isInternal) {
-            if (anchor.getAttribute('target') === '_blank') {
-              anchor.removeAttribute('target');
-            }
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = href;
-          }
-        }, true);
-      }
-    })();
-  </script>
-
-  <!-- Dynamic Navigation Active State Sync Engine -->
-  <script>
-    (function () {
-      const currentPath = window.location.pathname;
-      const currentHash = window.location.hash;
-
-      document.querySelectorAll('.nav-link-item, .mobile-nav-link').forEach(function (link) {
-        const href = link.getAttribute('href');
-        if (!href) return;
-
-        if (href === currentPath || (href.length > 1 && currentPath.startsWith(href) && href !== '/')) {
-          link.classList.add('active');
-        } else if (currentPath === '/' && href === '/') {
-          if (!currentHash) link.classList.add('active');
-        }
-
-        if (currentHash === '#faq' && href.includes('#faq')) {
-          document.querySelectorAll('.nav-link-item, .mobile-nav-link').forEach(l => l.classList.remove('active'));
-          link.classList.add('active');
-        }
-      });
-    })();
-  </script>
-
-  <!-- Universal Input Darkening & High-Contrast Caret Script -->
-  <script>
-    (function () {
-      function applyInputContrast() {
-        const textInputs = document.querySelectorAll(
-          'input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="hidden"]), select, textarea'
-        );
-
-        textInputs.forEach(function (el) {
-          // Applies sleek dark navy slate styling so white and black cursors are 100% visible
-          el.style.setProperty('background-color', '#162A45', 'important');
-          el.style.setProperty('color', '#FFFFFF', 'important');
-          el.style.setProperty('border', '1.5px solid #06B6D4', 'important');
-          el.style.setProperty('caret-color', '#38BDF8', 'important');
-
-          el.addEventListener('focus', function () {
-            this.style.setProperty('background-color', '#0F1E33', 'important');
-            this.style.setProperty('box-shadow', '0 0 0 3px rgba(6, 182, 212, 0.35)', 'important');
-          });
-
-          el.addEventListener('blur', function () {
-            this.style.setProperty('background-color', '#162A45', 'important');
-            this.style.removeProperty('box-shadow');
-          });
-        });
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', applyInputContrast);
-      } else {
-        applyInputContrast();
-      }
     })();
   </script>
 

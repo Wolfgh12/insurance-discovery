@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inheritancebox-v2026.12';
+const CACHE_NAME = 'inheritancebox-v2026.13';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
@@ -102,16 +102,33 @@ self.addEventListener('fetch', (event) => {
             headers: new Headers({ 'Content-Type': 'text/html' })
           }
         );
-      }) 
+      })
     );
     return;
   }
 
-  // 2. Static Resources (Instant Cache Match ignoring version query strings like ?v=8)
+  // 2. Manifest Always Network-First (Prevents stale PWA identity & duplicate installs)
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.endsWith('manifest.json')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/static/manifest.json', responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('/static/manifest.json', { ignoreSearch: true }))
+    );
+    return;
+  }
+
+  // 3. Static Resources (Instant Cache Match ignoring version query strings)
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
-      return fetch(event.request).catch(() => {});
+      return fetch(event.request).catch(() => Response.error());
     })
   );
 });

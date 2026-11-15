@@ -1,5 +1,5 @@
 ﻿{
-  "id": "/",
+  "id": "https://inheritancebox.com/",
   "name": "InheritanceBox | Digital Legacy ibox",
   "short_name": "InheritanceBox",
   "description": "Secure and preserve your lifetime assets, verified insurance policies, investments, and certified estate records in one sovereign encrypted ibox.",
@@ -13,6 +13,14 @@
   "launch_handler": {
     "client_mode": "focus-existing"
   },
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://inheritancebox.com/static/manifest.json",
+      "id": "https://inheritancebox.com/"
+    }
+  ],
   "icons": [
     {
       "src": "/static/images/icon-192.png",
