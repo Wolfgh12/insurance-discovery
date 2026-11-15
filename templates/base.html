@@ -939,7 +939,8 @@
     (function () {
       const isOngoingSession = sessionStorage.getItem('ibox_session_active');
 
-      if (!isOngoingSession) {
+      const isInternalNav = document.referrer && document.referrer.startsWith(window.location.origin);
+      if (!isOngoingSession && !isInternalNav) {
         sessionStorage.setItem('ibox_session_active', 'true');
         if (window.location.pathname !== '/' || window.location.hash) {
           window.location.replace('/');

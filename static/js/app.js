@@ -1,7 +1,5 @@
-// Register Service Worker with Lifecycle & Scope Controls (Zero Mid-Load Reloads)
+// Register Service Worker Silently (Never Force-Reload Active Tabs)
 if ('serviceWorker' in navigator) {
-  const hadController = Boolean(navigator.serviceWorker.controller);
-
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
@@ -11,15 +9,6 @@ if ('serviceWorker' in navigator) {
       .catch((err) => {
         console.error('Service Worker registration failed:', err);
       });
-  });
-
-  // Reload ONLY when upgrading an existing controller, never on initial visit
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (hadController && !refreshing) {
-      refreshing = true;
-      window.location.reload();
-    }
   });
 }
 

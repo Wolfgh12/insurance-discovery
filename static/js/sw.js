@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inheritancebox-v2026.15';
+const CACHE_NAME = 'inheritancebox-v2026.16';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
