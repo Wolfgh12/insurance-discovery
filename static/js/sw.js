@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inheritancebox-v2026.13';
+const CACHE_NAME = 'inheritancebox-v2026.14';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
@@ -38,7 +38,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (!event.request.url.startsWith('http')) return;
 
-  // 1. Navigation Requests (Page Changes & Deep Links pass straight to Django)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => {
@@ -96,18 +95,13 @@ self.addEventListener('fetch', (event) => {
             </div>
           </body>
           </html>`,
-          {
-            status: 200,
-            statusText: 'OK',
-            headers: new Headers({ 'Content-Type': 'text/html' })
-          }
+          { status: 200, statusText: 'OK', headers: new Headers({ 'Content-Type': 'text/html' }) }
         );
       })
     );
     return;
   }
 
-  // 2. Manifest Always Network-First (Prevents stale PWA identity & duplicate installs)
   const requestUrl = new URL(event.request.url);
   if (requestUrl.pathname.endsWith('manifest.json')) {
     event.respondWith(
@@ -124,7 +118,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Static Resources (Instant Cache Match ignoring version query strings)
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
