@@ -1,10 +1,12 @@
-const CACHE_NAME = 'inheritancebox-v2026.14';
+const CACHE_NAME = 'inheritancebox-v2026.15';
 const ASSETS_TO_CACHE = [
   '/static/css/theme.css',
   '/static/js/app.js',
   '/static/manifest.json',
   '/static/images/icon-192.png',
-  '/static/images/icon-512.png'
+  '/static/images/icon-512.png',
+  '/static/images/finale_logo.jpg',
+  '/static/images/hacker.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -32,12 +34,12 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  if (!event.request.url.startsWith('http')) return;
+  if (!event.request.url.startsWith('http') || event.request.method !== 'GET') return;
 
+  // 1. Navigation Requests pass straight to Django with instant offline fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => {
@@ -102,6 +104,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 2. Manifest Always Network-First (Prevents duplicate PWA installs)
   const requestUrl = new URL(event.request.url);
   if (requestUrl.pathname.endsWith('manifest.json')) {
     event.respondWith(
@@ -118,10 +121,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 3. Static Assets & Images: Instant Cache Hit + Runtime Auto-Caching
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
-      return fetch(event.request).catch(() => Response.error());
+
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (
+            networkResponse &&
+            (networkResponse.ok || networkResponse.type === 'opaque') &&
+            (event.request.destination === 'image' ||
+              requestUrl.pathname.startsWith('/static/'))
+          ) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => Response.error());
     })
   );
 });

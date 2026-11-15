@@ -40,6 +40,8 @@
 
 <!-- PWA Manifest (Never append ?v= query strings here or browsers create duplicate apps) -->
 <link rel="manifest" href="{% static 'manifest.json' %}">
+<link rel="preload" as="image" href="{% static 'images/finale_logo.jpg' %}?v=9">
+<link rel="preload" as="image" href="{% static 'images/hacker.png' %}?v=1">
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=5.0">
   
@@ -950,7 +952,7 @@
   {% endif %}
 
   <!-- Global Minimal Big-Logo My ibox Loader (Initial Load & Nav Transition) -->
-  <div id="vault-page-loader" class="vault-loader-overlay active" aria-hidden="false" role="status" aria-label="Loading my ibox">
+  <div id="vault-page-loader" class="vault-loader-overlay" aria-hidden="true" role="status" aria-label="Loading my ibox">
     <div class="vault-loader-card" style="flex-direction: column;">
       <div class="vault-loader-spinner-box">
         <div class="vault-loader-ring"></div>
@@ -1278,7 +1280,7 @@
       }
 
       function scheduleLoaderDismissal() {
-        setTimeout(hideNavLoader, 3000);
+        hideNavLoader();
       }
 
       if (document.readyState === 'loading') {

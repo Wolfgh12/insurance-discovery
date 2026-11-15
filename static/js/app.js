@@ -1,35 +1,22 @@
-// Register Service Worker with Lifecycle & Scope Controls
+// Register Service Worker with Lifecycle & Scope Controls (Zero Mid-Load Reloads)
 if ('serviceWorker' in navigator) {
+  const hadController = Boolean(navigator.serviceWorker.controller);
+
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
       .then((registration) => {
-        console.log('PWA Service Worker active with scope:', registration.scope);
-
-        // Check for worker updates on navigation
         registration.update().catch(() => {});
-
-        // Handle incoming worker updates without page freeze
-        registration.addEventListener('updatefound', () => {
-          const installingWorker = registration.installing;
-          if (installingWorker) {
-            installingWorker.addEventListener('statechange', () => {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New service worker available; cache updated.');
-              }
-            });
-          }
-        });
       })
       .catch((err) => {
         console.error('Service Worker registration failed:', err);
       });
   });
 
-  // Automatically refresh when a new Service Worker takes control
+  // Reload ONLY when upgrading an existing controller, never on initial visit
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
+    if (hadController && !refreshing) {
       refreshing = true;
       window.location.reload();
     }
@@ -38,7 +25,6 @@ if ('serviceWorker' in navigator) {
 
 // Intercept Network Switches & Auto-Recover Dropped Connections
 window.addEventListener('online', () => {
-  // If user got stuck on the fallback/offline page when network switched, reload immediately
   if (
     document.title.includes('Reconnecting') ||
     document.body.innerText.includes('Network Reconnecting') ||
@@ -58,4 +44,4 @@ window.addEventListener('unhandledrejection', (event) => {
   ) {
     event.preventDefault();
   }
-}); 
+});

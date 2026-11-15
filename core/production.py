@@ -76,6 +76,7 @@ STORAGES = {
     },
 }
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+WHITENOISE_MAX_AGE = 31536000  # 1-year browser cache for static images, CSS & JS
 
 # 5. Persistent Storage Resolution (Database & Media Files)
 DEFAULT_DATA_DIR = Path('/app/data') if Path('/app').exists() else (BASE_DIR / 'data')
