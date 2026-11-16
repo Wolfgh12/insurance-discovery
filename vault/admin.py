@@ -625,6 +625,7 @@ class ClaimSecurityAuditLogAdmin(admin.ModelAdmin):
 class PlatformConfigurationAdmin(admin.ModelAdmin):
     list_display = (
         "config_summary",
+        "ui_text_scale",
         "anti_inspect_badge",
         "dom_poison_badge",
         "required_questions_display",
@@ -633,17 +634,19 @@ class PlatformConfigurationAdmin(admin.ModelAdmin):
         "active_modules_display",
         "updated_at",
     )
+    list_editable = ("ui_text_scale",)
     list_display_links = ("config_summary",)
     fieldsets = (
         (
             "🛡️ Developer Security & Anti-Inspection Shield",
             {
                 "fields": (
+                    "ui_text_scale",
                     "security_anti_inspect_enabled",
                     "security_dom_poisoning_enabled",
                     "security_poison_density",
                 ),
-                "description": "Master Developer Controls: Toggle client-side inspection lockout, or engage hardcore DOM memory-poisoning.",
+                "description": "Master Developer Controls: Adjust global site text size, toggle client-side inspection lockout, or engage hardcore DOM memory-poisoning.",
             },
         ),
         (

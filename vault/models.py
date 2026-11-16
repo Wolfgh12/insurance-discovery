@@ -1046,6 +1046,21 @@ class PlatformConfiguration(models.Model):
         help_text="Unchecking locks this module as 'Coming Soon' across home and dashboard."
     )
 
+    TEXT_SCALE_CHOICES = (
+        ('100%', 'Standard (100% - Original)'),
+        ('104%', 'Subtle Boost (104%)'),
+        ('106%', 'Comfortable (106% - Recommended)'),
+        ('110%', 'Medium-Large (110%)'),
+        ('114%', 'Large (114%)'),
+    )
+    ui_text_scale = models.CharField(
+        max_length=10,
+        choices=TEXT_SCALE_CHOICES,
+        default='106%',
+        verbose_name="Site-Wide Text Size",
+        help_text="Adjusts typography scale across all public and dashboard pages."
+    )
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
