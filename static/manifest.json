@@ -23,6 +23,11 @@
       "platform": "webapp",
       "url": "https://inheritancebox.com/static/manifest.json",
       "id": "https://inheritancebox.com/"
+    },
+    {
+      "platform": "webapp",
+      "url": "https://inheritancebox.com/static/manifest.json",
+      "id": "/"
     }
   ],
   "icons": [

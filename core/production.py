@@ -48,6 +48,8 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000            # Hash collision DoS mitigation
 
 # 3. Middleware Configuration (Inject WhiteNoise for Static File Serving)
 MIDDLEWARE = list(MIDDLEWARE)
+if 'vault.canonical_middleware.CanonicalDomainMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(0, 'vault.canonical_middleware.CanonicalDomainMiddleware')
 if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
     try:
         sec_index = MIDDLEWARE.index('django.middleware.security.SecurityMiddleware')

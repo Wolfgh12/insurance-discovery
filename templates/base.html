@@ -801,14 +801,15 @@
       transform: translateY(-2px);
     }
 
-    /* Auto-hide all installation buttons & banners when running inside installed app */
+    /* Fail-closed: hide PWA buttons until device install state is verified */
+    html:not(.pwa-ready) .pwa-install-element,
+    .app-is-standalone .pwa-install-element {
+      display: none !important;
+    }
     @media (display-mode: standalone) {
       .pwa-install-element {
         display: none !important;
       }
-    }
-    .app-is-installed .pwa-install-element {
-      display: none !important;
     }
 
     /* ----------------------------------------------------
@@ -2299,82 +2300,169 @@
     }
   </style>
 
-  <!-- PWA Native Installation Pipeline (Duplicate-Proof) -->
+  <!-- Already Installed Confirmation & Launch Modal -->
+  <div id="pwa-already-installed-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; background: rgba(10, 25, 47, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #0B192C; border: 2px solid #10B981; border-radius: 24px; padding: 2.25rem 1.75rem; max-width: 440px; width: 100%; color: #ffffff; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(16, 185, 129, 0.3);">
+      <div style="width: 64px; height: 64px; margin: 0 auto 1.1rem; border-radius: 18px; overflow: hidden; border: 2px solid #10B981; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);">
+        <img src="{% static 'images/icon-192.png' %}" alt="iBox App Icon" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      </div>
+      <div style="background: rgba(16, 185, 129, 0.18); color: #34D399; border: 1px solid #10B981; font-size: 0.72rem; font-weight: 900; padding: 4px 12px; border-radius: 6px; display: inline-block; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.65rem;">
+        ✅ Installed on This Device
+      </div>
+      <h3 style="margin: 0 0 0.5rem; font-size: 1.3rem; font-weight: 900; letter-spacing: -0.3px;">
+        iBox Is Already Installed
+      </h3>
+      <p id="pwa-already-installed-msg" style="margin: 0 0 1.4rem; font-size: 0.86rem; color: #CBD5E1; line-height: 1.6;">
+        InheritanceBox (<strong>iBox</strong>) is already installed on your device—no duplicate download is needed. Tap below to open your installed app.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a
+          id="btn-launch-installed-ibox"
+          href="https://inheritancebox.com/"
+          target="_blank"
+          rel="noopener"
+          onclick="closeAlreadyInstalledModal()"
+          style="width: 100%; background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #ffffff; text-decoration: none; padding: 0.9rem; border-radius: 12px; font-size: 0.94rem; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);"
+        >
+          Open iBox App ➔
+        </a>
+        <button
+          type="button"
+          onclick="closeAlreadyInstalledModal()"
+          style="width: 100%; background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; padding: 0.75rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit;"
+        >
+          Stay in Browser ✕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PWA 3-State Installation & Already-Installed Controller -->
   <script>
     (function () {
       let deferredInstallPrompt = null;
-      const INSTALL_STORAGE_KEY = 'ibox_pwa_installed_v1';
-
-      function hideAllInstallButtons() {
-        document.documentElement.classList.add('app-is-installed');
-        if (document.body) document.body.classList.add('app-is-installed');
-        document.querySelectorAll('.pwa-install-element').forEach(function (el) {
-          el.style.setProperty('display', 'none', 'important');
-        });
-      }
-
-      function showAllInstallButtons() {
-        document.documentElement.classList.remove('app-is-installed');
-        if (document.body) document.body.classList.remove('app-is-installed');
-        document.querySelectorAll('.pwa-install-element').forEach(function (el) {
-          el.style.removeProperty('display');
-        });
-      }
-
+      const INSTALL_STORAGE_KEY = 'ibox_pwa_installed_v2';
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+      function setInstallFlag() {
+        const domainAttr = window.location.hostname.endsWith('inheritancebox.com') ? '; domain=.inheritancebox.com' : '';
+        document.cookie = `${INSTALL_STORAGE_KEY}=true; path=/; max-age=31536000; SameSite=Lax${domainAttr}`;
+        try { localStorage.setItem(INSTALL_STORAGE_KEY, 'true'); } catch (e) {}
+      }
+
+      function clearInstallFlag() {
+        const domainAttr = window.location.hostname.endsWith('inheritancebox.com') ? '; domain=.inheritancebox.com' : '';
+        document.cookie = `${INSTALL_STORAGE_KEY}=; path=/; max-age=0; SameSite=Lax${domainAttr}`;
+        try { localStorage.removeItem(INSTALL_STORAGE_KEY); } catch (e) {}
+      }
+
+      function hasSavedInstallFlag() {
+        try {
+          if (localStorage.getItem(INSTALL_STORAGE_KEY) === 'true') return true;
+        } catch (e) {}
+        return document.cookie.split(';').some(function (c) {
+          return c.trim().startsWith(INSTALL_STORAGE_KEY + '=true');
+        });
+      }
+
+      function hideAllInstallButtons() {
+        document.documentElement.classList.remove('pwa-ready');
+        document.documentElement.classList.add('app-is-standalone');
+        if (document.body) document.body.classList.add('app-is-standalone');
+      }
+
+      function renderDownloadState() {
+        document.documentElement.classList.remove('app-is-standalone', 'pwa-already-installed');
+        document.documentElement.classList.add('pwa-ready');
+      }
+
+      function renderAlreadyInstalledState() {
+        document.documentElement.classList.remove('app-is-standalone');
+        document.documentElement.classList.add('pwa-ready', 'pwa-already-installed');
+        const labelText = isIOS ? '✅ Installed on Home Screen' : '✅ Already Installed • Open iBox';
+
+        document.querySelectorAll('.pwa-install-element').forEach(function (el) {
+          const actionTarget = (el.tagName === 'BUTTON' || el.tagName === 'A')
+            ? el
+            : el.querySelector('button, a');
+          if (actionTarget) {
+            actionTarget.textContent = labelText;
+            actionTarget.style.borderColor = '#10B981';
+            actionTarget.style.color = '#34D399';
+          }
+          const bannerTitle = el.querySelector('.pwa-chip-title');
+          if (bannerTitle) {
+            bannerTitle.textContent = 'iBox Is Installed on Your Device';
+          }
+        });
+      }
+
       async function syncInstallationState() {
-        // 1. Running inside the installed app window
+        // State 1: Currently inside the opened standalone iBox app
         if (isStandalone) {
-          localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
+          setInstallFlag();
           hideAllInstallButtons();
-          return true;
+          return 'standalone';
         }
 
-        // 2. Ask Chromium browsers (Android/Windows/Mac) if the PWA is already installed on this device
+        // State 2: Check device-level installed apps via Chromium API
         if ('getInstalledRelatedApps' in navigator) {
           try {
             const relatedApps = await navigator.getInstalledRelatedApps();
             if (relatedApps && relatedApps.length > 0) {
-              localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
-              hideAllInstallButtons();
-              return true;
-            } else {
-              // User uninstalled the app from their device -> allow reinstall
-              localStorage.removeItem(INSTALL_STORAGE_KEY);
+              setInstallFlag();
+              renderAlreadyInstalledState();
+              return 'installed';
             }
           } catch (e) {}
         }
 
-        // 3. Fallback check for Safari/iOS or browsers without getInstalledRelatedApps
-        if (localStorage.getItem(INSTALL_STORAGE_KEY) === 'true') {
-          hideAllInstallButtons();
-          return true;
+        // State 3: Check cross-path cookie / storage if browser hasn't offered a fresh install prompt
+        if (hasSavedInstallFlag() && !deferredInstallPrompt) {
+          renderAlreadyInstalledState();
+          return 'installed';
         }
 
-        // 4. For non-iOS browsers, keep install buttons hidden until browser confirms app is installable
-        if (!isIOS && !deferredInstallPrompt) {
-          hideAllInstallButtons();
-          return false;
+        // State 4: Not installed -> show Download App if browser supports install (or iOS Safari)
+        if (deferredInstallPrompt || isIOS) {
+          renderDownloadState();
+          return 'installable';
         }
 
-        showAllInstallButtons();
-        return false;
+        hideAllInstallButtons();
+        return 'unsupported';
       }
 
-      // Run initial state check immediately
       syncInstallationState();
 
-      // Browser fires this ONLY when the app is NOT currently installed
+      // Browser fires this ONLY when iBox is NOT installed (or was uninstalled by user)
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredInstallPrompt = e;
-        localStorage.removeItem(INSTALL_STORAGE_KEY);
+        clearInstallFlag();
         if (!isStandalone) {
-          showAllInstallButtons();
+          renderDownloadState();
         }
       });
+
+      window.openAlreadyInstalledModal = function () {
+        const modal = document.getElementById('pwa-already-installed-modal');
+        const msg = document.getElementById('pwa-already-installed-msg');
+        const launchBtn = document.getElementById('btn-launch-installed-ibox');
+        if (isIOS) {
+          if (msg) {
+            msg.innerHTML = 'InheritanceBox (<strong>iBox</strong>) is already added to your iPhone Home Screen. Tap the <strong>iBox</strong> shield icon on your Home Screen to open it.';
+          }
+          if (launchBtn) launchBtn.style.display = 'none';
+        }
+        if (modal) modal.style.display = 'flex';
+      };
+
+      window.closeAlreadyInstalledModal = function () {
+        const modal = document.getElementById('pwa-already-installed-modal');
+        if (modal) modal.style.display = 'none';
+      };
 
       const installVoiceAudio = new Audio("{% static 'audio/install_prompt.mp3' %}?v=1");
       installVoiceAudio.preload = "auto";
@@ -2455,7 +2543,6 @@
       window.closePwaSuccessModal = function () {
         const modal = document.getElementById('pwa-install-success-modal');
         if (modal) modal.style.display = 'none';
-
         try {
           if (installVoiceAudio) {
             installVoiceAudio.pause();
@@ -2478,9 +2565,9 @@
       };
 
       window.triggerPwaInstall = async function () {
-        const alreadyInstalled = await syncInstallationState();
-        if (alreadyInstalled) {
-          alert("InheritanceBox is already installed on this device. Open it directly from your Home Screen or Apps menu.");
+        const state = await syncInstallationState();
+        if (state === 'installed' || state === 'standalone') {
+          window.openAlreadyInstalledModal();
           return;
         }
         window.openPwaSuccessModal();
@@ -2493,25 +2580,27 @@
           deferredInstallPrompt.prompt();
           deferredInstallPrompt.userChoice.then(function (choiceResult) {
             if (choiceResult.outcome === 'accepted') {
-              localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
-              hideAllInstallButtons();
+              setInstallFlag();
+              renderAlreadyInstalledState();
               deferredInstallPrompt = null;
             }
           }).catch(function () {
             deferredInstallPrompt = null;
           });
         } else if (isIOS) {
-          localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
+          setInstallFlag();
+          renderAlreadyInstalledState();
           window.openIosInstallTooltip();
         } else {
-          alert("InheritanceBox is already installed or your browser does not support direct installation. Check your Home Screen or Apps list.");
-          hideAllInstallButtons();
+          setInstallFlag();
+          renderAlreadyInstalledState();
+          window.openAlreadyInstalledModal();
         }
       };
 
       window.addEventListener('appinstalled', function () {
-        localStorage.setItem(INSTALL_STORAGE_KEY, 'true');
-        hideAllInstallButtons();
+        setInstallFlag();
+        renderAlreadyInstalledState();
         window.closeIosInstallTooltip();
         deferredInstallPrompt = null;
       });
